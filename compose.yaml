@@ -28,7 +28,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    command: ["bin/bnetserver", "-c", "/opt/legion/config/bnetserver.conf"]
+    working_dir: /opt/legion/server/bin
+    command: ["./bnetserver", "-c", "/opt/legion/config/bnetserver.conf"]
     ports:
       - "1119:1119"
     volumes:
@@ -45,7 +46,8 @@ services:
         condition: service_healthy
       bnetserver:
         condition: service_started
-    command: ["bin/worldserver", "-c", "/opt/legion/config/worldserver.conf"]
+    working_dir: /opt/legion/server/bin
+    command: ["./worldserver", "-c", "/opt/legion/config/worldserver.conf"]
     ports:
       - "8085:8085"
     stdin_open: true

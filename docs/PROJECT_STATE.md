@@ -36,5 +36,25 @@
 - WSL version: 2
 - Docker Engine: 29.6.0
 - Docker Compose: 5.1.4
-- Native WSL compiler and CMake packages are not currently installed; the
-  preferred approach is a pinned build container.
+- The core builds in a pinned Ubuntu 18.04 container to retain Boost 1.65 and
+  other legacy ABI dependencies.
+
+## Verified milestones
+
+- The pinned public V2 source builds Linux `worldserver` and `bnetserver`
+  binaries successfully.
+- MySQL 5.7 initializes all four source-matched databases successfully.
+- `bnetserver` connects to MySQL, registers realm ID 1, and listens on TCP
+  1119.
+- `worldserver` connects to all four databases and reaches DB2 loading.
+
+## Current compatibility boundary
+
+The public core exits during DB2 validation when using the SPP/Praevius
+build-26365 `Data/dbc` tree. This is a data-layout mismatch, not a WSL,
+container, or database connectivity failure. The public source's database/data
+lineage is 26124-era, while the extracted SPP V2 runtime is a different,
+closed Praevius build configured for 26365.
+
+Worldserver is intentionally left stopped until a DB2 set matching the public
+core is obtained or the public core is ported to the 26365 layouts.

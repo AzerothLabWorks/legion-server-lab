@@ -39,6 +39,10 @@ CREATE DATABASE IF NOT EXISTS legion_auth CHARACTER SET utf8mb4 COLLATE utf8mb4_
 CREATE DATABASE IF NOT EXISTS legion_characters CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS legion_hotfixes CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS legion_world CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+GRANT ALL PRIVILEGES ON legion_auth.* TO 'legion'@'%';
+GRANT ALL PRIVILEGES ON legion_characters.* TO 'legion'@'%';
+GRANT ALL PRIVILEGES ON legion_hotfixes.* TO 'legion'@'%';
+GRANT ALL PRIVILEGES ON legion_world.* TO 'legion'@'%';
 SQL
 
 for database in auth characters hotfixes world; do
@@ -48,6 +52,17 @@ for database in auth characters hotfixes world; do
     cat "$sql_file" >> "$temp_file"
     mv "$temp_file" "$sql_file"
 done
+
+required_world_update="$source_root/sql/updates/world/2023_04_02_quest_autocomplete.sql"
+{
+    printf 'USE `legion_world`;\n'
+    cat "$required_world_update"
+} > "$runtime_root/database-init/50-required-world-schema.sql"
+
+{
+    printf 'USE `legion_hotfixes`;\n'
+    cat "$source_root/sql/updates/hotfix/0001_fix_garrison_mission_db_structure.sql"
+} > "$runtime_root/database-init/60-required-hotfix-schema.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \
@@ -60,6 +75,16 @@ sed \
     -e "s#^HotfixDatabaseInfo.*#HotfixDatabaseInfo = \"mysql;3306;legion;$db_password;legion_hotfixes\"#" \
     -e 's#^DataDir.*#DataDir = "/opt/legion/data"#' \
     -e 's#^LogsDir.*#LogsDir = "/opt/legion/logs"#' \
-    "$install_root/etc/worldserver.conf.dist" > "$runtime_root/config/worldserver.conf"
+    "$install_root/etc/worldserver.conf.dist" > "$runtime_root/config/worldserver.conf.tmp"
+
+# The archived upstream template repeats these two update-system keys. Its
+# config parser rejects duplicates, so retain only their first occurrence.
+awk '
+    /^SourceDirectory[[:space:]]*=/ { if (seen_source++) next }
+    /^MySQLExecutable[[:space:]]*=/ { if (seen_mysql++) next }
+    /^[[:space:]]+PlayedTimeReward\.Money[[:space:]]*$/ { next }
+    { print }
+' "$runtime_root/config/worldserver.conf.tmp" > "$runtime_root/config/worldserver.conf"
+rm "$runtime_root/config/worldserver.conf.tmp"
 
 echo "Prepared configuration and database bootstrap files under $runtime_root"
