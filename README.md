@@ -44,3 +44,5 @@ Build details are in [docs/SOURCE_BASELINE.md](docs/SOURCE_BASELINE.md), and
 the isolated Compose runtime workflow is in [docs/RUNTIME.md](docs/RUNTIME.md).
 The staged Playerbots plan is in
 [docs/PLAYERBOTS_ROADMAP.md](docs/PLAYERBOTS_ROADMAP.md).
+The companion-triggered loot prototype and its test checklist are in
+[docs/COMPANION_AUTO_LOOT.md](docs/COMPANION_AUTO_LOOT.md).

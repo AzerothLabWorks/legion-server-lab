@@ -79,6 +79,7 @@ sed \
     -e 's#^Game.Build.Version.*#Game.Build.Version = 26365#' \
     -e 's#^AuctionHouseBot.Seller.Enabled.*#AuctionHouseBot.Seller.Enabled = 0#' \
     -e 's#^AuctionHouseBot.Buyer.Enabled.*#AuctionHouseBot.Buyer.Enabled = 0#' \
+    -e 's#^CompanionAutoLoot.Enable.*#CompanionAutoLoot.Enable = 1#' \
     "$install_root/etc/worldserver.conf.dist" > "$runtime_root/config/worldserver.conf.tmp"
 
 # The archived upstream template repeats these two update-system keys. Its

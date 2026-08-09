@@ -1,0 +1,60 @@
+diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
+index de495db..bfa3a11 100644
+--- a/src/server/game/Entities/Player/Player.cpp
++++ b/src/server/game/Entities/Player/Player.cpp
+@@ -1529,7 +1529,7 @@ void Player::Update(uint32 p_time)
+     {
+         if (ptr_Interval <= p_time)
+         {
+-            ChatHandler(GetSession()).PSendSysMessage("[PlayedTimeReward] :: Вы получили вознаграждение за пребывание в сети.");
++            ChatHandler(GetSession()).PSendSysMessage("[PlayedTimeReward] You received a reward for time spent online.");
+             ModifyMoney(ptr_Money);
+             AddItem(ptr_Item, 1, 0);
+             ptr_Interval = sConfigMgr->GetIntDefault("PlayedTimeReward.Interval", 0);
+diff --git a/src/server/scripts/ScriptLoader.cpp b/src/server/scripts/ScriptLoader.cpp
+index 9be8796..19b961c 100644
+--- a/src/server/scripts/ScriptLoader.cpp
++++ b/src/server/scripts/ScriptLoader.cpp
+@@ -51,6 +51,7 @@ void AddSC_darkmoon();
+ void AddSC_event_tarecgosa();
+ void Addsc_dalaran_invasion();
+ void AddSC_solocraft();
++void AddSC_companion_autoloot();
+ 
+ 
+ // spells
+@@ -1914,6 +1915,7 @@ void AddBattlePayScripts()
+ 
+ void AddCustomScripts()
+ {
++    AddSC_companion_autoloot();
+ #ifdef SCRIPTS
+     AddSC_event_april();
+     AddSC_Loskutik();
+diff --git a/src/server/worldserver/worldserver.conf.dist b/src/server/worldserver/worldserver.conf.dist
+index 56c8519..96677d0 100644
+--- a/src/server/worldserver/worldserver.conf.dist
++++ b/src/server/worldserver/worldserver.conf.dist
+@@ -4243,6 +4243,22 @@ PlayedTimeReward.Interval = 300000
+ PlayedTimeReward.Money    = 1
+ PlayedTimeReward.Item     = 505056
+ #
++####################################################################################################
++
++####################################################################################################
++# COMPANION AUTO-LOOT
++#
++# Automatically loots one nearby eligible creature corpse per interval while
++# the player has an active non-combat companion. Group roll/master-loot rules
++# remain enforced by the normal loot handlers. Chests, skinning, pickpocketing,
++# gathering nodes, and item-created loot are excluded.
++
++CompanionAutoLoot.Enable = 0
++CompanionAutoLoot.Radius = 30
++CompanionAutoLoot.IntervalMs = 1500
++CompanionAutoLoot.OutOfCombatOnly = 1
++CompanionAutoLoot.RequireNonCombatCompanion = 1
++
+ ####################################################################################################
+ ###################################################################################################
+ # SERVER LOGGING

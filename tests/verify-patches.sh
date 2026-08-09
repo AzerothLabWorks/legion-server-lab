@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source_repo="${LEGION_SOURCE_DIR:-$HOME/legion-server-sources/LegionCore-7.3.5V2}"
+expected_commit="6c41d0faa23474bf9e76a4811b144d43e9545bab"
+verify_dir="$(mktemp -d /tmp/legion-patch-verify.XXXXXX)"
+
+cleanup() {
+    case "$verify_dir" in
+        /tmp/legion-patch-verify.*) rm -rf -- "$verify_dir" ;;
+        *) echo "Refusing to remove unexpected verification path: $verify_dir" >&2 ;;
+    esac
+}
+trap cleanup EXIT
+
+git clone -q --shared "$source_repo" "$verify_dir/source"
+git -C "$verify_dir/source" reset -q --hard "$expected_commit"
+
+for patch_file in "$repo_root"/patches/*.patch; do
+    git -C "$verify_dir/source" apply "$patch_file"
+done
+
+install -m 0644 "$repo_root/overlays/companion_autoloot.cpp" \
+    "$verify_dir/source/src/server/scripts/Custom/companion_autoloot.cpp"
+
+git -C "$verify_dir/source" diff --check
+grep -q 'AddSC_companion_autoloot' "$verify_dir/source/src/server/scripts/ScriptLoader.cpp"
+grep -q 'PlayedTimeReward] You received' "$verify_dir/source/src/server/game/Entities/Player/Player.cpp"
+
+echo "fresh patch verification passed"

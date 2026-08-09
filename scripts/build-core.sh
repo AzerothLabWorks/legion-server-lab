@@ -32,6 +32,9 @@ for patch_file in "$repo_root"/patches/*.patch; do
     fi
 done
 
+install -m 0644 "$repo_root/overlays/companion_autoloot.cpp" \
+    "$SOURCE_DIR/src/server/scripts/Custom/companion_autoloot.cpp"
+
 docker build -t "$IMAGE" "$repo_root/docker/build"
 
 docker run --rm \
