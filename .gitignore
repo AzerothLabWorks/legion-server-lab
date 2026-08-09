@@ -1,0 +1,64 @@
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+secrets/
+
+# Build output
+build/
+bin/
+lib/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+
+# Runtime state
+runtime/
+logs/
+backups/
+*.log
+*.pid
+
+# Databases and extracted server data
+database/
+databases/
+data/
+dbc/
+db2/
+maps/
+vmaps/
+mmaps/
+cameras/
+gt/
+*.sql
+*.sql.gz
+*.dump
+
+# WoW clients, repacks, archives, and executables
+client/
+clients/
+repack/
+repacks/
+downloads/
+*.7z
+*.rar
+*.zip
+*.tar
+*.tar.gz
+*.crdownload
+*.exe
+*.dll
+*.pdb
+
+# IDE and OS files
+.idea/
+.vscode/
+.vs/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# OneDrive temporary files
+~$*
+*.tmp
+
