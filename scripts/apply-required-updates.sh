@@ -11,6 +11,14 @@ cd "$repo_root"
 docker compose exec -T mysql mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_auth \
     -e "UPDATE realmlist SET address='127.0.0.1', localAddress='127.0.0.1', port=8085, gamebuild=26365, Region=1, Battlegroup=1 WHERE id=1;"
 
+docker compose exec -T mysql mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_world \
+    -e "INSERT INTO autobroadcast (id, text) VALUES
+        (1, 'Welcome to the Nordrassil local Legion test server.'),
+        (2, 'This is a private development realm. Gameplay issues may be caused by incomplete server scripts.'),
+        (3, 'Use the GM account only for local testing and troubleshooting.'),
+        (4, 'Remember to report reproducible server issues with the character, zone, quest, and steps involved.')
+        ON DUPLICATE KEY UPDATE text=VALUES(text);"
+
 for schema_update in \
     "legion_auth:auth/2023_03_04_version.sql" \
     "legion_characters:characters/2023_03_04_version.sql"; do
