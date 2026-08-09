@@ -46,15 +46,20 @@
 - MySQL 5.7 initializes all four source-matched databases successfully.
 - `bnetserver` connects to MySQL, registers realm ID 1, and listens on TCP
   1119.
-- `worldserver` connects to all four databases and reaches DB2 loading.
+- `worldserver` connects to all four databases.
+- The extracted SPP/Praevius build-26365 data initializes all 297 required DB2
+  stores, 2,288 hotfix records, and 31 game tables with the pinned Linux core.
+- The DB2 verification was run as an unbound, temporary Compose container; the
+  persistent `worldserver` service remains stopped.
 
-## Current compatibility boundary
+## Compatibility finding
 
-The public core exits during DB2 validation when using the SPP/Praevius
-build-26365 `Data/dbc` tree. This is a data-layout mismatch, not a WSL,
-container, or database connectivity failure. The public source's database/data
-lineage is 26124-era, while the extracted SPP V2 runtime is a different,
-closed Praevius build configured for 26365.
+The extracted SPP/Praevius build-26365 `Data/dbc` tree is compatible with the
+public core at the DB2 loader boundary. The earlier termination during DB2
+loading was caused by missing `version` tables in the imported `legion_auth`
+and `legion_characters` schemas. Database updater threads terminated the
+process while DB2 workers were active, which initially resembled a DB2 crash.
 
-Worldserver is intentionally left stopped until a DB2 set matching the public
-core is obtained or the public core is ported to the 26365 layouts.
+`scripts/apply-required-updates.sh` now installs those required version tables
+idempotently. DB2 compatibility does not by itself prove client protocol or
+full gameplay compatibility; those remain runtime/client test boundaries.

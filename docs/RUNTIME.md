@@ -46,9 +46,17 @@ The initial boot is intentionally based on the database bundled with the
 pinned public source. Do not replace it with the SPP/Praevius databases until
 their schemas have been compared.
 
-The current SPP/Praevius 26365 data mount reaches DB2 loading but does not pass
-the public core's DB2 compatibility checks. Keep `worldserver` stopped until a
-matching data set is available. MySQL and `bnetserver` can run independently.
+Run the required idempotent schema updates before the first worldserver boot:
+
+```bash
+bash scripts/apply-required-updates.sh
+```
+
+The current SPP/Praevius 26365 data mount passes the public core's DB2 loading
+boundary: 297 DB2 stores, 2,288 hotfix records, and 31 game tables initialize.
+This does not yet prove client login or gameplay compatibility. MySQL and
+`bnetserver` can run independently while `worldserver` remains stopped for
+WoTLK port isolation.
 
 ## Game data
 

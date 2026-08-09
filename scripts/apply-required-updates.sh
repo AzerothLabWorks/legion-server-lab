@@ -8,6 +8,20 @@ source "$repo_root/.env"
 set +a
 
 cd "$repo_root"
+for schema_update in \
+    "legion_auth:auth/2023_03_04_version.sql" \
+    "legion_characters:characters/2023_03_04_version.sql"; do
+    schema="${schema_update%%:*}"
+    update_file="${schema_update#*:}"
+    version_ready="$(docker compose exec -T mysql mysql -N -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+        -e "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA='$schema' AND TABLE_NAME='version';")"
+    if [[ "$version_ready" == "0" ]]; then
+        docker compose exec -T mysql \
+            mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" "$schema" \
+            < "$source_root/sql/updates/$update_file"
+    fi
+done
+
 world_ready="$(docker compose exec -T mysql mysql -N -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
     -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='legion_world' AND TABLE_NAME='quest_objectives' AND COLUMN_NAME='Bugged';")"
 if [[ "$world_ready" == "0" ]]; then
