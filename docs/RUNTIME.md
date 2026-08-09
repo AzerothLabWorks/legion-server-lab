@@ -3,7 +3,7 @@
 The runtime uses three Compose services:
 
 - MySQL 5.7, matching the version recorded in the source database dumps
-- `bnetserver` on TCP 1119
+- `bnetserver` on TCP 1119, with its REST-login endpoint on local TCP 8081
 - `worldserver` on TCP 8085
 
 All persistent state remains under `~/legion-server-runtime` in WSL. The Git
