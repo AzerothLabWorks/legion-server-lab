@@ -13,9 +13,9 @@ CMakeCache.txt
 CMakeFiles/
 
 # Runtime state
-runtime/
-logs/
-backups/
+/runtime/
+/logs/
+/backups/
 *.log
 *.pid
 
