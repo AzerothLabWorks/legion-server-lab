@@ -1,0 +1,20 @@
+diff --git a/src/server/game/Tools/WordFilterMgr.h b/src/server/game/Tools/WordFilterMgr.h
+index 5e18465..de2f4bc 100644
+--- a/src/server/game/Tools/WordFilterMgr.h
++++ b/src/server/game/Tools/WordFilterMgr.h
+@@ -16,6 +16,15 @@
+ #ifndef TRINITYCORE_WORDFILTERMGR_H
+ #define TRINITYCORE_WORDFILTERMGR_H
+ 
++#include "Common.h"
++#include "ObjectGuid.h"
++#include <functional>
++#include <map>
++#include <set>
++#include <string>
++#include <unordered_map>
++#include <vector>
++
+ // #include <locale>
+ // #include <codecvt>
+ 

@@ -5,9 +5,9 @@
 secrets/
 
 # Build output
-build/
-bin/
-lib/
+/build/
+/bin/
+/lib/
 cmake-build-*/
 CMakeCache.txt
 CMakeFiles/
@@ -61,4 +61,3 @@ Desktop.ini
 # OneDrive temporary files
 ~$*
 *.tmp
-

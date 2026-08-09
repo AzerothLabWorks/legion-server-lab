@@ -1,0 +1,18 @@
+diff --git a/src/common/Utilities/HashFuctor.h b/src/common/Utilities/HashFuctor.h
+index bb83772..d8d6f8c 100644
+--- a/src/common/Utilities/HashFuctor.h
++++ b/src/common/Utilities/HashFuctor.h
+@@ -6,12 +6,12 @@
+ #define TRINITY_HAS_FUCTOR_H
+ 
+ #include "Define.h"
++#include "ObjectGuid.h"
+ 
+ #include <cds/container/feldman_hashmap_hp.h>
+ #include <cds/container/feldman_hashset_hp.h>
+ #include <cds/container/iterable_list_hp.h>
+ 
+-class ObjectGuid;
+ class WorldObject;
+ class Item;
+ class Transport;

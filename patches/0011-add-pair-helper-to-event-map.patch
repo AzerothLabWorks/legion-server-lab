@@ -1,0 +1,11 @@
+diff --git a/src/server/game/AI/EventMap.cpp b/src/server/game/AI/EventMap.cpp
+index 6a3412c..049286c 100644
+--- a/src/server/game/AI/EventMap.cpp
++++ b/src/server/game/AI/EventMap.cpp
+@@ -17,5 +17,6 @@
+  */
+ 
+ #include "EventMap.h"
++#include "ObjectDefines.h"
+ 
+ EventMap::EventMap() : _time(0), _phase(0) { }

@@ -9,7 +9,7 @@ addon, and module repositories.
 - Expansion: Legion 7.3.5
 - Candidate client build: 26365
 - Runtime: Ubuntu on WSL2 using Docker Compose
-- Status: core and repack provenance investigation
+- Status: pinned Linux core builds successfully; runtime/database wiring next
 
 The downloaded SPP archive contains a mixture of Windows repacks. Its bundled
 executables and services are not treated as trusted build inputs. The intended
@@ -33,10 +33,9 @@ The planned WSL layout is:
 
 ## Next steps
 
-1. Inventory the extracted SPP archive without executing its programs.
-2. Determine the exact core, protocol build, database lineage, and data format.
-3. Select and pin an auditable source revision compatible with the client.
-4. Add reproducible Linux build and Docker Compose definitions.
+1. Inventory the extracted SPP archive without executing its programs. (Done)
+2. Determine the exact core, protocol build, database lineage, and data format. (Candidate documented)
+3. Compile the pinned public V2 source candidate under Linux. (Done)
+4. Add reproducible Docker Compose runtime definitions.
 5. Import databases and game data into ignored runtime storage.
-6. verify authentication, realm selection, character creation, and world login.
-
+6. Verify authentication, realm selection, character creation, and world login.

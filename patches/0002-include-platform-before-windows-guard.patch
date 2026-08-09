@@ -1,0 +1,12 @@
+diff --git a/src/common/Logging/AppenderConsole.cpp b/src/common/Logging/AppenderConsole.cpp
+index a30a58d..6c662fb 100644
+--- a/src/common/Logging/AppenderConsole.cpp
++++ b/src/common/Logging/AppenderConsole.cpp
+@@ -16,6 +16,7 @@
+  */
+ 
+ #include <sstream>
++#include "Define.h"
+ #if PLATFORM == PLATFORM_WINDOWS
+ #include <windows.h>
+ #endif

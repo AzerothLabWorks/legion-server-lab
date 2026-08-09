@@ -1,0 +1,13 @@
+diff --git a/src/server/game/Entities/Object/ObjectGuid.h b/src/server/game/Entities/Object/ObjectGuid.h
+index 969d93e..90f9892 100644
+--- a/src/server/game/Entities/Object/ObjectGuid.h
++++ b/src/server/game/Entities/Object/ObjectGuid.h
+@@ -21,6 +21,7 @@
+ #include "ByteBuffer.h"
+ #include "ObjectDefines.h"
+ #include <deque>
+ #include <list>
++#include <map>
+ #include <set>
+ #include <unordered_set>
+ #include <vector>

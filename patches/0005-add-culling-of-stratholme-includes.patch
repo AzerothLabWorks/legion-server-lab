@@ -1,0 +1,31 @@
+diff --git a/src/server/scripts/Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.h b/src/server/scripts/Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.h
+index 0e174e4..5f82e28 100644
+--- a/src/server/scripts/Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.h
++++ b/src/server/scripts/Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.h
+@@ -1,6 +1,13 @@
+ #ifndef DEF_CULLING_OF_STRATHOLME_H
+ #define DEF_CULLING_OF_STRATHOLME_H
+ 
++#include <map>
++#include "ObjectGuid.h"
++
++class WorldObject;
++
++#include "Position.h"
++
+ enum Data
+ {
+     DATA_MEATHOOK_EVENT,
+diff --git a/src/server/scripts/Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.cpp b/src/server/scripts/Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.cpp
+index 33d65ea..7ee13b5 100644
+--- a/src/server/scripts/Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.cpp
++++ b/src/server/scripts/Kalimdor/CavernsOfTime/CullingOfStratholme/culling_of_stratholme.cpp
+@@ -17,6 +17,8 @@
+ 
+ #include "culling_of_stratholme.h"
++#include "PassiveAI.h"
+ #include "ScriptedEscortAI.h"
++#include "ScriptedGossip.h"
+ 
+ enum Says
+ {

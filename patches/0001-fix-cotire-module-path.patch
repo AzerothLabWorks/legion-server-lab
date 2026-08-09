@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index b7fcf81..433c742 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -43,7 +43,7 @@ list(APPEND CMAKE_MODULE_PATH
+ 
+ if (CMAKE_VERSION VERSION_LESS "3.16.0")
+   list(APPEND CMAKE_MODULE_PATH
+-          "${CMAKE_SOURCE_DIR}/dep/cotire/CMake")
++          "${CMAKE_SOURCE_DIR}/dep/cotire")
+ endif()
+ 
+ # build in Release-mode by default if not explicitly set
