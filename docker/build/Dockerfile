@@ -15,6 +15,7 @@ RUN apt-get update \
         libreadline-dev \
         libssl-dev \
         ninja-build \
+        p7zip-full \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 

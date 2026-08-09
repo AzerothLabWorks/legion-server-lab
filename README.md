@@ -39,3 +39,6 @@ The planned WSL layout is:
 4. Add reproducible Docker Compose runtime definitions.
 5. Import databases and game data into ignored runtime storage.
 6. Verify authentication, realm selection, character creation, and world login.
+
+Build details are in [docs/SOURCE_BASELINE.md](docs/SOURCE_BASELINE.md), and
+the isolated Compose runtime workflow is in [docs/RUNTIME.md](docs/RUNTIME.md).
