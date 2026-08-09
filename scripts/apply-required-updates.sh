@@ -9,7 +9,7 @@ set +a
 
 cd "$repo_root"
 docker compose exec -T mysql mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_auth \
-    -e "UPDATE realmlist SET address='127.0.0.1', localAddress='127.0.0.1', port=8085, gamebuild=26365 WHERE id=1;"
+    -e "UPDATE realmlist SET address='127.0.0.1', localAddress='127.0.0.1', port=8085, gamebuild=26365, Region=1, Battlegroup=1 WHERE id=1;"
 
 for schema_update in \
     "legion_auth:auth/2023_03_04_version.sql" \
