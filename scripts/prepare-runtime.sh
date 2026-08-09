@@ -66,6 +66,7 @@ required_world_update="$source_root/sql/updates/world/2023_04_02_quest_autocompl
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \
+    -e 's#^Game.Build.Version.*#Game.Build.Version = 26365#' \
     "$install_root/etc/bnetserver.conf.dist" > "$runtime_root/config/bnetserver.conf"
 
 sed \
@@ -75,6 +76,7 @@ sed \
     -e "s#^HotfixDatabaseInfo.*#HotfixDatabaseInfo = \"mysql;3306;legion;$db_password;legion_hotfixes\"#" \
     -e 's#^DataDir.*#DataDir = "/opt/legion/data"#' \
     -e 's#^LogsDir.*#LogsDir = "/opt/legion/logs"#' \
+    -e 's#^Game.Build.Version.*#Game.Build.Version = 26365#' \
     -e 's#^AuctionHouseBot.Seller.Enabled.*#AuctionHouseBot.Seller.Enabled = 0#' \
     -e 's#^AuctionHouseBot.Buyer.Enabled.*#AuctionHouseBot.Buyer.Enabled = 0#' \
     "$install_root/etc/worldserver.conf.dist" > "$runtime_root/config/worldserver.conf.tmp"
