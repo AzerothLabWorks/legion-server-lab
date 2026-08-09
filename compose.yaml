@@ -51,6 +51,7 @@ services:
     command: ["./worldserver", "-c", "/opt/legion/config/worldserver.conf"]
     ports:
       - "8085:8085"
+      - "8086:8086"
     stdin_open: true
     tty: true
     volumes:
