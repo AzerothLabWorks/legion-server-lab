@@ -75,6 +75,8 @@ sed \
     -e "s#^HotfixDatabaseInfo.*#HotfixDatabaseInfo = \"mysql;3306;legion;$db_password;legion_hotfixes\"#" \
     -e 's#^DataDir.*#DataDir = "/opt/legion/data"#' \
     -e 's#^LogsDir.*#LogsDir = "/opt/legion/logs"#' \
+    -e 's#^AuctionHouseBot.Seller.Enabled.*#AuctionHouseBot.Seller.Enabled = 0#' \
+    -e 's#^AuctionHouseBot.Buyer.Enabled.*#AuctionHouseBot.Buyer.Enabled = 0#' \
     "$install_root/etc/worldserver.conf.dist" > "$runtime_root/config/worldserver.conf.tmp"
 
 # The archived upstream template repeats these two update-system keys. Its

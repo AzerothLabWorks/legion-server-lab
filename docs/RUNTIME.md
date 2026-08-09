@@ -58,6 +58,11 @@ This does not yet prove client login or gameplay compatibility. MySQL and
 `bnetserver` can run independently while `worldserver` remains stopped for
 WoTLK port isolation.
 
+The initial test configuration disables the optional archived auction-house
+seller and buyer. With those disabled, `worldserver` completes initialization
+and listens on TCP 8085. Realm 1 is pinned to client build 26365 by
+`scripts/apply-required-updates.sh`.
+
 ## Game data
 
 `worldserver` expects client-derived data at the path configured by

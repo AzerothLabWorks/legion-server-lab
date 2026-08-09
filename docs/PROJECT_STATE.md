@@ -49,8 +49,9 @@
 - `worldserver` connects to all four databases.
 - The extracted SPP/Praevius build-26365 data initializes all 297 required DB2
   stores, 2,288 hotfix records, and 31 game tables with the pinned Linux core.
-- The DB2 verification was run as an unbound, temporary Compose container; the
-  persistent `worldserver` service remains stopped.
+- The persistent `worldserver` completes startup and listens on TCP 8085.
+- Realm 1 advertises client build 26365 and is registered by `bnetserver` at
+  `127.0.0.1:8085`.
 
 ## Compatibility finding
 
@@ -61,5 +62,6 @@ and `legion_characters` schemas. Database updater threads terminated the
 process while DB2 workers were active, which initially resembled a DB2 crash.
 
 `scripts/apply-required-updates.sh` now installs those required version tables
-idempotently. DB2 compatibility does not by itself prove client protocol or
-full gameplay compatibility; those remain runtime/client test boundaries.
+and the source-required world script columns idempotently. The archived
+auction-house bot is disabled for the initial Linux test baseline because it
+crashes during startup; it is not required for login or gameplay testing.

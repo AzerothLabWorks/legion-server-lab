@@ -8,6 +8,9 @@ source "$repo_root/.env"
 set +a
 
 cd "$repo_root"
+docker compose exec -T mysql mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_auth \
+    -e "UPDATE realmlist SET address='127.0.0.1', localAddress='127.0.0.1', port=8085, gamebuild=26365 WHERE id=1;"
+
 for schema_update in \
     "legion_auth:auth/2023_03_04_version.sql" \
     "legion_characters:characters/2023_03_04_version.sql"; do
@@ -21,6 +24,22 @@ for schema_update in \
             < "$source_root/sql/updates/$update_file"
     fi
 done
+
+world_script_columns_ready="$(docker compose exec -T mysql mysql -N -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='legion_world' AND TABLE_NAME IN ('creature','gameobject') AND COLUMN_NAME='ScriptName';")"
+if [[ "$world_script_columns_ready" != "2" ]]; then
+    docker compose exec -T mysql \
+        mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_world \
+        < "$source_root/sql/updates/world/2022_08_04_00_world.sql"
+fi
+
+quest_script_column_ready="$(docker compose exec -T mysql mysql -N -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='legion_world' AND TABLE_NAME='quest_template_addon' AND COLUMN_NAME='ScriptName';")"
+if [[ "$quest_script_column_ready" == "0" ]]; then
+    docker compose exec -T mysql \
+        mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_world \
+        < "$source_root/sql/updates/world/2022_08_04_01_world.sql"
+fi
 
 world_ready="$(docker compose exec -T mysql mysql -N -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
     -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA='legion_world' AND TABLE_NAME='quest_objectives' AND COLUMN_NAME='Bugged';")"
