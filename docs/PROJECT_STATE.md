@@ -24,6 +24,11 @@
   `7B5F777833D7817BD811F00868D878D251409AB21B62C4B14633548C327F3214`
 - Observed contents include multiple SPP, DekkCore, and LegionCore Windows
   repack trees. Compatibility and provenance have not yet been established.
+- Extraction location:
+  `C:\Games\WoW-7.3.5-Legion\[7.3.5] SPP V2 Legion Core`
+- Primary candidate: `SPP V2 Year 5 Update 3 Repack`, labeled PraeviusCore V2
+  and configured for client build 26365.
+- Detailed findings: `docs/REPACK_INVENTORY.md`
 
 ## Environment
 
@@ -33,4 +38,3 @@
 - Docker Compose: 5.1.4
 - Native WSL compiler and CMake packages are not currently installed; the
   preferred approach is a pinned build container.
-
