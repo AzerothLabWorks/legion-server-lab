@@ -23,9 +23,13 @@ done
 
 install -m 0644 "$repo_root/overlays/companion_autoloot.cpp" \
     "$verify_dir/source/src/server/scripts/Custom/companion_autoloot.cpp"
+install -m 0644 "$repo_root/overlays/startup_qol.cpp" \
+    "$verify_dir/source/src/server/scripts/Custom/startup_qol.cpp"
 
 git -C "$verify_dir/source" diff --check
 grep -q 'AddSC_companion_autoloot' "$verify_dir/source/src/server/scripts/ScriptLoader.cpp"
+grep -q 'AddSC_startup_qol' "$verify_dir/source/src/server/scripts/ScriptLoader.cpp"
+grep -q 'StartupQoL.Enable = 0' "$verify_dir/source/src/server/worldserver/worldserver.conf.dist"
 grep -q 'PlayedTimeReward] You received' "$verify_dir/source/src/server/game/Entities/Player/Player.cpp"
 
 echo "fresh patch verification passed"

@@ -26,7 +26,13 @@ mkdir -p "$BUILD_DIR" "$INSTALL_DIR"
 for patch_file in "$repo_root"/patches/*.patch; do
     if git -C "$SOURCE_DIR" apply --check "$patch_file" 2>/dev/null; then
         git -C "$SOURCE_DIR" apply "$patch_file"
-    elif ! git -C "$SOURCE_DIR" apply --reverse --check "$patch_file" 2>/dev/null; then
+    elif git -C "$SOURCE_DIR" apply --reverse --check "$patch_file" 2>/dev/null; then
+        : # Already applied exactly.
+    elif [[ "$(basename "$patch_file")" == "0012-add-companion-autoloot.patch" ]] \
+        && grep -q 'AddSC_companion_autoloot' "$SOURCE_DIR/src/server/scripts/ScriptLoader.cpp" \
+        && grep -q 'CompanionAutoLoot.Enable = 0' "$SOURCE_DIR/src/server/worldserver/worldserver.conf.dist"; then
+        : # Applied, then intentionally overlapped by the later startup-QoL patch.
+    else
         echo "Patch cannot be applied cleanly: $patch_file" >&2
         exit 1
     fi
@@ -34,6 +40,8 @@ done
 
 install -m 0644 "$repo_root/overlays/companion_autoloot.cpp" \
     "$SOURCE_DIR/src/server/scripts/Custom/companion_autoloot.cpp"
+install -m 0644 "$repo_root/overlays/startup_qol.cpp" \
+    "$SOURCE_DIR/src/server/scripts/Custom/startup_qol.cpp"
 
 docker build -t "$IMAGE" "$repo_root/docker/build"
 

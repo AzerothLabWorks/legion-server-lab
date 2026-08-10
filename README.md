@@ -47,6 +47,8 @@ The staged Playerbots plan is in
 [docs/PLAYERBOTS_ROADMAP.md](docs/PLAYERBOTS_ROADMAP.md).
 The companion-triggered loot prototype and its test checklist are in
 [docs/COMPANION_AUTO_LOOT.md](docs/COMPANION_AUTO_LOOT.md).
+The level-1 starter rewards and compatibility notes are in
+[docs/STARTUP_QOL.md](docs/STARTUP_QOL.md).
 
 ## Community installation
 
