@@ -1,6 +1,6 @@
 # Level-1 Startup QoL
 
-The Legion Lab world server grants an idempotent starter package whenever an eligible level-1 character logs in.
+The Legion Lab world server grants an idempotent starter package whenever a character at level 1 or higher logs in.
 
 ## Rewards
 
@@ -12,7 +12,7 @@ The Legion Lab world server grants an idempotent starter package whenever an eli
 - Four Hexweave Bags (30 slots each), delivered to the backpack for manual equipping
 - Magma Rageling added directly to the account battle-pet journal
 
-Existing level-1 characters receive any missing rewards on their next login. Repeated logins do not duplicate spells or the companion, do not reduce a higher gold balance, and only top the Hexweave Bag count up to four.
+Existing characters at any level receive missing rewards on their next login. Repeated logins do not duplicate spells or the companion, do not reduce a higher gold balance, and only top the Hexweave Bag count up to four.
 
 ## Version limitation
 
@@ -32,7 +32,7 @@ StartupQoL.Bags = 1
 StartupQoL.MagmaRageling = 1
 ```
 
-Set an individual feature to `0` and restart the world server to disable it.
+Set an individual feature to `0` and restart the world server to disable it. `StartupQoL.Level` is the minimum eligible level, not an exact-level restriction.
 
 ## IDs pinned for build 26365
 

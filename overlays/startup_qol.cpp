@@ -36,7 +36,7 @@ public:
     void OnLogin(Player* player, bool /*firstLogin*/) override
     {
         if (!sConfigMgr->GetBoolDefault("StartupQoL.Enable", false) ||
-            player->getLevel() != sConfigMgr->GetIntDefault("StartupQoL.Level", 1))
+            player->getLevel() < sConfigMgr->GetIntDefault("StartupQoL.Level", 1))
             return;
 
         bool changed = false;

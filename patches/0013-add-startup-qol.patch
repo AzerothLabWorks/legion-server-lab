@@ -27,7 +27,7 @@ diff --git a/src/server/worldserver/worldserver.conf.dist b/src/server/worldserv
 +####################################################################################################
 +# LEVEL-1 STARTUP QUALITY OF LIFE
 +#
-+# Grants missing rewards on login while the character is exactly StartupQoL.Level.
++# Grants missing rewards on login at StartupQoL.Level and above.
 +# The operation is idempotent: spells/pets are not duplicated, bags are topped up
 +# to four, and money is raised to (but never reduced from) 20,000 gold.
 +

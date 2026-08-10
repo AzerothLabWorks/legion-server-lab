@@ -32,6 +32,10 @@ for patch_file in "$repo_root"/patches/*.patch; do
         && grep -q 'AddSC_companion_autoloot' "$SOURCE_DIR/src/server/scripts/ScriptLoader.cpp" \
         && grep -q 'CompanionAutoLoot.Enable = 0' "$SOURCE_DIR/src/server/worldserver/worldserver.conf.dist"; then
         : # Applied, then intentionally overlapped by the later startup-QoL patch.
+    elif [[ "$(basename "$patch_file")" == "0013-add-startup-qol.patch" ]] \
+        && grep -q 'AddSC_startup_qol' "$SOURCE_DIR/src/server/scripts/ScriptLoader.cpp" \
+        && grep -q 'StartupQoL.Enable = 0' "$SOURCE_DIR/src/server/worldserver/worldserver.conf.dist"; then
+        : # Already applied; its documentation-only context was subsequently refined.
     else
         echo "Patch cannot be applied cleanly: $patch_file" >&2
         exit 1
