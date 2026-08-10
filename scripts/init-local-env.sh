@@ -10,7 +10,7 @@ if [[ -e "$env_file" ]]; then
 fi
 
 runtime_root="${LEGION_RUNTIME_ROOT:-$HOME/legion-server-runtime}"
-data_root="${LEGION_DATA_ROOT:-/mnt/c/Games/WoW-7.3.5-Legion/[7.3.5] SPP V2 Legion Core/SPP V2 Year 5 Update 3 Repack/Data}"
+data_root="${LEGION_DATA_ROOT:-$runtime_root/data}"
 db_password="$(openssl rand -hex 24)"
 db_root_password="$(openssl rand -hex 24)"
 

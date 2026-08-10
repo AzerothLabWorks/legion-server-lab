@@ -9,7 +9,8 @@ addon, and module repositories.
 - Expansion: Legion 7.3.5
 - Candidate client build: 26365
 - Runtime: Ubuntu on WSL2 using Docker Compose
-- Status: pinned Linux core builds successfully; runtime/database wiring next
+- Status: build 26365 login, world entry, gameplay, addons, and companion
+  auto-loot validated in the local lab
 
 The downloaded SPP archive contains a mixture of Windows repacks. Its bundled
 executables and services are not treated as trusted build inputs. The intended
@@ -46,3 +47,23 @@ The staged Playerbots plan is in
 [docs/PLAYERBOTS_ROADMAP.md](docs/PLAYERBOTS_ROADMAP.md).
 The companion-triggered loot prototype and its test checklist are in
 [docs/COMPANION_AUTO_LOOT.md](docs/COMPANION_AUTO_LOOT.md).
+
+## Community installation
+
+The supported community workflow and lawful download boundaries are documented
+in [docs/COMMUNITY_INSTALL.md](docs/COMMUNITY_INSTALL.md).
+
+After cloning this repository under WSL2/Linux, run:
+
+```bash
+bash install/install.sh --data-source /absolute/path/to/build-26365/Data
+```
+
+An optional reviewed bootstrap is also available:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AzerothLabWorks/legion-server-lab/main/install/bootstrap.sh | bash
+```
+
+The installer automates the open-source server. It does not download or
+distribute World of Warcraft clients or client-derived game data.
