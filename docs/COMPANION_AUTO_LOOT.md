@@ -10,7 +10,7 @@ Auto-loot runs only when all of the following are true:
 - `CompanionAutoLoot.Enable` is enabled;
 - the player is alive, in the world, and not already looting;
 - the player has an active non-combat companion;
-- the player is out of combat when `OutOfCombatOnly` is enabled; and
+- combat state satisfies the configurable `OutOfCombatOnly` policy; and
 - an eligible creature corpse is within the configured radius.
 
 The implementation processes at most one corpse per interval. It uses the
@@ -29,9 +29,13 @@ The local lab enables these settings in `worldserver.conf`:
 CompanionAutoLoot.Enable = 1
 CompanionAutoLoot.Radius = 30
 CompanionAutoLoot.IntervalMs = 1500
-CompanionAutoLoot.OutOfCombatOnly = 1
+CompanionAutoLoot.OutOfCombatOnly = 0
 CompanionAutoLoot.RequireNonCombatCompanion = 1
 ```
+
+The private lab deliberately permits looting during combat. Set
+`OutOfCombatOnly` back to `1` if concurrent loot windows interfere with an
+encounter or another addon.
 
 Changes require `.reload config` if supported by the running core, or a
 worldserver restart.
@@ -43,8 +47,8 @@ worldserver restart.
    corpse remains lootable.
 3. Summon any non-combat companion and wait near the corpse. Verify its money
    and eligible items enter the normal inventory.
-4. Kill a creature at range and walk within 30 yards after combat. Verify the
-   corpse is looted within roughly two seconds.
+4. While fighting multiple creatures, kill one and remain within 30 yards.
+   Verify it is looted within roughly two seconds even though combat continues.
 5. Fill the bags, kill another creature, and verify items are not lost when the
    inventory rejects them.
 6. In a group, verify items requiring a roll are not silently assigned.
