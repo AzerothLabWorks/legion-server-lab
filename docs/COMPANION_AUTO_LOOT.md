@@ -13,6 +13,9 @@ Auto-loot runs only when all of the following are true:
 - combat state satisfies the configurable `OutOfCombatOnly` policy; and
 - an eligible creature corpse is within the configured radius.
 
+The radius is a maximum distance: with `Radius = 40`, eligible corpses from
+melee range through 40 yards away are included. It is not a 40-yard-only ring.
+
 The implementation processes at most one corpse per interval. It uses the
 normal Legion loot and inventory paths so quest eligibility, inventory capacity,
 personal loot, blocked group rolls, achievements, and corpse cleanup continue

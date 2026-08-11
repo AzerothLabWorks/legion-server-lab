@@ -31,9 +31,18 @@ diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entiti
          {
              SendLootRelease(guid);
              return;
-@@ -12193,7 +12193,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
+@@ -12190,7 +12190,16 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
      }
  
++    // Silent remote looting still needs the core's internal open state for
++    // personal money and item storage, but deliberately sends no LootResponse.
++    if (permission != NONE_PERMISSION && silentRemote)
++    {
++        loot->isOpen = true;
++        if (lootPesonal)
++            lootPesonal->isOpen = true;
++    }
++
      //! 6.0.3
 -    if (permission != NONE_PERMISSION)
 +    if (permission != NONE_PERMISSION && !silentRemote)
