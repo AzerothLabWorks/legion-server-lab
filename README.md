@@ -49,6 +49,8 @@ The companion-triggered loot prototype and its test checklist are in
 [docs/COMPANION_AUTO_LOOT.md](docs/COMPANION_AUTO_LOOT.md).
 The level-1 starter rewards and compatibility notes are in
 [docs/STARTUP_QOL.md](docs/STARTUP_QOL.md).
+The custom played-time Shop currency is documented in
+[docs/NORDRASSIL_COINS.md](docs/NORDRASSIL_COINS.md).
 
 ## Community installation
 

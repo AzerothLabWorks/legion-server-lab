@@ -1,0 +1,57 @@
+diff --git a/src/server/scripts/World/custom_events.cpp b/src/server/scripts/World/custom_events.cpp
+--- a/src/server/scripts/World/custom_events.cpp
++++ b/src/server/scripts/World/custom_events.cpp
+@@ -6407,7 +6407,7 @@ public:
+ 	bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
+ 	{
+ 		{
+-			player->GetSession()->SendNotification("|cff00FF00Has recibido 1 moneda para la tienda del juego!");
++            player->GetSession()->SendNotification("|cff00FF00Redeemed 1 Nordrassil Coin for the in-game Shop.|r");
+ 			uint32 bnetaccountid = player->GetSession()->GetBattlenetAccountId();
+ 			LoginDatabase.PExecute("UPDATE `battlenet_accounts` SET `balans`=balans+1 WHERE `id`='%u';", bnetaccountid);
+ 			player->DestroyItemCount(itemid, 1, true);
+@@ -6430,7 +6430,7 @@ public:
+ 	bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
+ 	{
+ 		{
+-			player->GetSession()->SendNotification("|cff00FF00Has recibido 2 monedas para la tienda del juego!");
++            player->GetSession()->SendNotification("|cff00FF00Redeemed 2 Nordrassil Coins for the in-game Shop.|r");
+ 			uint32 bnetaccountid = player->GetSession()->GetBattlenetAccountId();
+ 			LoginDatabase.PExecute("UPDATE `battlenet_accounts` SET `balans`=balans+2 WHERE `id`='%u';", bnetaccountid);
+ 			player->DestroyItemCount(itemid, 1, true);
+@@ -6453,7 +6453,7 @@ public:
+ 	bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
+ 	{
+ 		{
+-			player->GetSession()->SendNotification("|cff00FF00Has recibido 3 monedas para la tienda del juego!");
++            player->GetSession()->SendNotification("|cff00FF00Redeemed 3 Nordrassil Coins for the in-game Shop.|r");
+ 			uint32 bnetaccountid = player->GetSession()->GetBattlenetAccountId();
+ 			LoginDatabase.PExecute("UPDATE `battlenet_accounts` SET `balans`=balans+3 WHERE `id`='%u';", bnetaccountid);
+ 			player->DestroyItemCount(itemid, 1, true);
+@@ -6476,7 +6476,7 @@ public:
+ 	bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
+ 	{
+ 		{
+-			player->GetSession()->SendNotification("|cff00FF00Has recibido 4 monedas para la tienda del juego!");
++            player->GetSession()->SendNotification("|cff00FF00Redeemed 4 Nordrassil Coins for the in-game Shop.|r");
+ 			uint32 bnetaccountid = player->GetSession()->GetBattlenetAccountId();
+ 			LoginDatabase.PExecute("UPDATE `battlenet_accounts` SET `balans`=balans+4 WHERE `id`='%u';", bnetaccountid);
+ 			player->DestroyItemCount(itemid, 1, true);
+@@ -6499,7 +6499,7 @@ public:
+ 	bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
+ 	{
+ 		{
+-			player->GetSession()->SendNotification("|cff00FF00Has recibido 5 monedas para la tienda del juego!");
++            player->GetSession()->SendNotification("|cff00FF00Redeemed 5 Nordrassil Coins for the in-game Shop.|r");
+ 			uint32 bnetaccountid = player->GetSession()->GetBattlenetAccountId();
+ 			LoginDatabase.PExecute("UPDATE `battlenet_accounts` SET `balans`=balans+5 WHERE `id`='%u';", bnetaccountid);
+ 			player->DestroyItemCount(itemid, 1, true);
+@@ -6522,7 +6522,7 @@ public:
+ 	bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
+ 	{
+ 		{
+-			player->GetSession()->SendNotification("|cff00FF00Has recibido 10 monedas para la tienda del juego!");
++            player->GetSession()->SendNotification("|cff00FF00Redeemed 10 Nordrassil Coins for the in-game Shop.|r");
+ 			uint32 bnetaccountid = player->GetSession()->GetBattlenetAccountId();
+ 			LoginDatabase.PExecute("UPDATE `battlenet_accounts` SET `balans`=balans+10 WHERE `id`='%u';", bnetaccountid);
+ 			player->DestroyItemCount(itemid, 1, true);

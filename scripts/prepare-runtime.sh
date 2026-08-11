@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source_root="${LEGION_SOURCE_ROOT:-$HOME/legion-server-sources/LegionCore-7.3.5V2}"
 runtime_root="${LEGION_RUNTIME_ROOT:-$HOME/legion-server-runtime}"
 install_root="${LEGION_INSTALL_ROOT:-$runtime_root/server}"
@@ -63,6 +64,9 @@ required_world_update="$source_root/sql/updates/world/2023_04_02_quest_autocompl
     printf 'USE `legion_hotfixes`;\n'
     cat "$source_root/sql/updates/hotfix/0001_fix_garrison_mission_db_structure.sql"
 } > "$runtime_root/database-init/60-required-hotfix-schema.sql"
+
+install -m 0644 "$repo_root/database/70-nordrassil-coin-localization.sql" \
+    "$runtime_root/database-init/70-nordrassil-coin-localization.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \

@@ -64,3 +64,7 @@ if [[ "$hotfix_ready" == "0" ]]; then
         mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_hotfixes \
         < "$source_root/sql/updates/hotfix/0001_fix_garrison_mission_db_structure.sql"
 fi
+
+docker compose exec -T mysql \
+    mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    < "$repo_root/database/70-nordrassil-coin-localization.sql"

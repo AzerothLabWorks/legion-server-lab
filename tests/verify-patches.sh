@@ -35,5 +35,8 @@ grep -q 'lootPesonal->isOpen = true' "$verify_dir/source/src/server/game/Entitie
 grep -q 'DoLootRelease(ObjectGuid lguid, bool ignoreDistance' "$verify_dir/source/src/server/game/Handlers/LootHandler.cpp"
 grep -q 'CompanionAutoLoot.Radius = 40' "$verify_dir/source/src/server/worldserver/worldserver.conf.dist"
 grep -q 'PlayedTimeReward] You received' "$verify_dir/source/src/server/game/Entities/Player/Player.cpp"
+grep -q 'Redeemed 10 Nordrassil Coins' "$verify_dir/source/src/server/scripts/World/custom_events.cpp"
+grep -q 'Adds 10 coins to your in-game Shop balance' "$repo_root/database/70-nordrassil-coin-localization.sql"
+grep -q '7005056, 2442913102, 505056' "$repo_root/database/70-nordrassil-coin-localization.sql"
 
 echo "fresh patch verification passed"
