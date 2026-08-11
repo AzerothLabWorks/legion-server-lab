@@ -27,7 +27,7 @@ The local lab enables these settings in `worldserver.conf`:
 
 ```ini
 CompanionAutoLoot.Enable = 1
-CompanionAutoLoot.Radius = 30
+CompanionAutoLoot.Radius = 40
 CompanionAutoLoot.IntervalMs = 1500
 CompanionAutoLoot.OutOfCombatOnly = 0
 CompanionAutoLoot.RequireNonCombatCompanion = 1
@@ -47,12 +47,14 @@ worldserver restart.
    corpse remains lootable.
 3. Summon any non-combat companion and wait near the corpse. Verify its money
    and eligible items enter the normal inventory.
-4. While fighting multiple creatures, kill one and remain within 30 yards.
+4. While fighting multiple creatures, kill one and remain within 40 yards.
    Verify it is looted within roughly two seconds even though combat continues.
-5. Fill the bags, kill another creature, and verify items are not lost when the
+5. Kill a creature at approximately 35-40 yards with a ranged character. Verify
+   the companion retrieves its eligible loot without opening the loot window.
+6. Fill the bags, kill another creature, and verify items are not lost when the
    inventory rejects them.
-6. In a group, verify items requiring a roll are not silently assigned.
-7. Dismiss the companion and verify automatic looting stops.
+7. In a group, verify items requiring a roll are not silently assigned.
+8. Dismiss the companion and verify automatic looting stops.
 
 Report the character, map, creature, group loot mode, item IDs, and exact steps
 for any duplication, loss, stuck corpse, or loot-window behavior.

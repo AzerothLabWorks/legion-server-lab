@@ -1,0 +1,87 @@
+diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
+--- a/src/server/game/Entities/Player/Player.h
++++ b/src/server/game/Entities/Player/Player.h
+@@ -2743,7 +2743,7 @@ class Player : public Unit, public GridObject<Player>
+         PlayerMenu* PlayerTalkClass;
+         std::vector<ItemSetEffect*>* ItemSetEff;
+ 
+-        void SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot = false, uint8 pool = 0);
++        void SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot = false, uint8 pool = 0, bool silentRemote = false);
+         void SendLootRelease(ObjectGuid guid, ObjectGuid lguid = ObjectGuid::Empty);
+         void SendNotifyLootItemRemoved(uint8 lootSlot, Loot* loot);
+         void SendNotifyLootMoneyRemoved(Loot* loot);
+diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
+--- a/src/server/game/Entities/Player/Player.cpp
++++ b/src/server/game/Entities/Player/Player.cpp
+@@ -11734,7 +11734,7 @@ void Player::SendLootRelease(ObjectGuid object, ObjectGuid owner)
+ }
+ 
+ //! part of handling in Garrison::CompleteShipments
+-void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 pool)
++void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 pool, bool silentRemote)
+ {
+     ObjectGuid lguid = GetLootGUID();
+     if ((guid.IsCorpse() || guid.IsItem() || guid.IsGameObject()) && lguid)
+@@ -12001,7 +12001,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
+         if (!looter)
+             looter = this;
+ 
+-        if (!creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
++        if (!silentRemote && !creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
+         {
+             SendLootRelease(guid);
+             return;
+@@ -12193,7 +12193,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
+     }
+ 
+     //! 6.0.3
+-    if (permission != NONE_PERMISSION)
++    if (permission != NONE_PERMISSION && !silentRemote)
+     {
+         // Aoe loot
+         WorldPackets::Loot::LootResponse packet;
+@@ -12227,6 +12227,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type, bool AoeLoot, uint8 p
+         }
+     }
+-    else
++    else if (permission == NONE_PERMISSION)
+         SendLootError(guid, loot->GetGUID(), LOOT_ERROR_DIDNT_KILL);
+ 
+     // add 'this' player as one of the players that are looting 'loot'
+diff --git a/src/server/game/Server/WorldSession.h b/src/server/game/Server/WorldSession.h
+--- a/src/server/game/Server/WorldSession.h
++++ b/src/server/game/Server/WorldSession.h
+@@ -1207,7 +1207,7 @@ class WorldSession
+         // Guild
+         void SendPetitionShowList(ObjectGuid guid);
+ 
+-        void DoLootRelease(ObjectGuid lguid);
++        void DoLootRelease(ObjectGuid lguid, bool ignoreDistance = false);
+ 
+         // Account mute time
+         time_t m_muteTime;
+diff --git a/src/server/game/Handlers/LootHandler.cpp b/src/server/game/Handlers/LootHandler.cpp
+--- a/src/server/game/Handlers/LootHandler.cpp
++++ b/src/server/game/Handlers/LootHandler.cpp
+@@ -185,7 +185,7 @@ void WorldSession::HandleLootRelease(WorldPackets::Loot::LootRelease& packet)
+     DoLootRelease(packet.Unit);
+ }
+ 
+-void WorldSession::DoLootRelease(ObjectGuid lguid)
++void WorldSession::DoLootRelease(ObjectGuid lguid, bool ignoreDistance)
+ {
+     Player* player = GetPlayer();
+     Loot* loot = nullptr;
+@@ -406,2 +406,2 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
+-        if (!lootAllowed || !creature->IsWithinDistInMap(looter, LOOT_DISTANCE))
++        if (!lootAllowed || (!ignoreDistance && !creature->IsWithinDistInMap(looter, LOOT_DISTANCE)))
+             return;
+diff --git a/src/server/worldserver/worldserver.conf.dist b/src/server/worldserver/worldserver.conf.dist
+--- a/src/server/worldserver/worldserver.conf.dist
++++ b/src/server/worldserver/worldserver.conf.dist
+@@ -4255,4 +4255,4 @@ CompanionAutoLoot.Enable = 0
+-CompanionAutoLoot.Radius = 30
++CompanionAutoLoot.Radius = 40
+ CompanionAutoLoot.IntervalMs = 1500
+ CompanionAutoLoot.OutOfCombatOnly = 1
+ CompanionAutoLoot.RequireNonCombatCompanion = 1

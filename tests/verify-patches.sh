@@ -30,6 +30,9 @@ git -C "$verify_dir/source" diff --check
 grep -q 'AddSC_companion_autoloot' "$verify_dir/source/src/server/scripts/ScriptLoader.cpp"
 grep -q 'AddSC_startup_qol' "$verify_dir/source/src/server/scripts/ScriptLoader.cpp"
 grep -q 'StartupQoL.Enable = 0' "$verify_dir/source/src/server/worldserver/worldserver.conf.dist"
+grep -q 'silentRemote' "$verify_dir/source/src/server/game/Entities/Player/Player.cpp"
+grep -q 'DoLootRelease(ObjectGuid lguid, bool ignoreDistance' "$verify_dir/source/src/server/game/Handlers/LootHandler.cpp"
+grep -q 'CompanionAutoLoot.Radius = 40' "$verify_dir/source/src/server/worldserver/worldserver.conf.dist"
 grep -q 'PlayedTimeReward] You received' "$verify_dir/source/src/server/game/Entities/Player/Player.cpp"
 
 echo "fresh patch verification passed"

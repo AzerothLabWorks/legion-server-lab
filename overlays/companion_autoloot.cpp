@@ -25,7 +25,7 @@
 namespace
 {
     bool Enabled = false;
-    float Radius = 30.0f;
+    float Radius = 40.0f;
     uint32 IntervalMs = 1500;
     bool OutOfCombatOnly = true;
     bool RequireCompanion = true;
@@ -34,7 +34,7 @@ namespace
     void LoadConfig()
     {
         Enabled = sConfigMgr->GetBoolDefault("CompanionAutoLoot.Enable", false);
-        Radius = std::max(1.0f, std::min(40.0f, sConfigMgr->GetFloatDefault("CompanionAutoLoot.Radius", 30.0f)));
+        Radius = std::max(1.0f, std::min(40.0f, sConfigMgr->GetFloatDefault("CompanionAutoLoot.Radius", 40.0f)));
         IntervalMs = std::max<uint32>(250, std::min<uint32>(10000, sConfigMgr->GetIntDefault("CompanionAutoLoot.IntervalMs", 1500)));
         OutOfCombatOnly = sConfigMgr->GetBoolDefault("CompanionAutoLoot.OutOfCombatOnly", true);
         RequireCompanion = sConfigMgr->GetBoolDefault("CompanionAutoLoot.RequireNonCombatCompanion", true);
@@ -92,11 +92,11 @@ namespace
             return false;
 
         ObjectGuid guid = creature->GetGUID();
-        player->SendLoot(guid, LOOT_CORPSE, false);
+        player->SendLoot(guid, LOOT_CORPSE, false, 0, true);
         player->GetGoldFromLoot();
         StoreAvailableItems(player, player->GetPersonalLoot(guid));
         StoreAvailableItems(player, &creature->loot);
-        player->GetSession()->DoLootRelease(guid);
+        player->GetSession()->DoLootRelease(guid, true);
         return true;
     }
 

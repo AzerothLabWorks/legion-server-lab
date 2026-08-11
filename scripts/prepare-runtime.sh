@@ -80,6 +80,7 @@ sed \
     -e 's#^AuctionHouseBot.Seller.Enabled.*#AuctionHouseBot.Seller.Enabled = 0#' \
     -e 's#^AuctionHouseBot.Buyer.Enabled.*#AuctionHouseBot.Buyer.Enabled = 0#' \
     -e 's#^CompanionAutoLoot.Enable.*#CompanionAutoLoot.Enable = 1#' \
+    -e 's#^CompanionAutoLoot.Radius.*#CompanionAutoLoot.Radius = 40#' \
     -e 's#^CompanionAutoLoot.OutOfCombatOnly.*#CompanionAutoLoot.OutOfCombatOnly = 0#' \
     -e 's#^StartupQoL.Enable.*#StartupQoL.Enable = 1#' \
     "$install_root/etc/worldserver.conf.dist" > "$runtime_root/config/worldserver.conf.tmp"
