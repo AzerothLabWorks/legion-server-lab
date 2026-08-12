@@ -1,0 +1,16 @@
+diff --git a/src/server/game/BattlePay/BattlePayMgr.cpp b/src/server/game/BattlePay/BattlePayMgr.cpp
+--- a/src/server/game/BattlePay/BattlePayMgr.cpp
++++ b/src/server/game/BattlePay/BattlePayMgr.cpp
+@@ -874,10 +874,10 @@ void BattlepayManager::SendPointsBalance()
+ 	{
+ 		std::ostringstream data;
+ 		std::ostringstream data1;
+-		data1 << player->GetDonateTokens();
++        data1 << player->GetDonateTokens() << " coins";
+ 		data << _session->GetAccountId();
+ 		player->SendCustomMessage(GetCustomMessage(CustomMessage::AccountId), data);
+-		player->SendCustomMessage("|cff1eff00 Tus Puntos son: ", data1);
++        player->SendCustomMessage("|cff1eff00Your Shop balance is: ", data1);
+ 
+ 	}
+ }

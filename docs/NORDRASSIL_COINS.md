@@ -12,6 +12,9 @@ server base. They are functional in this lab rather than ordinary vendor trash.
   individual character.
 - The in-game **Shop** button displays products that can be purchased with the
   balance.
+- Opening the Shop also reports `Your Shop balance is: N coins` in chat. This
+  is the authoritative account-wide balance even when the Shop panel does not
+  display a separate balance counter.
 
 The other supported token denominations are item IDs `505051` through `505055`
 and redeem for 1, 2, 3, 4, and 5 Shop coins respectively.
