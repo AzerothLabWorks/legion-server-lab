@@ -21,6 +21,13 @@ normal Legion loot and inventory paths so quest eligibility, inventory capacity,
 personal loot, blocked group rolls, achievements, and corpse cleanup continue
 to be handled by the core.
 
+Quest items receive special treatment matching Legion's native loot opcode:
+their `is_blocked` field is used for quest-loot bookkeeping and does not mean
+the item is waiting for a group roll. This allows a companion pass that first
+collects currency to also collect an eligible quest drop as soon as the core
+makes it available. A corpse that still contains eligible loot remains in the
+normal interval scan for another bounded pass.
+
 The first version deliberately excludes game-object chests, gathering nodes,
 skinning, pickpocketing, and item-created loot.
 
@@ -57,7 +64,9 @@ worldserver restart.
 6. Fill the bags, kill another creature, and verify items are not lost when the
    inventory rejects them.
 7. In a group, verify items requiring a roll are not silently assigned.
-8. Dismiss the companion and verify automatic looting stops.
+8. For a quest that drops an item and currency from the same creature, verify
+   both rewards are collected without manually opening the corpse.
+9. Dismiss the companion and verify automatic looting stops.
 
 Report the character, map, creature, group loot mode, item IDs, and exact steps
 for any duplication, loss, stuck corpse, or loot-window behavior.

@@ -78,8 +78,10 @@ namespace
         uint32 maxSlot = loot->GetMaxSlotInLootFor(player);
         for (uint32 slot = 0; slot < maxSlot; ++slot)
         {
-            LootItem* item = loot->LootItemInSlot(slot, player);
-            if (!item || item->is_looted || item->is_blocked || !item->AllowedForPlayer(player))
+            QuestItem* questItem = nullptr;
+            LootItem* item = loot->LootItemInSlot(slot, player, &questItem);
+            if (!item || item->is_looted || (!questItem && item->is_blocked)
+                || !loot->AllowedForPlayer(player, item->item.ItemID, item->type, item->needs_quest, item))
                 continue;
 
             player->StoreLootItem(static_cast<uint8>(slot), loot);

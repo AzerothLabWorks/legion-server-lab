@@ -34,6 +34,8 @@ grep -q 'silentRemote' "$verify_dir/source/src/server/game/Entities/Player/Playe
 grep -q 'lootPesonal->isOpen = true' "$verify_dir/source/src/server/game/Entities/Player/Player.cpp"
 grep -q 'DoLootRelease(ObjectGuid lguid, bool ignoreDistance' "$verify_dir/source/src/server/game/Handlers/LootHandler.cpp"
 grep -q 'CompanionAutoLoot.Radius = 40' "$verify_dir/source/src/server/worldserver/worldserver.conf.dist"
+grep -q '!questItem && item->is_blocked' "$verify_dir/source/src/server/scripts/Custom/companion_autoloot.cpp"
+grep -q 'loot->AllowedForPlayer(player' "$verify_dir/source/src/server/scripts/Custom/companion_autoloot.cpp"
 grep -q 'PlayedTimeReward] You received' "$verify_dir/source/src/server/game/Entities/Player/Player.cpp"
 grep -q 'Redeemed 10 Nordrassil Coins' "$verify_dir/source/src/server/scripts/World/custom_events.cpp"
 grep -q 'Your Shop balance is:' "$verify_dir/source/src/server/game/BattlePay/BattlePayMgr.cpp"
