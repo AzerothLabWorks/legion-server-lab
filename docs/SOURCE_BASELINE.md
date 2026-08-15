@@ -41,6 +41,18 @@ Repository-owned compatibility patches are kept under `patches/` and applied
 idempotently by the build script. The first patch corrects the upstream cotire
 module path for CMake versions older than 3.16.
 
+The lab also carries a creature lifecycle guard for the pinned core. Periodic
+damage can kill a creature inside `Unit::Update`; the upstream Legion branch
+then runs that dead creature's AI once before checking its death state. That
+final AI pass can restart chase movement and combat after death cleanup, making
+a corpse follow the player and retain combat until its leash resets. Patch
+`0017-stop-dead-creature-ai-update.patch` checks the death state immediately
+after `Unit::Update` and leaves the later post-AI death check in place.
+
+Regression test: kill ordinary creatures with direct damage and with a
+damage-over-time effect. In both cases the corpse must stop immediately and the
+player must leave combat when no other hostile creature is engaged.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's
