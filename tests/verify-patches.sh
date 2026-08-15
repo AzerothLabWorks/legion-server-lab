@@ -41,6 +41,8 @@ grep -q 'Redeemed 10 Nordrassil Coins' "$verify_dir/source/src/server/scripts/Wo
 grep -q 'Your Shop balance is:' "$verify_dir/source/src/server/game/BattlePay/BattlePayMgr.cpp"
 grep -q 'restart chase movement and combat after death cleanup' "$verify_dir/source/src/server/game/Entities/Creature/Creature.cpp"
 grep -q 'WorldPackets::Quest::QuestPoiChanged().Write()' "$verify_dir/source/src/server/game/Entities/Player/Player.cpp"
+grep -q 'bool sentFollowupMenu = false' "$verify_dir/source/src/server/game/Handlers/QuestHandler.cpp"
+grep -q 'menuItem.QuestId != packet.QuestID' "$verify_dir/source/src/server/game/Handlers/QuestHandler.cpp"
 grep -q 'Adds 10 coins to your in-game Shop balance' "$repo_root/database/70-nordrassil-coin-localization.sql"
 grep -q '7005056, 2442913102, 505056' "$repo_root/database/70-nordrassil-coin-localization.sql"
 

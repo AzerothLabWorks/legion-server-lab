@@ -78,6 +78,19 @@ NPC, complete the final objective, and confirm that the map/minimap `?` moves
 from the objective area to the quest giver without relogging or reloading the
 UI. Also abandon an incomplete mapped quest and confirm its POI disappears.
 
+Multi-quest NPC acceptance flow is restored by
+`0020-refresh-quest-menu-after-accept.patch`. The pinned handler previously
+closed the quest interaction unconditionally after accepting any quest. The
+patch rebuilds the same giver's quest menu and sends it again when a different
+starter quest remains available. It also honors Legion's explicit launch and
+suppress-gossip-on-accept flags so scripted quest interactions retain control.
+
+Regression test: interact with an NPC offering at least two simultaneously
+available quests, accept the first, and confirm the next quest or remaining
+quest list appears without closing and re-engaging the NPC. Accept the final
+quest and confirm the dialog closes normally. Also accept a quest from an item
+and confirm no NPC menu is opened.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's
