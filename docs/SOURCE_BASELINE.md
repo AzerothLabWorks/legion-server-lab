@@ -65,6 +65,19 @@ four equipped bags, click Bagnon's **Clean Up Bags** button, and confirm that
 stacks consolidate and items reorder without disappearing. Log out and back in
 once to confirm that the sorted inventory persists.
 
+Legion quest POI cache invalidation is restored by
+`0019-refresh-quest-poi-on-status-change.patch`. The core defines the
+zero-payload `SMSG_QUEST_POI_CHANGED` packet and supports the client's follow-up
+quest POI and completion-NPC queries, but the pinned source never sends the
+invalidation packet. The patch sends it shortly after every native quest update
+so the client discards an objective-area marker after completion and re-queries
+the configured quest ender.
+
+Regression test: accept a quest with a mapped objective away from its turn-in
+NPC, complete the final objective, and confirm that the map/minimap `?` moves
+from the objective area to the quest giver without relogging or reloading the
+UI. Also abandon an incomplete mapped quest and confirm its POI disappears.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's

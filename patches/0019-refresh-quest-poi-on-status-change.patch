@@ -1,0 +1,19 @@
+diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
+--- a/src/server/game/Entities/Player/Player.cpp
++++ b/src/server/game/Entities/Player/Player.cpp
+@@ -35332,6 +35332,15 @@ void Player::SetQuestUpdate(uint32 quest_id)
+     }
+ 
+     UpdateAvailableQuestLines();
++
++    // Legion caches quest POI blobs client-side. Invalidate that cache whenever
++    // a quest is accepted, changes status, is abandoned, or is rewarded so the
++    // client re-queries POIs and moves a completed quest marker to its ender.
++    AddDelayedEvent(100, [this]() -> void
++    {
++        if (IsInWorld())
++            SendDirectMessage(WorldPackets::Quest::QuestPoiChanged().Write());
++    });
+ }
+ 
+ void Player::SendMusic(uint32 soundKitID)
