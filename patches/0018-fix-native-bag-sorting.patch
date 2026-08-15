@@ -1,0 +1,34 @@
+diff --git a/src/server/game/Handlers/ItemHandler.cpp b/src/server/game/Handlers/ItemHandler.cpp
+index 5e10520..08f4719 100644
+--- a/src/server/game/Handlers/ItemHandler.cpp
++++ b/src/server/game/Handlers/ItemHandler.cpp
+@@ -1321,7 +1321,7 @@ namespace
+         if (StoreItemAndStack(player, item, INVENTORY_SLOT_BAG_0))
+             return;
+ 
+-        for (uint32 i = INVENTORY_SLOT_ITEM_START; i < INVENTORY_SLOT_ITEM_END; i++)
++        for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)
+         {
+             if (StoreItemAndStack(player, item, i))
+                 break;
+@@ -1536,13 +1536,13 @@ void WorldSession::HandleRemoveNewItem(WorldPackets::Item::RemoveNewItem& remove
+ 
+ void WorldSession::HandleSortBags(WorldPackets::Item::SortBags& /*sortBags*/)
+ {
+-    // _player->ApplyOnBagsItems([](Player* player, Item* item, uint8 /*bag*/, uint8 /*slot*/)
+-    // {
+-    //     StoreItemInBags(player, item);
+-    //     return true;
+-    // });
+-    //
+-    // SortBags(_player, &Player::ApplyOnBagsItems);
++    _player->ApplyOnBagsItems([](Player* player, Item* item, uint8 /*bag*/, uint8 /*slot*/)
++    {
++        StoreItemInBags(player, item);
++        return true;
++    });
++
++    SortBags(_player, &Player::ApplyOnBagsItems);
+     SendPacket(WorldPackets::Item::SortBagsResult().Write());
+ }
+ 

@@ -53,6 +53,18 @@ Regression test: kill ordinary creatures with direct damage and with a
 damage-over-time effect. In both cases the corpse must stop immediately and the
 player must leave combat when no other hostile creature is engaged.
 
+Native Legion bag cleanup is restored by
+`0018-fix-native-bag-sorting.patch`. Upstream disabled backpack sorting after
+the implementation treated normal backpack item slots as equipped bag IDs.
+The patch uses the four equipped bag slots when consolidating items and
+re-enables the existing `CMSG_SORT_BAGS` handler. This also restores the sort
+button included with Bagnon 7.3.5 without requiring a client-side addon fork.
+
+Regression test: place items and partial stacks across the backpack and all
+four equipped bags, click Bagnon's **Clean Up Bags** button, and confirm that
+stacks consolidate and items reorder without disappearing. Log out and back in
+once to confirm that the sorted inventory persists.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's
