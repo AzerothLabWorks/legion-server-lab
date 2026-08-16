@@ -91,6 +91,23 @@ quest list appears without closing and re-engaging the NPC. Accept the final
 quest and confirm the dialog closes normally. Also accept a quest from an item
 and confirm no NPC menu is opened.
 
+Feral Lunge travel speed is corrected by
+`0021-speed-up-feral-lunge.patch`. The pinned core computes most parabolic jump
+speeds from distance and vertical speed, but already overrides charge-like
+jumps such as Wild Charge to 45 yards per second. Spell 196884 was absent from
+that override, allowing an NPC aggroed during the slower arc to run beneath the
+fixed melee-contact destination. The patch adds only Feral Lunge to the
+existing fast-jump group. It does not change destination selection, landing
+callbacks, player facing, creature chase logic, or other movement spells.
+
+Regression test: stand still and cast Feral Lunge from near maximum range at a
+stationary hostile NPC that begins running toward the shaman. Confirm the
+parabolic animation remains, the target does not cross beneath the shaman, and
+the shaman lands in melee range with the target in front. Repeat several times
+on flat terrain and compare ordinary Lightning Bolt pulls and normal melee
+combat; non-Feral-Lunge movement and creature approach behavior must remain
+unchanged.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's

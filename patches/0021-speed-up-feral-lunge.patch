@@ -1,0 +1,12 @@
+diff --git a/src/server/game/Spells/SpellEffects.cpp b/src/server/game/Spells/SpellEffects.cpp
+index c8f2d33..999403e 100644
+--- a/src/server/game/Spells/SpellEffects.cpp
++++ b/src/server/game/Spells/SpellEffects.cpp
+@@ -2007,6 +2007,7 @@ void Spell::CalculateJumpSpeeds(uint8 i, float dist, float & speedXY, float & sp
+ 
+     switch (m_spellInfo->Id)
+     {
++        case 196884: // Feral Lunge
+         case 49376:  // Wild Charge
+         case 102401: // Wild Charge
+         case 49575:  // Death Grip
