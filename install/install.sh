@@ -9,6 +9,7 @@ RUNTIME_ROOT="${LEGION_RUNTIME_ROOT:-$HOME/legion-server-runtime}"
 DATA_SOURCE="${LEGION_DATA_SOURCE:-}"
 SKIP_BUILD=0
 START_SERVER=1
+CHECK_ONLY=0
 
 usage() {
     cat <<'USAGE'
@@ -20,6 +21,7 @@ Options:
   --data-source PATH  Copy user-supplied build-26365 dbc/maps/vmaps/mmaps data
   --skip-build        Reuse an existing compiled server under the runtime root
   --no-start          Prepare everything but do not start Docker services
+  --check             Check WSL/Linux, Docker, tools, and disk space; change nothing
   --help              Show this help
 
 Environment overrides:
@@ -65,6 +67,10 @@ parse_args() {
                 START_SERVER=0
                 shift
                 ;;
+            --check)
+                CHECK_ONLY=1
+                shift
+                ;;
             --help|-h)
                 usage
                 exit 0
@@ -76,16 +82,6 @@ parse_args() {
     done
 }
 
-require_tools() {
-    local tool
-    for tool in git docker openssl; do
-        have "$tool" || die "Required command not found: $tool"
-    done
-
-    docker compose version >/dev/null 2>&1 || die "Docker Compose v2 is required (docker compose)."
-    docker info >/dev/null 2>&1 || die "Docker is installed but not responding. Start Docker Desktop/Engine first."
-}
-
 prepare_source() {
     mkdir -p "$SOURCE_ROOT"
     if [[ ! -d "$SOURCE_DIR/.git" ]]; then
@@ -95,13 +91,9 @@ prepare_source() {
     fi
 
     if [[ -n "$(git -C "$SOURCE_DIR" status --porcelain)" ]]; then
-        local patch_file
         [[ "$(git -C "$SOURCE_DIR" rev-parse HEAD)" == "$CORE_COMMIT" ]] || die "Source checkout has local changes on an unexpected revision: $SOURCE_DIR"
-        for patch_file in "$REPO_ROOT"/patches/*.patch; do
-            git -C "$SOURCE_DIR" apply --reverse --check "$patch_file" 2>/dev/null || die "Source checkout contains changes not managed by this installer: $SOURCE_DIR"
-        done
-        cmp -s "$REPO_ROOT/overlays/companion_autoloot.cpp" \
-            "$SOURCE_DIR/src/server/scripts/Custom/companion_autoloot.cpp" || die "Source overlay differs from the installer-managed version."
+        LEGION_SOURCE_DIR="$SOURCE_DIR" bash "$REPO_ROOT/scripts/verify-managed-source.sh" || \
+            die "Source checkout contains changes not managed by this installer: $SOURCE_DIR"
         info "Reusing the installer-managed patched source checkout."
         return 0
     fi
@@ -138,10 +130,23 @@ validate_data_tree() {
     done
 }
 
+describe_data_tree() {
+    local root="$1"
+    local tree file_count size
+    for tree in dbc maps vmaps mmaps; do
+        file_count="$(find "$root/$tree" -type f 2>/dev/null | wc -l)"
+        size="$(du -sh "$root/$tree" 2>/dev/null | awk '{ print $1 }')"
+        printf '  %-5s %8s files  %s\n' "$tree" "$file_count" "$size"
+    done
+}
+
 install_data() {
     if [[ -n "$DATA_SOURCE" ]]; then
         [[ -d "$DATA_SOURCE" ]] || die "Data source directory not found: $DATA_SOURCE"
         validate_data_tree "$DATA_SOURCE" || die "Data source must contain dbc, maps, vmaps, and mmaps directories."
+
+        info "Validated the four required client-derived data trees:"
+        describe_data_tree "$DATA_SOURCE"
 
         local source_path target_path
         source_path="$(canonical_path "$DATA_SOURCE")"
@@ -192,7 +197,8 @@ main() {
     parse_args "$@"
     REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-    require_tools
+    bash "$REPO_ROOT/scripts/preflight.sh"
+    [[ "$CHECK_ONLY" -eq 0 ]] || exit 0
     prepare_source
     prepare_environment
     build_and_prepare
@@ -216,7 +222,7 @@ EOF
 
     if [[ "$START_SERVER" -eq 1 ]]; then
         start_server
-        info "Installation completed. Continue with docs/COMMUNITY_INSTALL.md."
+        info "Installation completed. Continue with HOWTO-WINDOWS-WSL2.md."
     else
         info "Preparation completed. Start later with: bash scripts/compose.sh up -d mysql bnetserver worldserver"
     fi

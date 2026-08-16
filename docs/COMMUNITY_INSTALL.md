@@ -4,6 +4,10 @@ This guide builds a private World of Warcraft: Legion 7.3.5 server for local
 research, preservation, and testing. The tested protocol target is **7.3.5
 build 26365**.
 
+For a new Windows machine, follow the complete
+[Windows/WSL2 guide](../HOWTO-WINDOWS-WSL2.md). This page is the shorter
+reference workflow for users who already have WSL2 and Docker.
+
 ## Downloads and Distribution Boundary
 
 ### Server
@@ -59,6 +63,12 @@ docker compose version
 git --version
 ```
 
+Or run the repository preflight after cloning:
+
+```bash
+bash install/install.sh --check
+```
+
 ## Automated Server Installation
 
 ### Bootstrap option
@@ -106,9 +116,11 @@ Data/
 ```
 
 The pinned open-source core contains `mapextractor`, `vmap4extractor`,
-`vmap4assembler`, and `mmaps_generator` source code. Extracting data from an
-authorized client is an advanced, version-sensitive process and is not yet part
-of the supported automated installer. Do not upload or redistribute the
+`vmap4assembler`, and `mmaps_generator` source code, but it is not currently a
+reliable end-to-end build-26365 extraction toolchain: DB2 extraction is disabled
+and part of the map path retains an older hard-coded build. Extracting data from
+an authorized client remains an advanced, version-sensitive prerequisite, not
+a supported automated installer feature. Do not upload or redistribute the
 resulting data. Community contributions that make lawful local extraction
 reproducible for build 26365 are welcome.
 

@@ -47,6 +47,8 @@ install -m 0644 "$repo_root/overlays/companion_autoloot.cpp" \
 install -m 0644 "$repo_root/overlays/startup_qol.cpp" \
     "$SOURCE_DIR/src/server/scripts/Custom/startup_qol.cpp"
 
+LEGION_SOURCE_DIR="$SOURCE_DIR" bash "$repo_root/scripts/write-managed-source-manifest.sh"
+
 docker build -t "$IMAGE" "$repo_root/docker/build"
 
 docker run --rm \

@@ -32,14 +32,14 @@ The planned WSL layout is:
 ~/legion-server-sources/      upstream core source and build trees
 ```
 
-## Next steps
+## Reproducible state
 
-1. Inventory the extracted SPP archive without executing its programs. (Done)
-2. Determine the exact core, protocol build, database lineage, and data format. (Candidate documented)
-3. Compile the pinned public V2 source candidate under Linux. (Done)
-4. Add reproducible Docker Compose runtime definitions.
-5. Import databases and game data into ignored runtime storage.
-6. Verify authentication, realm selection, character creation, and world login.
+- The repack was inventoried without using its Windows binaries as build input.
+- The public V2 core and exact source commit are pinned.
+- Linux compilation is reproducible in the checked-in build container.
+- Docker Compose owns the isolated MySQL, Battle.net, and world runtime.
+- Authentication, realm selection, world entry, gameplay, and the documented
+  lab improvements have been validated against client build 26365.
 
 Build details are in [docs/SOURCE_BASELINE.md](docs/SOURCE_BASELINE.md), and
 the isolated Compose runtime workflow is in [docs/RUNTIME.md](docs/RUNTIME.md).
@@ -52,14 +52,17 @@ The level-1 starter rewards and compatibility notes are in
 The custom played-time Shop currency is documented in
 [docs/NORDRASSIL_COINS.md](docs/NORDRASSIL_COINS.md).
 
-## Community installation
+## WSL2 community installation
 
-The supported community workflow and lawful download boundaries are documented
-in [docs/COMMUNITY_INSTALL.md](docs/COMMUNITY_INSTALL.md).
+Start with the clean-machine Windows guide:
+[HOWTO-WINDOWS-WSL2.md](HOWTO-WINDOWS-WSL2.md). The shorter reference workflow
+is in [docs/COMMUNITY_INSTALL.md](docs/COMMUNITY_INSTALL.md), and the release
+boundary is in [docs/DISTRIBUTION_BOUNDARY.md](docs/DISTRIBUTION_BOUNDARY.md).
 
 After cloning this repository under WSL2/Linux, run:
 
 ```bash
+bash install/install.sh --check
 bash install/install.sh --data-source /absolute/path/to/build-26365/Data
 ```
 
@@ -71,3 +74,6 @@ curl -fsSL https://raw.githubusercontent.com/AzerothLabWorks/legion-server-lab/m
 
 The installer automates the open-source server. It does not download or
 distribute World of Warcraft clients or client-derived game data.
+
+This repository is licensed under GPL-2.0-only; third-party and trademark
+notices are summarized in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

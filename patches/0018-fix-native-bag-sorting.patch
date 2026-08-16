@@ -32,3 +32,8 @@ index 5e10520..08f4719 100644
      SendPacket(WorldPackets::Item::SortBagsResult().Write());
  }
  
+@@ -1569,4 +1569,3 @@ void WorldSession::HandleSortReagentBankBags(WorldPackets::Item::SortReagentBank
+     SortBags(_player, &Player::ApplyOnReagentBankItems);
+     SendPacket(WorldPackets::Item::SortBagsResult().Write());
+ }
+-
