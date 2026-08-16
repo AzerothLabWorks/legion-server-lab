@@ -91,6 +91,27 @@ quest list appears without closing and re-engaging the NPC. Accept the final
 quest and confirm the dialog closes normally. Also accept a quest from an item
 and confirm no NPC menu is opened.
 
+Feral Lunge target-relative landing is restored by
+`0021-track-feral-lunge-target-on-landing.patch`. The jump effect originally
+captured a fixed melee-contact point when spell 196884 launched. A hostile NPC
+could start moving toward the shaman during the parabolic arc, pass beneath the
+fixed destination, and leave the shaman facing away after landing. The patch
+retains the target GUID for targeted jumps and, for Feral Lunge only, resolves
+the target again at touchdown. It corrects the player to the target's current
+melee-contact point, faces the target, and then executes the delayed hit. The
+correction is limited to eight yards, three yards of vertical difference,
+clear line of sight, the same map, and targets not on transports; this prevents
+the lunge from following teleports, large knockbacks, or movement through
+geometry.
+
+Regression test: use Feral Lunge at maximum range against a stationary hostile
+NPC that begins running toward the shaman. Confirm the jump animation remains,
+the shaman lands at melee range facing the NPC, the hit executes after landing,
+and normal melee attacks can continue immediately. Repeat against a moving
+target, a target that dies during the jump, and a target moving across a ledge
+or behind an obstacle. The latter cases must not drag or teleport the shaman.
+Also verify that non-Feral-Lunge jump spells retain their original behavior.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's
