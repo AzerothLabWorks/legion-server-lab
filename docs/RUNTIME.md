@@ -3,7 +3,7 @@
 The runtime uses three Compose services:
 
 - MySQL 5.7, matching the version recorded in the source database dumps
-- `bnetserver` on TCP 1119, with its REST-login endpoint on local TCP 8081
+- `bnetserver` on TCP 1119, with its REST-login endpoint on TCP 8081
 - `worldserver` on TCP 8085
 
 All persistent state remains under `~/legion-server-runtime` in WSL. The Git
@@ -61,7 +61,9 @@ WoTLK port isolation.
 The initial test configuration disables the optional archived auction-house
 seller and buyer. With those disabled, `worldserver` completes initialization
 and listens on TCP 8085. Realm 1 is pinned to client build 26365 by
-`scripts/apply-required-updates.sh`.
+`scripts/apply-required-updates.sh`. It advertises `LEGION_REALM_ADDRESS`, which
+defaults to `127.0.0.1`. REST port 8081 remains loopback-only unless
+`LEGION_REST_BIND_ADDRESS` is explicitly changed for trusted-LAN play.
 
 ## Game data
 

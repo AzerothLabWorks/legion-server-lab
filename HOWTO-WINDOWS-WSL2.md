@@ -210,7 +210,7 @@ The local endpoints are:
 | Port | Service |
 | ---: | --- |
 | 1119 | Battle.net authentication |
-| 8081 | REST/login service (localhost only) |
+| 8081 | REST/login service (localhost unless LAN access is explicitly enabled) |
 | 8085 | primary world connection |
 | 8086 | Legion instance/world traffic |
 | 3310 | MySQL (localhost only) |
@@ -218,6 +218,10 @@ The local endpoints are:
 Stop another local WoW stack before starting Legion if it uses overlapping
 ports. The AzerothLabWorks server-management project can switch named WoTLK and
 Legion stacks: <https://github.com/AzerothLabWorks/server-management>.
+
+To connect a Steam Deck or another trusted LAN client, follow
+[HOWTO-STEAM-DECK.md](HOWTO-STEAM-DECK.md). That guide configures the advertised
+realm address and opt-in LAN binding without exposing MySQL.
 
 ## 9. Create a Local Account
 

@@ -8,6 +8,10 @@ For a new Windows machine, follow the complete
 [Windows/WSL2 guide](../HOWTO-WINDOWS-WSL2.md). This page is the shorter
 reference workflow for users who already have WSL2 and Docker.
 
+Steam Deck users should follow [HOWTO-STEAM-DECK.md](../HOWTO-STEAM-DECK.md),
+which covers both a Deck client connecting over the LAN and an experimental
+all-in-one SteamOS installation.
+
 ## Downloads and Distribution Boundary
 
 ### Server
@@ -198,7 +202,7 @@ The server exposes these local ports:
 | Port | Purpose |
 | --- | --- |
 | `1119` | Battle.net authentication |
-| `8081` | Local REST login endpoint |
+| `8081` | REST login endpoint; localhost unless LAN access is explicitly enabled |
 | `8085` | Primary world connection |
 | `8086` | Legion instance/world traffic |
 | `3310` | MySQL, bound to localhost only |

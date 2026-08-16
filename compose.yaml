@@ -32,7 +32,7 @@ services:
     command: ["./bnetserver", "-c", "/opt/legion/config/bnetserver.conf"]
     ports:
       - "1119:1119"
-      - "127.0.0.1:8081:8081"
+      - "${LEGION_REST_BIND_ADDRESS:-127.0.0.1}:8081:8081"
     volumes:
       - ${LEGION_RUNTIME_ROOT:?set LEGION_RUNTIME_ROOT in .env}/server:/opt/legion/server:ro
       - ${LEGION_RUNTIME_ROOT:?set LEGION_RUNTIME_ROOT in .env}/config:/opt/legion/config:ro

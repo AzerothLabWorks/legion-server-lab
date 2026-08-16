@@ -51,7 +51,7 @@
   stores, 2,288 hotfix records, and 31 game tables with the pinned Linux core.
 - The persistent `worldserver` completes startup and listens on TCP 8085.
 - Realm 1 advertises client build 26365 and is registered by `bnetserver` at
-  `127.0.0.1:8085`.
+  the configured `LEGION_REALM_ADDRESS` (`127.0.0.1` by default).
 
 ## Compatibility finding
 

@@ -58,6 +58,8 @@ Start with the clean-machine Windows guide:
 [HOWTO-WINDOWS-WSL2.md](HOWTO-WINDOWS-WSL2.md). The shorter reference workflow
 is in [docs/COMMUNITY_INSTALL.md](docs/COMMUNITY_INSTALL.md), and the release
 boundary is in [docs/DISTRIBUTION_BOUNDARY.md](docs/DISTRIBUTION_BOUNDARY.md).
+Steam Deck client/LAN setup and the experimental all-in-one SteamOS workflow
+are in [HOWTO-STEAM-DECK.md](HOWTO-STEAM-DECK.md).
 
 After cloning this repository under WSL2/Linux, run:
 

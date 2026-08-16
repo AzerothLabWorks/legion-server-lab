@@ -7,9 +7,19 @@ set -a
 source "$repo_root/.env"
 set +a
 
+realm_address="${LEGION_REALM_ADDRESS:-127.0.0.1}"
+if [[ ! "$realm_address" =~ ^[A-Za-z0-9][A-Za-z0-9.-]{0,252}[A-Za-z0-9]$ ]] && \
+    [[ ! "$realm_address" =~ ^[A-Za-z0-9]$ ]]; then
+    echo "Invalid LEGION_REALM_ADDRESS: $realm_address" >&2
+    echo "Use an IPv4 address or DNS hostname containing only letters, digits, dots, and hyphens." >&2
+    exit 1
+fi
+
 cd "$repo_root"
 docker compose exec -T mysql mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_auth \
-    -e "UPDATE realmlist SET address='127.0.0.1', localAddress='127.0.0.1', port=8085, gamebuild=26365, Region=1, Battlegroup=1 WHERE id=1;"
+    -e "UPDATE realmlist SET address='$realm_address', localAddress='$realm_address', port=8085, gamebuild=26365, Region=1, Battlegroup=1 WHERE id=1;"
+
+echo "Realm 1 now advertises: $realm_address:8085"
 
 docker compose exec -T mysql mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" legion_world \
     -e "INSERT INTO autobroadcast (id, text) VALUES
