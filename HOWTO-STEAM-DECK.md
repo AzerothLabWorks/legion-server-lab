@@ -20,6 +20,11 @@ or `mmaps` data. You must already have lawful access to compatible build-26365
 materials. Review [docs/DISTRIBUTION_BOUNDARY.md](docs/DISTRIBUTION_BOUNDARY.md)
 before sharing files or a fork.
 
+Read [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md) before copying anything to the
+Deck. It explains how to verify build 26365, why a normal CASC client `Data`
+directory is not the extracted server-data input, and why this project does not
+publish a legacy-client download link.
+
 ## Requirements
 
 ### Client-only Deck
@@ -302,7 +307,9 @@ cd ~
 git clone https://github.com/AzerothLabWorks/legion-server-lab.git
 cd legion-server-lab
 
-LEGION_MIN_FREE_GB=100 bash install/install.sh --check
+LEGION_MIN_FREE_GB=100 bash install/install.sh --check \
+  --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
+  --client-build 26365
 ```
 
 The WSL check will identify SteamOS as native Linux rather than WSL2; that
@@ -316,6 +323,8 @@ client-derived data:
 
 ```bash
 LEGION_BUILD_JOBS=2 bash install/install.sh \
+  --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
+  --client-build 26365 \
   --data-source "/run/media/deck/YOUR_DRIVE_LABEL/LegionData/Data"
 ```
 
@@ -323,6 +332,8 @@ If the data and runtime are both under `/home/deck`, a typical command is:
 
 ```bash
 LEGION_BUILD_JOBS=2 bash install/install.sh \
+  --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
+  --client-build 26365 \
   --data-source "/home/deck/Games/LegionData/Data"
 ```
 

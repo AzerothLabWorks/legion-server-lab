@@ -51,6 +51,9 @@ The level-1 starter rewards and compatibility notes are in
 [docs/STARTUP_QOL.md](docs/STARTUP_QOL.md).
 The custom played-time Shop currency is documented in
 [docs/NORDRASSIL_COINS.md](docs/NORDRASSIL_COINS.md).
+Client version, configuration, server-data prerequisites, and the reason this
+project does not publish a legacy-client link are covered in
+[docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md).
 
 ## WSL2 community installation
 
@@ -64,8 +67,14 @@ are in [HOWTO-STEAM-DECK.md](HOWTO-STEAM-DECK.md).
 After cloning this repository under WSL2/Linux, run:
 
 ```bash
-bash install/install.sh --check
-bash install/install.sh --data-source /absolute/path/to/build-26365/Data
+bash install/install.sh --check \
+  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+  --client-build 26365
+
+bash install/install.sh \
+  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+  --client-build 26365 \
+  --data-source /absolute/path/to/LegionData/Data
 ```
 
 An optional reviewed bootstrap is also available:

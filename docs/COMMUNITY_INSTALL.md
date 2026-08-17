@@ -41,6 +41,11 @@ To connect, a user must already have lawful access to a matching **Windows x64
 7.3.5.26365** client and compatible extracted `dbc`, `maps`, `vmaps`, and
 `mmaps` data. A current retail client is not protocol-compatible.
 
+Read [CLIENT_SETUP.md](CLIENT_SETUP.md) for the exact version check, playable
+client versus server-data distinction, Windows/Steam Deck configuration,
+troubleshooting matrix, and client FAQ. The absence of a legacy download link
+is intentional.
+
 This project is an independent community preservation lab and is not affiliated
 with or endorsed by Blizzard Entertainment.
 
@@ -70,7 +75,9 @@ git --version
 Or run the repository preflight after cloning:
 
 ```bash
-bash install/install.sh --check
+bash install/install.sh --check \
+  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+  --client-build 26365
 ```
 
 ## Automated Server Installation
@@ -87,7 +94,10 @@ To supply extracted data in the same command:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/AzerothLabWorks/legion-server-lab/main/install/bootstrap.sh \
-  | bash -s -- --data-source /absolute/path/to/Data
+  | bash -s -- \
+      --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+      --client-build 26365 \
+      --data-source /absolute/path/to/LegionData/Data
 ```
 
 The bootstrap only clones or fast-forwards this repository and invokes the
@@ -106,8 +116,16 @@ cd legion-server-lab
 If compatible extracted data is already available:
 
 ```bash
-bash install/install.sh --data-source /absolute/path/to/Data
+bash install/install.sh \
+  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+  --client-build 26365 \
+  --data-source /absolute/path/to/LegionData/Data
 ```
+
+The client arguments are validated read-only and are not persisted, copied, or
+uploaded by the installer. Headless server operators may omit both. Run the same
+values with `--check` first to validate prerequisites without cloning or
+building.
 
 The supplied directory must contain:
 
@@ -135,7 +153,9 @@ bind mounts from `/mnt/c` have not behaved consistently with Docker Desktop.
 If data is not ready yet, run:
 
 ```bash
-bash install/install.sh
+bash install/install.sh \
+  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+  --client-build 26365
 ```
 
 The script builds and prepares the server, then stops at the lawful data
@@ -143,7 +163,10 @@ boundary with the exact resume command. After obtaining and extracting data
 from a client you are authorized to use:
 
 ```bash
-bash install/install.sh --skip-build --data-source /absolute/path/to/Data
+bash install/install.sh --skip-build \
+  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+  --client-build 26365 \
+  --data-source /absolute/path/to/LegionData/Data
 ```
 
 The first database import can take several minutes. Follow progress with:

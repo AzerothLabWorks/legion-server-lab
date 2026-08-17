@@ -7,6 +7,8 @@ SOURCE_ROOT="${LEGION_SOURCE_ROOT:-$HOME/legion-server-sources}"
 SOURCE_DIR="${LEGION_SOURCE_DIR:-$SOURCE_ROOT/LegionCore-7.3.5V2}"
 RUNTIME_ROOT="${LEGION_RUNTIME_ROOT:-$HOME/legion-server-runtime}"
 DATA_SOURCE="${LEGION_DATA_SOURCE:-}"
+CLIENT_DIR="${LEGION_CLIENT_DIR:-}"
+CLIENT_BUILD="${LEGION_CLIENT_BUILD:-}"
 SKIP_BUILD=0
 START_SERVER=1
 CHECK_ONLY=0
@@ -18,6 +20,8 @@ Usage: bash install/install.sh [options]
 Build and prepare the AzerothLabWorks Legion 7.3.5 server under WSL2/Linux.
 
 Options:
+  --client-dir PATH   Validate an operator-supplied playable client (read-only)
+  --client-build N    Report the login-screen build; must be 26365
   --data-source PATH  Copy user-supplied build-26365 dbc/maps/vmaps/mmaps data
   --skip-build        Reuse an existing compiled server under the runtime root
   --no-start          Prepare everything but do not start Docker services
@@ -26,7 +30,16 @@ Options:
 
 Environment overrides:
   LEGION_SOURCE_ROOT, LEGION_SOURCE_DIR, LEGION_RUNTIME_ROOT,
-  LEGION_DATA_SOURCE, LEGION_BUILD_JOBS, LEGION_CORE_URL
+  LEGION_DATA_SOURCE, LEGION_CLIENT_DIR, LEGION_CLIENT_BUILD,
+  LEGION_BUILD_JOBS, LEGION_CORE_URL
+
+Recommended community invocation:
+  bash install/install.sh \
+    --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+    --client-build 26365 \
+    --data-source /absolute/path/to/LegionData/Data
+
+The playable client is checked in place and is never copied or modified.
 USAGE
 }
 
@@ -54,6 +67,16 @@ canonical_path() {
 parse_args() {
     while [[ "$#" -gt 0 ]]; do
         case "$1" in
+            --client-dir)
+                [[ "$#" -ge 2 ]] || die "--client-dir requires a path"
+                CLIENT_DIR="$2"
+                shift 2
+                ;;
+            --client-build)
+                [[ "$#" -ge 2 ]] || die "--client-build requires a number"
+                CLIENT_BUILD="$2"
+                shift 2
+                ;;
             --data-source)
                 [[ "$#" -ge 2 ]] || die "--data-source requires a path"
                 DATA_SOURCE="$2"
@@ -80,6 +103,41 @@ parse_args() {
                 ;;
         esac
     done
+}
+
+validate_client_info() {
+    if [[ -z "$CLIENT_DIR" && -z "$CLIENT_BUILD" ]]; then
+        cat <<'EOF'
+[info] No playable-client metadata was supplied. Continuing as a server-only install.
+       Community users should read docs/CLIENT_SETUP.md and normally provide:
+         --client-dir PATH --client-build 26365
+EOF
+        return 0
+    fi
+
+    [[ -n "$CLIENT_DIR" ]] || die "--client-build requires --client-dir."
+    [[ -n "$CLIENT_BUILD" ]] || die "--client-dir requires --client-build 26365."
+    [[ "$CLIENT_BUILD" =~ ^[0-9]+$ ]] || die "Client build must be numeric: $CLIENT_BUILD"
+    [[ "$CLIENT_BUILD" == "26365" ]] || die "Unsupported client build $CLIENT_BUILD; this lab requires 7.3.5.26365 x64."
+    [[ -d "$CLIENT_DIR" ]] || die "Playable client directory not found: $CLIENT_DIR"
+    [[ -d "$CLIENT_DIR/Data" ]] || die "Playable client has no Data directory: $CLIENT_DIR/Data"
+
+    local client_path executable
+    client_path="$(canonical_path "$CLIENT_DIR")"
+    executable="$(find "$client_path" -maxdepth 1 -type f \
+        \( -iname '*wow*64*.exe' -o -iname 'wow-64.exe' \) \
+        -print -quit 2>/dev/null || true)"
+
+    info "Playable-client prerequisite supplied:"
+    info "  location: $client_path"
+    info "  reported login-screen build: $CLIENT_BUILD"
+    if [[ -n "$executable" ]]; then
+        info "  x64 executable candidate: $(basename "$executable")"
+    else
+        info "  WARNING: no conventionally named x64 WoW executable was found at the client root."
+        info "           Client filenames vary; confirm 'Release x64' on the login screen."
+    fi
+    info "  action: validation only; the playable client will not be copied or modified"
 }
 
 prepare_source() {
@@ -198,6 +256,7 @@ main() {
     REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
     bash "$REPO_ROOT/scripts/preflight.sh"
+    validate_client_info
     [[ "$CHECK_ONLY" -eq 0 ]] || exit 0
     prepare_source
     prepare_environment
@@ -216,6 +275,9 @@ Then rerun:
 
 The project does not download or distribute World of Warcraft clients or
 client-derived game data.
+
+Read the client and data checklist before resuming:
+  docs/CLIENT_SETUP.md
 EOF
         exit 2
     fi

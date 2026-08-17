@@ -16,6 +16,8 @@ bash -n "$repo_root/scripts/configure-realm-address.sh"
 help_output="$(bash "$installer" --help)"
 grep -q 'Usage: bash install/install.sh' <<< "$help_output"
 grep -q -- '--data-source PATH' <<< "$help_output"
+grep -q -- '--client-dir PATH' <<< "$help_output"
+grep -q -- '--client-build N' <<< "$help_output"
 grep -q -- '--check' <<< "$help_output"
 grep -q 'Set the IPv4 address or DNS hostname' \
     < <(bash "$repo_root/scripts/configure-realm-address.sh" --help)
@@ -26,6 +28,9 @@ grep -q 'WSL2 Clean-Machine Installation' "$repo_root/HOWTO-WINDOWS-WSL2.md"
 grep -q 'Legion 7.3.5 on Steam Deck' "$repo_root/HOWTO-STEAM-DECK.md"
 grep -q 'configure-realm-address.sh' "$repo_root/HOWTO-STEAM-DECK.md"
 grep -q 'Client-derived data' "$repo_root/docs/DISTRIBUTION_BOUNDARY.md"
+grep -q 'Legion 7.3.5 Client and Data Prerequisites' \
+    "$repo_root/docs/CLIENT_SETUP.md"
+grep -q 'docs/CLIENT_SETUP.md' "$repo_root/install/install.sh"
 test -f "$repo_root/LICENSE"
 
 tmp_root="$(mktemp -d)"
@@ -47,6 +52,30 @@ LEGION_LAB_REPO_URL="$tmp_root/seed" \
 
 grep -q -- '--data-source /tmp/example-data' "$tmp_root/bootstrap-args"
 test -d "$tmp_root/target/.git"
+
+mkdir -p "$tmp_root/client/Data"
+touch "$tmp_root/client/WoW-Legion-64bit.exe"
+client_check_output="$(
+    LEGION_MIN_FREE_GB=0 bash "$installer" --check \
+        --client-dir "$tmp_root/client" --client-build 26365
+)"
+grep -q 'reported login-screen build: 26365' <<< "$client_check_output"
+grep -q 'will not be copied or modified' <<< "$client_check_output"
+if LEGION_MIN_FREE_GB=0 bash "$installer" --check \
+    --client-dir "$tmp_root/client" --client-build 12340 >/dev/null 2>&1; then
+    echo "Unsupported client build was accepted" >&2
+    exit 1
+fi
+if LEGION_MIN_FREE_GB=0 bash "$installer" --check \
+    --client-dir "$tmp_root/client" >/dev/null 2>&1; then
+    echo "Client directory without a build was accepted" >&2
+    exit 1
+fi
+if LEGION_MIN_FREE_GB=0 bash "$installer" --check \
+    --client-build 26365 >/dev/null 2>&1; then
+    echo "Client build without a directory was accepted" >&2
+    exit 1
+fi
 
 mkdir -p "$tmp_root/realm-test/scripts"
 cp "$repo_root/scripts/configure-realm-address.sh" \

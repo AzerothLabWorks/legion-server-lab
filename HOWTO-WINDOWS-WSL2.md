@@ -10,6 +10,11 @@ open-source server build and the AzerothLabWorks improvements. It does not
 download or distribute a World of Warcraft client, a repack, server binaries,
 or client-derived `dbc`, `maps`, `vmaps`, and `mmaps` files.
 
+Before installing, read [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md). It explains
+the exact client build, the difference between a playable client and extracted
+server data, supported paths, portal configuration, and why this project cannot
+provide a legacy-client download link.
+
 ## 1. Requirements
 
 - Windows 10 version 2004 or newer, or Windows 11;
@@ -100,11 +105,16 @@ to permit non-root use, then close and reopen Ubuntu.
 cd ~
 git clone https://github.com/AzerothLabWorks/legion-server-lab.git
 cd legion-server-lab
-bash install/install.sh --check
+bash install/install.sh --check \
+  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-build 26365
 ```
 
 The check is read-only. It validates Linux/WSL, x86-64, Git, OpenSSL, Docker,
-Compose v2, the Docker daemon, and available disk space.
+Compose v2, the Docker daemon, available disk space, the supplied client
+directory, and the operator-confirmed login-screen build. Change the client path
+to the location of your own copy. A headless server operator can omit both
+client options.
 
 The installer creates this isolated layout:
 
@@ -150,12 +160,19 @@ becomes:
 The installer validates the four trees and copies them to native WSL storage.
 The Windows source can remain read-only.
 
+Do not point `--data-source` at a normal client CASC `Data` directory. It must be
+the extracted four-tree layout described in
+[docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md).
+
 ## 7. Build and Start the Server
 
 From `~/legion-server-lab`:
 
 ```bash
-bash install/install.sh --data-source /mnt/c/Games/Legion-Server-Data/Data
+bash install/install.sh \
+  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-build 26365 \
+  --data-source "/mnt/c/Games/Legion-Server-Data/Data"
 ```
 
 Change that example to the real location. The installer will:
@@ -181,7 +198,9 @@ docker compose logs -f mysql
 If data is not ready, it is safe to build first:
 
 ```bash
-bash install/install.sh
+bash install/install.sh \
+  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-build 26365
 ```
 
 The installer stops at the data boundary with exit code 2. Resume later without
@@ -189,6 +208,8 @@ recompiling:
 
 ```bash
 bash install/install.sh --skip-build \
+  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-build 26365 \
   --data-source /mnt/c/Games/Legion-Server-Data/Data
 ```
 
@@ -261,7 +282,8 @@ SET portal "127.0.0.1"
 
 This repository does not provide or link to a legacy client or modified client
 executable. A current retail World of Warcraft client is not compatible with
-this server protocol.
+this server protocol. Follow the verification, backup, account-name, and error
+guidance in [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md).
 
 ## 11. Routine Operation
 
