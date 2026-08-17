@@ -1,21 +1,22 @@
 # Legion Server Lab
 
 An isolated local lab for building and running a World of Warcraft: Legion
-server under WSL2. This repository is independent of the AzerothCore WoTLK,
-addon, and module repositories.
+server directly on a Steam Deck. SteamOS/Arch Linux hosts the Docker server,
+and Proton runs the user-supplied Windows x64 client on the same device. This
+repository is independent of the AzerothCore WoTLK, addon, and module
+repositories.
 
 ## Current target
 
 - Expansion: Legion 7.3.5
 - Candidate client build: 26365
-- Runtime: Ubuntu on WSL2 using Docker Compose
+- Community runtime: Steam Deck with SteamOS/Arch Linux and Docker Compose
 - Status: build 26365 login, world entry, gameplay, addons, and companion
   auto-loot validated in the local lab
 
-The downloaded SPP archive contains a mixture of Windows repacks. Its bundled
-executables and services are not treated as trusted build inputs. The intended
-server will use Linux binaries built from identified source, with separately
-managed database and extracted game-data volumes.
+The server uses Linux binaries built from pinned source, with separately managed
+database and extracted game-data volumes. Prebuilt server executables and
+services are not trusted build inputs.
 
 ## Repository boundary
 
@@ -24,7 +25,7 @@ templates, patches, and documentation. It does not contain game clients,
 client-derived data, repack archives, server binaries, database dumps, secrets,
 or runtime volumes.
 
-The planned WSL layout is:
+The Steam Deck layout is:
 
 ```text
 ~/legion-server-lab/          repository checkout
@@ -55,26 +56,25 @@ Client version, configuration, server-data prerequisites, and the reason this
 project does not publish a legacy-client link are covered in
 [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md).
 
-## WSL2 community installation
+## Steam Deck installation
 
-Start with the clean-machine Windows guide:
-[HOWTO-WINDOWS-WSL2.md](HOWTO-WINDOWS-WSL2.md). The shorter reference workflow
-is in [docs/COMMUNITY_INSTALL.md](docs/COMMUNITY_INSTALL.md), and the release
-boundary is in [docs/DISTRIBUTION_BOUNDARY.md](docs/DISTRIBUTION_BOUNDARY.md).
-Steam Deck client/LAN setup and the experimental all-in-one SteamOS workflow
-are in [HOWTO-STEAM-DECK.md](HOWTO-STEAM-DECK.md).
+Use [HOWTO-STEAM-DECK.md](HOWTO-STEAM-DECK.md) for the complete native SteamOS
+walkthrough. The shorter command reference is in
+[docs/COMMUNITY_INSTALL.md](docs/COMMUNITY_INSTALL.md), and the release boundary
+is in [docs/DISTRIBUTION_BOUNDARY.md](docs/DISTRIBUTION_BOUNDARY.md).
 
-After cloning this repository under WSL2/Linux, run:
+After installing Docker and Git in SteamOS Desktop Mode and cloning this
+repository, run:
 
 ```bash
 bash install/install.sh --check \
-  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+  --client-dir /home/deck/Games/WoW-7.3.5-Legion \
   --client-build 26365
 
 bash install/install.sh \
-  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+  --client-dir /home/deck/Games/WoW-7.3.5-Legion \
   --client-build 26365 \
-  --data-source /absolute/path/to/LegionData/Data
+  --data-source /home/deck/Games/LegionData/Data
 ```
 
 An optional reviewed bootstrap is also available:

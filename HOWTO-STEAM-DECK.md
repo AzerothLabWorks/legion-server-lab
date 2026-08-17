@@ -5,14 +5,14 @@ This guide covers a user-supplied **World of Warcraft: Legion 7.3.5 build
 MMO Lab WoTLK guide while preserving this project's different server and data
 requirements.
 
-There are two supported layouts:
+This is a single-device guide: the Steam Deck runs both the Linux Docker server
+and the Windows x64 client through Proton. No second computer is part of this
+workflow. The client connects to the local server at `127.0.0.1`.
 
-1. **Deck as client, WSL2/Linux PC as server (recommended).** This gives the
-   Deck the best battery, thermal, storage, and suspend behavior.
-2. **Deck as both client and server (experimental).** This can work because the
-   Deck is x86-64 Linux, but compilation is slow, Docker installation modifies
-   SteamOS's normally read-only system, and the Legion client plus extracted
-   server data uses substantial storage.
+Compilation is slow, Docker installation modifies SteamOS's normally read-only
+system image, and the client plus server data uses substantial storage. Those
+tradeoffs are called out at the relevant steps rather than changing the guide
+into a remote-server workflow.
 
 This repository does not provide or download a World of Warcraft client,
 modified client executable, repack, or client-derived `dbc`, `maps`, `vmaps`,
@@ -27,30 +27,19 @@ publish a legacy-client download link.
 
 ## Requirements
 
-### Client-only Deck
-
 - Steam Deck with current SteamOS;
-- approximately 60 GB free for the user-supplied client and Proton prefix;
-- a microSD card or external SSD is acceptable;
-- the Deck and server connected to the same trusted home network; and
-- an already running Legion server from
-  [HOWTO-WINDOWS-WSL2.md](HOWTO-WINDOWS-WSL2.md) or another x86-64 Linux host.
-
-### All-in-one Deck
-
-- all of the above;
-- at least **100 GB free**, in addition to any separate client copy;
+- approximately **160 GB total free** for the client, Proton prefix, server
+  source/build, runtime, and extracted data;
+- a sufficiently large microSD card or external SSD is acceptable;
 - the Deck plugged into power during compilation;
 - a configured `sudo` password; and
 - locally supplied build-26365 `dbc/maps/vmaps/mmaps` data.
 
-The 64 GB LCD model is not a realistic internal-storage target for an all-in-one
-installation. Use a sufficiently large microSD card or external SSD, and keep
-backups of the server runtime.
+The 64 GB LCD model is not a realistic internal-storage target. Use a
+sufficiently large microSD card or external SSD, preferably with a Linux
+filesystem for the server runtime, and keep backups of that runtime.
 
 ## Part A - Prepare the Client on Steam Deck
-
-These steps apply to both layouts.
 
 ### 1. Enter Desktop Mode
 
@@ -77,22 +66,14 @@ current Battle.net retail client is not protocol-compatible.
 ### 3. Configure the portal
 
 With the client closed, open `WTF/Config.wtf` in Kate. Add or replace the portal
-line.
-
-For an all-in-one Deck server:
+line with the Deck's local loopback address:
 
 ```text
 SET portal "127.0.0.1"
 ```
 
-For a server on another computer, use that computer's LAN IPv4 address:
-
-```text
-SET portal "192.168.1.50"
-```
-
-Replace the example with the actual server address configured in Part B. Do not
-use the Deck's address unless the server is running on the Deck.
+Do not use the Deck's Wi-Fi address. Both services are on the same device, so
+`127.0.0.1` is the correct and private endpoint.
 
 ### 4. Add the client to Steam
 
@@ -130,100 +111,11 @@ Set the client to the Deck's native 1280x800 resolution and adjust UI scale in
 game. Addons with many small windows are easier to configure in Desktop Mode or
 with a temporary keyboard and mouse.
 
-## Part B - Connect the Deck to a WSL2 or Linux Server (Recommended)
+## Part B - Install the Server on Steam Deck
 
-### 1. Find the server computer's LAN address
-
-On a Windows/WSL2 host, open PowerShell and run:
-
-```powershell
-ipconfig
-```
-
-Use the IPv4 address of the active Ethernet or Wi-Fi adapter, for example
-`192.168.1.50`. Do not use the WSL virtual-adapter address, `127.0.0.1`, a public
-Internet address, or the router's address.
-
-On a native Linux server, use the host's LAN IPv4 address from:
-
-```bash
-ip -4 address
-```
-
-Consider reserving this address for the server computer in the router's DHCP
-settings so it does not change later.
-
-### 2. Advertise the LAN address from Legion
-
-On the server, from the Legion lab checkout:
-
-```bash
-cd ~/legion-server-lab
-bash scripts/configure-realm-address.sh 192.168.1.50 --enable-lan-rest
-```
-
-Replace the example address. The command:
-
-- stores the realm address in the ignored `.env` file;
-- updates the authentication database;
-- explicitly exposes REST port 8081 to the trusted LAN; and
-- recreates the Battle.net and world containers with the new port binding.
-
-To return the server to local-only operation:
-
-```bash
-bash scripts/configure-realm-address.sh 127.0.0.1 --local-rest
-```
-
-### 3. Allow only trusted-LAN traffic
-
-The Deck needs TCP access to ports `1119`, `8081`, `8085`, and `8086` on the
-server computer. If Windows Defender Firewall prompts for Docker, allow it on
-**Private networks only**. If no prompt appears, create narrowly scoped inbound
-rules for those TCP ports on the Private profile.
-
-Do not configure router port forwarding and do not expose this experimental
-realm to the public Internet. MySQL port 3310 remains bound to the server's
-loopback interface and is not needed by the Deck.
-
-Docker Desktop normally publishes Compose ports through the Windows host. If a
-third-party firewall or VPN is installed, it may need an equivalent trusted-LAN
-exception.
-
-### 4. Test the network from the Deck
-
-In Deck Desktop Mode, replace the example address and run:
-
-```bash
-timeout 3 bash -c '</dev/tcp/192.168.1.50/1119' \
-  && echo 'Battle.net port reachable' \
-  || echo 'Cannot reach Battle.net port'
-
-timeout 3 bash -c '</dev/tcp/192.168.1.50/8085' \
-  && echo 'World port reachable' \
-  || echo 'Cannot reach world port'
-```
-
-If either test fails, confirm the server containers are running, recheck the
-Windows/Linux firewall, and verify both machines are on the same LAN without
-wireless client isolation.
-
-### 5. Log in
-
-Confirm `Config.wtf` uses the same server address, return to Gaming Mode, launch
-Legion, and sign in with the local Battle.net account created on your server.
-If authentication works but the realm is unavailable, re-run the realm-address
-command and inspect:
-
-```bash
-docker compose logs --tail=200 bnetserver worldserver
-```
-
-## Part C - Run the Server on the Steam Deck (Experimental)
-
-Running both client and server avoids LAN configuration, but it consumes more
-storage and battery and does not behave like a continuously available server
-while the Deck is asleep.
+The server runs natively in Docker on SteamOS. It consumes significant storage
+and battery and is unavailable while the Deck is asleep, so keep the Deck on
+power and awake during installation and gameplay.
 
 ### 1. Set a sudo password
 
@@ -244,7 +136,7 @@ packages, in which case this dependency step must be repeated.
 
 ```bash
 sudo steamos-readonly disable
-sudo pacman -Sy --needed docker docker-compose git openssl
+sudo pacman -Syu --needed docker docker-compose docker-buildx git openssl
 sudo steamos-readonly enable
 
 sudo systemctl enable --now docker
@@ -262,6 +154,7 @@ and verify:
 ```bash
 docker info
 docker compose version
+docker buildx version
 git --version
 ```
 
@@ -312,8 +205,8 @@ LEGION_MIN_FREE_GB=100 bash install/install.sh --check \
   --client-build 26365
 ```
 
-The WSL check will identify SteamOS as native Linux rather than WSL2; that
-warning is expected. All required command and Docker checks must pass.
+The preflight must identify native Linux and pass every command, Docker, and
+free-space check before the build begins.
 
 ### 5. Build and install
 
@@ -384,7 +277,7 @@ options:
 ```
 
 Wait for `worldserver` to become ready, then launch the separate Legion client
-shortcut. The all-in-one client portal remains `127.0.0.1`.
+shortcut. The client portal remains `127.0.0.1`.
 
 Before suspending or shutting down the Deck, stop the server cleanly:
 
@@ -423,15 +316,14 @@ dependency installation before touching the lab or runtime directories.
 
 ### Login hangs or reports no realms
 
-- Confirm `SET portal` uses the correct server LAN address.
-- Confirm ports 1119, 8081, 8085, and 8086 are allowed on the trusted LAN.
-- Re-run `configure-realm-address.sh` with the Windows/Linux host address.
+- Confirm `SET portal "127.0.0.1"` is present in `WTF/Config.wtf`.
 - Confirm Docker containers are healthy with `docker compose ps`.
+- Inspect `docker compose logs --tail=200 bnetserver worldserver`.
 
 ### Docker disappears after SteamOS updates
 
 This is a consequence of installing packages into SteamOS's managed system
-image. Repeat Part C, Step 2. Do not delete the server source or runtime.
+image. Repeat Part B, Step 2. Do not delete the server source or runtime.
 
 ### Build fails or is killed
 

@@ -1,291 +1,212 @@
-# Community Installation Guide
+# Steam Deck Community Installation
 
-This guide builds a private World of Warcraft: Legion 7.3.5 server for local
-research, preservation, and testing. The tested protocol target is **7.3.5
-build 26365**.
+This is the short command reference for running the complete Legion lab on one
+Steam Deck. SteamOS/Arch Linux runs the Docker server and Proton runs the
+operator-supplied **Legion 7.3.5 build 26365 Release x64** client.
 
-For a new Windows machine, follow the complete
-[Windows/WSL2 guide](../HOWTO-WINDOWS-WSL2.md). This page is the shorter
-reference workflow for users who already have WSL2 and Docker.
+For explanations, storage planning, controller setup, Gaming Mode shortcuts,
+and troubleshooting, use the canonical
+[Steam Deck guide](../HOWTO-STEAM-DECK.md).
 
-Steam Deck users should follow [HOWTO-STEAM-DECK.md](../HOWTO-STEAM-DECK.md),
-which covers both a Deck client connecting over the LAN and an experimental
-all-in-one SteamOS installation.
+## Distribution Boundary
 
-## Downloads and Distribution Boundary
+The installer downloads pinned open-source server source and builds Linux
+binaries locally. It does not provide or download:
 
-### Server
+- a World of Warcraft client or launcher;
+- modified game executables or repacks;
+- `dbc`, `maps`, `vmaps`, or `mmaps` data;
+- server binaries or database dumps; or
+- credentials or runtime volumes.
 
-- Lab installer and operations repository:
-  <https://github.com/AzerothLabWorks/legion-server-lab>
-- Open-source LegionCore used by the installer:
-  <https://github.com/Legion-Pandaria-Preservation-Project/LegionCore-7.3.5V2>
-- Pinned core commit:
-  `6c41d0faa23474bf9e76a4811b144d43e9545bab`
+The operator must already have access to a matching client and compatible
+extracted server data. Read [CLIENT_SETUP.md](CLIENT_SETUP.md) and
+[DISTRIBUTION_BOUNDARY.md](DISTRIBUTION_BOUNDARY.md) before installing or
+sharing the project.
 
-The installer clones that exact commit, applies the lab patches, builds Linux
-binaries, prepares the database supplied by the upstream source repository,
-and creates the Docker runtime.
+## Requirements
 
-### Client
+- Steam Deck running current SteamOS;
+- approximately 160 GB total free for the client, Proton prefix, source/build,
+  runtime, and extracted data;
+- power connected throughout compilation;
+- a configured Deck-local `sudo` password;
+- an operator-supplied client at a stable location such as
+  `/home/deck/Games/WoW-7.3.5-Legion`; and
+- extracted data whose immediate children are `dbc`, `maps`, `vmaps`, and
+  `mmaps`.
 
-- Official World of Warcraft page: <https://worldofwarcraft.blizzard.com/start>
-- Official Battle.net desktop installer: <https://download.battle.net/desktop>
+An external SSD or sufficiently large microSD card is suitable. Keep the MySQL
+runtime on a Linux filesystem when possible.
 
-Those official downloads normally install Blizzard's currently supported game,
-not the legacy build required by this lab. This project does **not** provide,
-mirror, recommend, or automate downloads of repacks, modified executables,
-archived clients, or client-derived data.
+## 1. Enter Desktop Mode
 
-To connect, a user must already have lawful access to a matching **Windows x64
-7.3.5.26365** client and compatible extracted `dbc`, `maps`, `vmaps`, and
-`mmaps` data. A current retail client is not protocol-compatible.
+Press **Steam > Power > Switch to Desktop**, then open Konsole. Set a local
+password if the Deck account does not have one:
 
-Read [CLIENT_SETUP.md](CLIENT_SETUP.md) for the exact version check, playable
-client versus server-data distinction, Windows/Steam Deck configuration,
-troubleshooting matrix, and client FAQ. The absence of a legacy download link
-is intentional.
+```bash
+passwd
+```
 
-This project is an independent community preservation lab and is not affiliated
-with or endorsed by Blizzard Entertainment.
+## 2. Install Docker and Git
 
-## Supported Host
+SteamOS normally uses a read-only system image. Install the native Arch packages
+and immediately restore read-only mode:
 
-The tested community path is:
+```bash
+sudo steamos-readonly disable
+sudo pacman -Syu --needed docker docker-compose docker-buildx git openssl
+sudo steamos-readonly enable
 
-- Windows 10 or 11;
-- WSL2 with Ubuntu;
-- Docker Desktop configured for WSL2; and
-- at least 60 GB free for source, build output, databases, and extracted data.
+sudo systemctl enable --now docker
+sudo usermod -aG docker deck
+```
 
-Install WSL from Microsoft's documentation:
-<https://learn.microsoft.com/windows/wsl/install>
-
-Install Docker Desktop from:
-<https://docs.docker.com/desktop/setup/install/windows-install/>
-
-In Ubuntu, confirm:
+Restart the Deck so group membership applies. Return to Desktop Mode and verify:
 
 ```bash
 docker info
 docker compose version
+docker buildx version
 git --version
 ```
 
-Or run the repository preflight after cloning:
+SteamOS updates may remove packages installed into the system image. If that
+happens, repeat only this dependency step; do not remove the lab or runtime.
 
-```bash
-bash install/install.sh --check \
-  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
-  --client-build 26365
-```
+## 3. Prepare the Client and Data Paths
 
-## Automated Server Installation
-
-### Bootstrap option
-
-Review [`install/bootstrap.sh`](../install/bootstrap.sh), then run it from WSL:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AzerothLabWorks/legion-server-lab/main/install/bootstrap.sh | bash
-```
-
-To supply extracted data in the same command:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/AzerothLabWorks/legion-server-lab/main/install/bootstrap.sh \
-  | bash -s -- \
-      --client-dir /absolute/path/to/WoW-7.3.5-Legion \
-      --client-build 26365 \
-      --data-source /absolute/path/to/LegionData/Data
-```
-
-The bootstrap only clones or fast-forwards this repository and invokes the
-checked-in installer. Users who prefer not to pipe a script into Bash should
-use the manual clone workflow below.
-
-### Manual clone option
-
-Clone the lab inside WSL or through the Windows-mounted filesystem:
-
-```bash
-git clone https://github.com/AzerothLabWorks/legion-server-lab.git
-cd legion-server-lab
-```
-
-If compatible extracted data is already available:
-
-```bash
-bash install/install.sh \
-  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
-  --client-build 26365 \
-  --data-source /absolute/path/to/LegionData/Data
-```
-
-The client arguments are validated read-only and are not persisted, copied, or
-uploaded by the installer. Headless server operators may omit both. Run the same
-values with `--check` first to validate prerequisites without cloning or
-building.
-
-The supplied directory must contain:
-
-```text
-Data/
-├── dbc/
-├── maps/
-├── vmaps/
-└── mmaps/
-```
-
-The pinned open-source core contains `mapextractor`, `vmap4extractor`,
-`vmap4assembler`, and `mmaps_generator` source code, but it is not currently a
-reliable end-to-end build-26365 extraction toolchain: DB2 extraction is disabled
-and part of the map path retains an older hard-coded build. Extracting data from
-an authorized client remains an advanced, version-sensitive prerequisite, not
-a supported automated installer feature. Do not upload or redistribute the
-resulting data. Community contributions that make lawful local extraction
-reproducible for build 26365 are welcome.
-
-The installer copies this data to native WSL storage under
-`~/legion-server-runtime/data`. This is intentional: very large client-data
-bind mounts from `/mnt/c` have not behaved consistently with Docker Desktop.
-
-If data is not ready yet, run:
-
-```bash
-bash install/install.sh \
-  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
-  --client-build 26365
-```
-
-The script builds and prepares the server, then stops at the lawful data
-boundary with the exact resume command. After obtaining and extracting data
-from a client you are authorized to use:
-
-```bash
-bash install/install.sh --skip-build \
-  --client-dir /absolute/path/to/WoW-7.3.5-Legion \
-  --client-build 26365 \
-  --data-source /absolute/path/to/LegionData/Data
-```
-
-The first database import can take several minutes. Follow progress with:
-
-```bash
-docker compose logs -f mysql
-```
-
-## Create the First Account
-
-Attach to the running worldserver console:
-
-```bash
-docker compose attach worldserver
-```
-
-At the `TC>` prompt, create a Battle.net account and its first game account:
-
-```text
-bnetaccount create you@example.com A-UNIQUE-LOCAL-PASSWORD true
-```
-
-The console prints the generated game-account name, commonly something like
-`1#1`. Grant that generated game account administrator access on all realms:
-
-```text
-account set gmlevel 1#1 3 -1
-```
-
-Substitute the exact game-account name printed by the create command. Detach
-without stopping the server using Docker's default detach sequence:
-`Ctrl+P`, then `Ctrl+Q`.
-
-Do not publish real passwords in screenshots, issues, logs, or configuration.
-
-## Configure the Client
-
-Confirm the login screen reports:
+Confirm the client login screen says:
 
 ```text
 Version 7.3.5 (26365) Release x64
 ```
 
-Close the client and edit its `WTF/Config.wtf`. Ensure the portal targets the
-local Battle.net endpoint:
+A typical single-device layout is:
+
+```text
+/home/deck/Games/WoW-7.3.5-Legion/
+/home/deck/Games/LegionData/Data/
+    dbc/
+    maps/
+    vmaps/
+    mmaps/
+```
+
+The ordinary CASC `Data` directory inside the playable client is not the same
+as the four extracted server-data trees.
+
+## 4. Clone and Check Prerequisites
+
+```bash
+cd ~
+git clone https://github.com/AzerothLabWorks/legion-server-lab.git
+cd legion-server-lab
+
+LEGION_MIN_FREE_GB=100 bash install/install.sh --check \
+  --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
+  --client-build 26365
+```
+
+The check must report SteamOS/Arch Linux, x86-64, Docker, Compose, Git, OpenSSL,
+and adequate free space. The client directory is inspected read-only and is not
+copied or modified.
+
+## 5. Build and Start
+
+Limit compilation to two jobs on the Deck:
+
+```bash
+LEGION_BUILD_JOBS=2 bash install/install.sh \
+  --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
+  --client-build 26365 \
+  --data-source "/home/deck/Games/LegionData/Data"
+```
+
+If the extracted data is on removable storage, replace only the data path, for
+example:
+
+```text
+/run/media/deck/YOUR_DRIVE_LABEL/LegionData/Data
+```
+
+The first build and database import can take considerable time. Keep the Deck
+awake, connected to power, and on a ventilated surface.
+
+## 6. Create the First Account
+
+After all services are healthy:
+
+```bash
+cd ~/legion-server-lab
+docker compose attach worldserver
+```
+
+At the server console:
+
+```text
+bnetaccount create player@example.com USE-A-UNIQUE-LOCAL-PASSWORD true
+account set gmlevel 1#1 3 -1
+```
+
+Replace `1#1` with the game-account name printed by the first command. Detach
+without stopping the server with `Ctrl+P`, then `Ctrl+Q`.
+
+## 7. Configure and Launch the Client
+
+Close the client and put this in its `WTF/Config.wtf`:
 
 ```text
 SET portal "127.0.0.1"
 ```
 
-Launch the compatible x64 client directly, enter the Battle.net email and
-password created above, and choose its `WoW1` game account if prompted.
-
-The server exposes these local ports:
-
-| Port | Purpose |
-| --- | --- |
-| `1119` | Battle.net authentication |
-| `8081` | REST login endpoint; localhost unless LAN access is explicitly enabled |
-| `8085` | Primary world connection |
-| `8086` | Legion instance/world traffic |
-| `3310` | MySQL, bound to localhost only |
-
-## Routine Management
-
-From the lab repository:
+Add the client's x64 executable to Steam as a Non-Steam Game and force Proton
+Experimental initially. Start the local server before launching the client:
 
 ```bash
+cd ~/legion-server-lab
+bash scripts/compose.sh up -d mysql bnetserver worldserver
+docker compose ps
+```
+
+## Routine Commands
+
+```bash
+cd ~/legion-server-lab
 bash scripts/compose.sh ps
 bash scripts/compose.sh logs -f bnetserver worldserver
 bash scripts/compose.sh restart worldserver
 bash scripts/compose.sh down
 ```
 
-For named switching between WoTLK and Legion, install the companion management
-tool from <https://github.com/AzerothLabWorks/server-management> and configure a
-`legion` target as described there.
+Stop the services before suspending or shutting down the Deck. Suspending the
+Deck suspends the local server and disconnects the client.
 
 ## Updating
 
-The installer pins the core source. Pulling newer upstream commits without a
-new lab compatibility review is unsupported.
-
-Update the lab orchestration with:
-
 ```bash
+cd ~/legion-server-lab
 git pull --ff-only
 bash tests/install-smoke.sh
 bash tests/verify-patches.sh
+LEGION_BUILD_JOBS=2 bash install/install.sh \
+  --data-source ~/legion-server-runtime/data
 ```
 
-Back up `~/legion-server-runtime/mysql` before applying database or core changes.
+Back up `~/legion-server-runtime/mysql` before core or database changes.
 
-## Troubleshooting
+## Quick Troubleshooting
 
-### No realms are available
+- **Preflight identifies another distribution:** the supported community host
+  is Steam Deck with SteamOS/Arch Linux.
+- **Client immediately exits:** verify build 26365 x64, try Proton Experimental,
+  then a current GE-Proton release.
+- **No realms:** confirm `SET portal "127.0.0.1"`, run `docker compose ps`, and
+  inspect `docker compose logs --tail=200 bnetserver worldserver`.
+- **World server exits:** confirm all four extracted data directories are
+  populated under `~/legion-server-runtime/data`.
+- **Build is killed:** rerun with `LEGION_BUILD_JOBS=1` and check `df -h`.
 
-- Confirm the client is exactly build 26365.
-- Confirm both servers are running with `docker compose ps`.
-- Inspect `docker compose logs bnetserver worldserver`.
-- Rerun `bash scripts/apply-required-updates.sh` after MySQL is healthy.
-
-### World server is down or login times out
-
-- Confirm all four data trees exist under `~/legion-server-runtime/data`.
-- Wait until the logs say `worldserver-daemon) ready`.
-- Confirm ports `8085` and `8086` are not occupied by another WoW stack.
-- Stop WoTLK before starting Legion, or use `server switch legion`.
-
-### Installer reports a modified source checkout
-
-The installer refuses to overwrite unknown source changes. Move the checkout
-aside or review and commit your work before retrying. It safely recognizes the
-patches managed by this repository on repeat runs.
-
-## Known Limitations
-
-- This remains an experimental preservation server, not a complete production realm.
-- Many quests, encounters, scenarios, class halls, and phasing paths need testing.
-- Client and extracted game data cannot be redistributed by this project.
-- Community bug reports should include client build, character, zone, quest or
-  creature ID, exact reproduction steps, and relevant server logs.
+This remains an experimental preservation server. Community reports should
+include client build, character, zone, quest or creature ID, exact reproduction
+steps, and relevant server logs.

@@ -72,12 +72,11 @@ are related, but they are not interchangeable.
 
 ### 1. Playable client
 
-This is the complete Windows x64 game directory launched on Windows or through
-Proton on Steam Deck. A typical operator-owned location is:
+This is the complete Windows x64 game directory launched through Proton on
+Steam Deck. A typical operator-owned location is:
 
 ```text
-Windows:    C:\Games\WoW-7.3.5-Legion-Client\
-Steam Deck: /home/deck/Games/WoW-7.3.5-Legion/
+/home/deck/Games/WoW-7.3.5-Legion/
 ```
 
 The server installer does not need to write into this directory.
@@ -131,18 +130,6 @@ write the client path or client contents into the repository, runtime, database,
 or an upload. As with any shell command, users who consider local paths sensitive
 should prefer environment variables or clear their own shell history.
 
-On WSL, a Windows directory such as:
-
-```text
-C:\Games\LegionData\Data
-```
-
-is addressed as:
-
-```text
-/mnt/c/Games/LegionData/Data
-```
-
 Do **not** point `--data-source` at the ordinary CASC `Data` directory inside a
 playable client unless it genuinely contains the four extracted directories
 shown above. A normal client `Data` directory containing CASC files is not the
@@ -176,15 +163,15 @@ Before running the full installer, collect these three values:
 
 | Installer input | How the user obtains it | Example |
 | --- | --- | --- |
-| `--client-dir` | Absolute path to their complete operator-owned playable client | `/mnt/c/Games/WoW-7.3.5-Legion-Client` |
+| `--client-dir` | Absolute path to their complete operator-owned playable client | `/home/deck/Games/WoW-7.3.5-Legion` |
 | `--client-build` | Build visibly shown at the lower-left of the login screen | `26365` |
-| `--data-source` | Absolute path whose immediate children are `dbc/maps/vmaps/mmaps` | `/mnt/c/Games/LegionData/Data` |
+| `--data-source` | Absolute path whose immediate children are `dbc/maps/vmaps/mmaps` | `/home/deck/Games/LegionData/Data` |
 
 Run a read-only prerequisite check before compiling:
 
 ```bash
 bash install/install.sh --check \
-  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
   --client-build 26365
 ```
 
@@ -192,9 +179,9 @@ Then run the full installation with the same client values plus the data source:
 
 ```bash
 bash install/install.sh \
-  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
   --client-build 26365 \
-  --data-source "/mnt/c/Games/LegionData/Data"
+  --data-source "/home/deck/Games/LegionData/Data"
 ```
 
 ## Verify the client before server troubleshooting
@@ -211,19 +198,9 @@ Version 7.3.5 (26365) Release x64
 If it reports another build, stop. Server configuration cannot make a different
 protocol build compatible.
 
-### Windows file-information check
-
-Windows may also expose executable metadata. In PowerShell, substitute the real
-path:
-
-```powershell
-(Get-Item 'C:\Games\WoW-7.3.5-Legion-Client\Wow-64.exe').VersionInfo |
-  Select-Object FileVersion, ProductVersion
-```
-
-Some archived executables have incomplete metadata, so the login-screen build
-remains the decisive check. This project does not publish a universal executable
-hash because different authorized locale/install variants may not be identical.
+Some client executables have incomplete metadata, so the login-screen build is
+the decisive check. This project does not publish a universal executable hash
+because different authorized locale/install variants may not be identical.
 
 ## Keep an untouched backup
 
@@ -237,7 +214,7 @@ Before changing configuration or installing addons:
 A modern launcher may update or replace files. The lab cannot reconstruct a
 damaged client.
 
-## Configure a local Windows client
+## Configure the local Steam Deck client
 
 Close the client. Open:
 
@@ -252,8 +229,8 @@ SET portal "127.0.0.1"
 ```
 
 Legion uses `portal`; do not substitute the older WoTLK `realmlist.wtf`
-instructions. Start the compatible x64 executable directly rather than using
-the current Battle.net launcher.
+instructions. Add the compatible x64 executable to Steam as a Non-Steam Game
+and launch it through Proton rather than the current Battle.net launcher.
 
 Log in with the local Battle.net-format account created at the worldserver
 console. The email-shaped name is only a record in the private server database;
@@ -263,19 +240,10 @@ it does not need to be a real mailbox. Use a non-personal example such as
 If the login screen shows a game-account selector such as `WoW1`, select the
 game account created beneath that Battle.net account. That selector is normal.
 
-## Configure a Steam Deck or other LAN client
-
-Follow [HOWTO-STEAM-DECK.md](../HOWTO-STEAM-DECK.md). In summary:
-
-1. configure the server's advertised LAN address with
-   `scripts/configure-realm-address.sh`;
-2. allow only the required TCP ports on the trusted private LAN;
-3. put the server computer's LAN IPv4 address in the Deck client's `portal`
-   line; and
-4. launch the user-supplied x64 executable through Proton.
-
-Do not configure router port forwarding or expose the experimental server to
-the public Internet.
+For the complete single-device workflow, follow
+[HOWTO-STEAM-DECK.md](../HOWTO-STEAM-DECK.md): install the Linux server directly
+on SteamOS, start the local Docker services, and then launch the client through
+Proton. No second computer or router configuration is involved.
 
 ## Error guide
 

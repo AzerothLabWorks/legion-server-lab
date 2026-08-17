@@ -6,19 +6,19 @@ The runtime uses three Compose services:
 - `bnetserver` on TCP 1119, with its REST-login endpoint on TCP 8081
 - `worldserver` on TCP 8085
 
-All persistent state remains under `~/legion-server-runtime` in WSL. The Git
-repository contains only orchestration and templates.
+All persistent state remains under `~/legion-server-runtime` on the Steam Deck.
+The Git repository contains only orchestration and templates.
 
 ## Prepare
 
 Copy `.env.example` to `.env`, replace both example passwords, and confirm the
-WSL paths. Then run from WSL:
+Steam Deck paths. Then run from the repository:
 
 ```bash
 set -a
-source /mnt/c/Users/User/OneDrive/Documents/legion-server-lab/.env
+source "$HOME/legion-server-lab/.env"
 set +a
-bash /mnt/c/Users/User/OneDrive/Documents/legion-server-lab/scripts/prepare-runtime.sh
+bash "$HOME/legion-server-lab/scripts/prepare-runtime.sh"
 ```
 
 The preparation script extracts the source-matched database baseline into
@@ -28,7 +28,7 @@ generates server configuration using the same database password.
 ## Start
 
 ```bash
-cd /mnt/c/Users/User/OneDrive/Documents/legion-server-lab
+cd ~/legion-server-lab
 docker compose up -d mysql
 docker compose logs -f mysql
 ```
@@ -56,14 +56,15 @@ The current SPP/Praevius 26365 data mount passes the public core's DB2 loading
 boundary: 297 DB2 stores, 2,288 hotfix records, and 31 game tables initialize.
 This does not yet prove client login or gameplay compatibility. MySQL and
 `bnetserver` can run independently while `worldserver` remains stopped for
-WoTLK port isolation.
+maintenance.
 
 The initial test configuration disables the optional archived auction-house
 seller and buyer. With those disabled, `worldserver` completes initialization
 and listens on TCP 8085. Realm 1 is pinned to client build 26365 by
 `scripts/apply-required-updates.sh`. It advertises `LEGION_REALM_ADDRESS`, which
 defaults to `127.0.0.1`. REST port 8081 remains loopback-only unless
-`LEGION_REST_BIND_ADDRESS` is explicitly changed for trusted-LAN play.
+`LEGION_REST_BIND_ADDRESS` is explicitly changed. The single-device Steam Deck
+workflow keeps it loopback-only.
 
 ## Game data
 

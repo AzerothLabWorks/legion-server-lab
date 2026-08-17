@@ -30,7 +30,7 @@ a pinned commit and builds the Linux server locally.
 
 Every operator must supply compatible build-26365 data from a client they are
 authorized to use. The installer may copy that data between the operator's own
-Windows and WSL filesystems, but the project does not upload, mirror, seed, or
+Steam Deck storage locations, but the project does not upload, mirror, seed, or
 bundle it. Generated data must not be attached to issues or committed to forks.
 The practical version and configuration requirements are documented in
 [CLIENT_SETUP.md](CLIENT_SETUP.md).

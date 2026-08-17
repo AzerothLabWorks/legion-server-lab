@@ -17,7 +17,7 @@ usage() {
     cat <<'USAGE'
 Usage: bash install/install.sh [options]
 
-Build and prepare the AzerothLabWorks Legion 7.3.5 server under WSL2/Linux.
+Build and prepare the AzerothLabWorks Legion 7.3.5 server on Steam Deck.
 
 Options:
   --client-dir PATH   Validate an operator-supplied playable client (read-only)
@@ -25,7 +25,7 @@ Options:
   --data-source PATH  Copy user-supplied build-26365 dbc/maps/vmaps/mmaps data
   --skip-build        Reuse an existing compiled server under the runtime root
   --no-start          Prepare everything but do not start Docker services
-  --check             Check WSL/Linux, Docker, tools, and disk space; change nothing
+  --check             Check SteamOS/Arch, Docker, tools, and disk space; change nothing
   --help              Show this help
 
 Environment overrides:
@@ -35,9 +35,9 @@ Environment overrides:
 
 Recommended community invocation:
   bash install/install.sh \
-    --client-dir /absolute/path/to/WoW-7.3.5-Legion \
+    --client-dir /home/deck/Games/WoW-7.3.5-Legion \
     --client-build 26365 \
-    --data-source /absolute/path/to/LegionData/Data
+    --data-source /home/deck/Games/LegionData/Data
 
 The playable client is checked in place and is never copied or modified.
 USAGE
@@ -284,7 +284,7 @@ EOF
 
     if [[ "$START_SERVER" -eq 1 ]]; then
         start_server
-        info "Installation completed. Continue with HOWTO-WINDOWS-WSL2.md."
+        info "Installation completed. Continue with HOWTO-STEAM-DECK.md."
     else
         info "Preparation completed. Start later with: bash scripts/compose.sh up -d mysql bnetserver worldserver"
     fi

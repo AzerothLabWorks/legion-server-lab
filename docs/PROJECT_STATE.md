@@ -30,14 +30,17 @@
   and configured for client build 26365.
 - Detailed findings: `docs/REPACK_INVENTORY.md`
 
-## Environment
+## Historical Development Validation Environment
 
-- WSL distribution: Ubuntu 26.04 LTS
-- WSL version: 2
+- Initial development host: x86-64 Linux
 - Docker Engine: 29.6.0
 - Docker Compose: 5.1.4
 - The core builds in a pinned Ubuntu 18.04 container to retain Boost 1.65 and
   other legacy ABI dependencies.
+
+This records the environment used during initial core bring-up; it is not a
+community installation alternative. The supported community target is a single
+Steam Deck running SteamOS/Arch Linux.
 
 ## Verified milestones
 

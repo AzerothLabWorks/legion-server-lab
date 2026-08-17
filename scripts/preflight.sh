@@ -2,6 +2,7 @@
 set -euo pipefail
 
 MIN_FREE_GB="${LEGION_MIN_FREE_GB:-50}"
+ALLOW_UNSUPPORTED_HOST="${LEGION_ALLOW_UNSUPPORTED_HOST:-0}"
 errors=0
 
 ok() {
@@ -22,7 +23,7 @@ have() {
 }
 
 if [[ "$(uname -s)" != "Linux" ]]; then
-    fail "Run this installer inside Ubuntu/WSL2 or another x86-64 Linux environment."
+    fail "Run this installer on Steam Deck under SteamOS/Arch Linux."
 else
     ok "Linux environment detected"
 fi
@@ -32,14 +33,24 @@ case "$(uname -m)" in
     *) fail "Unsupported architecture: $(uname -m). This pinned core is tested on x86-64." ;;
 esac
 
-if grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null; then
-    if grep -qi wsl2 /proc/sys/kernel/osrelease 2>/dev/null; then
-        ok "WSL2 kernel detected"
-    else
-        warn "A Microsoft WSL kernel was detected, but WSL2 could not be confirmed."
-    fi
+os_id=""
+os_like=""
+os_name="unknown Linux distribution"
+if [[ -r /etc/os-release ]]; then
+    # shellcheck disable=SC1091
+    source /etc/os-release
+    os_id="${ID:-}"
+    os_like="${ID_LIKE:-}"
+    os_name="${PRETTY_NAME:-${NAME:-unknown Linux distribution}}"
+fi
+
+if [[ " $os_id $os_like " == *" steamos "* || " $os_id $os_like " == *" arch "* ]]; then
+    ok "SteamOS/Arch Linux environment detected: $os_name"
+elif [[ "$ALLOW_UNSUPPORTED_HOST" == "1" ]]; then
+    warn "Supported community target is Steam Deck with SteamOS/Arch Linux; detected: $os_name"
+    warn "LEGION_ALLOW_UNSUPPORTED_HOST=1 enabled for development or CI."
 else
-    warn "WSL2 was not detected. Native x86-64 Linux can work, but the community guide tests WSL2."
+    fail "Unsupported host: $os_name. Community installation requires Steam Deck with SteamOS/Arch Linux."
 fi
 
 for tool in git docker openssl sha256sum; do
@@ -57,10 +68,16 @@ if have docker; then
         fail "Docker Compose v2 is required (the command must be: docker compose)."
     fi
 
+    if docker buildx version >/dev/null 2>&1; then
+        ok "Docker Buildx is available"
+    else
+        fail "Docker Buildx is required (install the SteamOS docker-buildx package)."
+    fi
+
     if docker info >/dev/null 2>&1; then
         ok "Docker daemon is responding"
     else
-        fail "Docker is installed but not responding. Start Docker Desktop or Docker Engine."
+        fail "Docker is installed but not responding. Start the Docker Engine."
     fi
 fi
 
@@ -69,9 +86,9 @@ if [[ -d "$HOME" ]]; then
     if [[ "$available_kb" =~ ^[0-9]+$ ]]; then
         available_gb=$((available_kb / 1024 / 1024))
         if (( available_gb < MIN_FREE_GB )); then
-            warn "Only ${available_gb} GiB is free on the WSL filesystem; ${MIN_FREE_GB} GiB is recommended for a clean install."
+            warn "Only ${available_gb} GiB is free on the home filesystem; ${MIN_FREE_GB} GiB is recommended for a clean install."
         else
-            ok "${available_gb} GiB free on the WSL filesystem"
+            ok "${available_gb} GiB free on the home filesystem"
         fi
     fi
 fi

@@ -23,7 +23,7 @@ candidate, not a source-equivalent reproduction of the repack.
 The SPP database and extracted data will not be imported until the public core
 successfully compiles and its expected schema is compared with the repack.
 
-## WSL checkout
+## Source checkout
 
 ```text
 ~/legion-server-sources/LegionCore-7.3.5V2
@@ -121,10 +121,10 @@ is kept outside Git at `~/legion-server-runtime/server` and contains:
 The binaries intentionally link against Ubuntu 18.04-era libraries, including
 Boost 1.65, OpenSSL 1.1, and MySQL client 20. They therefore need an Ubuntu
 18.04-compatible runtime container and should not be launched directly on the
-Ubuntu 26.04 WSL host.
+SteamOS host.
 
 Build command:
 
 ```bash
-LEGION_BUILD_JOBS=4 bash /mnt/c/Users/User/OneDrive/Documents/legion-server-lab/scripts/build-core.sh
+LEGION_BUILD_JOBS=2 bash "$HOME/legion-server-lab/scripts/build-core.sh"
 ```
