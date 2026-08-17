@@ -6,13 +6,14 @@ The runtime uses three Compose services:
 - `bnetserver` on TCP 1119, with its REST-login endpoint on TCP 8081
 - `worldserver` on TCP 8085
 
-All persistent state remains under `~/legion-server-runtime` on the Steam Deck.
-The Git repository contains only orchestration and templates.
+All persistent state remains under `~/legion-server-runtime` on the supported
+Linux server host: SteamOS on Deck or Ubuntu under WSL2. The Git repository
+contains only orchestration and templates.
 
 ## Prepare
 
 Copy `.env.example` to `.env`, replace both example passwords, and confirm the
-Steam Deck paths. Then run from the repository:
+selected platform's Linux paths. Then run from the repository:
 
 ```bash
 set -a
@@ -63,8 +64,8 @@ seller and buyer. With those disabled, `worldserver` completes initialization
 and listens on TCP 8085. Realm 1 is pinned to client build 26365 by
 `scripts/apply-required-updates.sh`. It advertises `LEGION_REALM_ADDRESS`, which
 defaults to `127.0.0.1`. REST port 8081 remains loopback-only unless
-`LEGION_REST_BIND_ADDRESS` is explicitly changed. The single-device Steam Deck
-workflow keeps it loopback-only.
+`LEGION_REST_BIND_ADDRESS` is explicitly changed. Both supported local-host
+workflows keep it loopback-only.
 
 ## Game data
 

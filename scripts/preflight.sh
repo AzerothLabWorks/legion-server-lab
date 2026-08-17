@@ -23,7 +23,7 @@ have() {
 }
 
 if [[ "$(uname -s)" != "Linux" ]]; then
-    fail "Run this installer on Steam Deck under SteamOS/Arch Linux."
+    fail "Run this installer on SteamOS/Arch Linux or Ubuntu under WSL2."
 else
     ok "Linux environment detected"
 fi
@@ -44,13 +44,21 @@ if [[ -r /etc/os-release ]]; then
     os_name="${PRETTY_NAME:-${NAME:-unknown Linux distribution}}"
 fi
 
+is_wsl2=0
+if grep -qi microsoft /proc/sys/kernel/osrelease 2>/dev/null \
+    && grep -qi wsl2 /proc/sys/kernel/osrelease 2>/dev/null; then
+    is_wsl2=1
+fi
+
 if [[ " $os_id $os_like " == *" steamos "* || " $os_id $os_like " == *" arch "* ]]; then
     ok "SteamOS/Arch Linux environment detected: $os_name"
+elif [[ "$is_wsl2" == "1" && " $os_id $os_like " == *" ubuntu "* ]]; then
+    ok "Ubuntu WSL2 environment detected: $os_name"
 elif [[ "$ALLOW_UNSUPPORTED_HOST" == "1" ]]; then
-    warn "Supported community target is Steam Deck with SteamOS/Arch Linux; detected: $os_name"
+    warn "Supported hosts are Steam Deck/SteamOS and Ubuntu/WSL2; detected: $os_name"
     warn "LEGION_ALLOW_UNSUPPORTED_HOST=1 enabled for development or CI."
 else
-    fail "Unsupported host: $os_name. Community installation requires Steam Deck with SteamOS/Arch Linux."
+    fail "Unsupported host: $os_name. Use Steam Deck/SteamOS or Ubuntu under WSL2."
 fi
 
 for tool in git docker openssl sha256sum; do
@@ -71,7 +79,7 @@ if have docker; then
     if docker buildx version >/dev/null 2>&1; then
         ok "Docker Buildx is available"
     else
-        fail "Docker Buildx is required (install the SteamOS docker-buildx package)."
+        fail "Docker Buildx is required; install it for the selected host platform."
     fi
 
     if docker info >/dev/null 2>&1; then

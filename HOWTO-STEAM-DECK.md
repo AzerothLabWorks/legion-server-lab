@@ -1,9 +1,7 @@
 # Legion 7.3.5 on Steam Deck
 
 This guide covers a user-supplied **World of Warcraft: Legion 7.3.5 build
-26365** client on Steam Deck. It is modeled after the practical flow in Dad's
-MMO Lab WoTLK guide while preserving this project's different server and data
-requirements.
+26365** client and the AzerothLabWorks server running together on Steam Deck.
 
 This is a single-device guide: the Steam Deck runs both the Linux Docker server
 and the Windows x64 client through Proton. No second computer is part of this
@@ -347,10 +345,7 @@ Then inspect:
 docker compose logs --tail=200 mysql bnetserver worldserver
 ```
 
-## Reference and Project Status
+## Project Status
 
-The user-focused structure of this guide was informed by
-[Dad's MMO Lab WoTLK Steam Deck guide](https://github.com/DadsMmoLab/dads-mmo-lab/blob/main/guides/wow-wotlk/WoW-WotLK-HOWTO.md).
-Its AzerothCore installer and data sizes are not interchangeable with this
-Legion build. Legion remains an experimental preservation server with incomplete
-quests, encounters, class behavior, phasing, and instances.
+Legion remains an experimental preservation server with incomplete quests,
+encounters, class behavior, phasing, and instances.

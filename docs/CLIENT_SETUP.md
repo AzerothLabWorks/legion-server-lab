@@ -5,12 +5,20 @@ This page answers the client question separately from the server installer:
 > The AzerothLabWorks installer builds the server. The operator supplies a
 > compatible client and the four extracted server-data trees.
 
-That is broadly the same usability model described by
-[Dad's MMO Lab](https://github.com/DadsMmoLab/dads-mmo-lab/blob/main/guides/wow-wotlk/WoW-WotLK-HOWTO.md):
-server automation does not make the game client part of the server
-distribution. The important Legion difference is that we do not name, mirror,
-or link a third-party legacy client or repack, and the current pinned core
-cannot reliably extract every required build-26365 data tree by itself.
+Choose one supported layout before collecting paths:
+
+| Layout | Server host | Client launch | Guide |
+| --- | --- | --- | --- |
+| Steam Deck | SteamOS/Arch Linux on the Deck | Proton on the same Deck | [Steam Deck guide](../HOWTO-STEAM-DECK.md) |
+| Windows PC | Ubuntu/WSL2 on the PC | Windows x64 executable on the same PC | [Windows/WSL2 guide](../HOWTO-WINDOWS-WSL2.md) |
+
+The client requirements are identical, but filesystem paths and host setup are
+different. Follow only the guide for the selected layout.
+
+Server automation and client materials remain separate. This project does not
+name, mirror, or link a third-party legacy client or repack, and the current
+pinned core cannot reliably extract every required build-26365 data tree by
+itself.
 
 ## Required version
 
@@ -72,12 +80,13 @@ are related, but they are not interchangeable.
 
 ### 1. Playable client
 
-This is the complete Windows x64 game directory launched through Proton on
-Steam Deck. A typical operator-owned location is:
+This is the complete Windows x64 game directory. It runs directly on Windows or
+through Proton on Steam Deck. Typical operator-owned locations are:
 
-```text
-/home/deck/Games/WoW-7.3.5-Legion/
-```
+| Layout | User-facing location | Installer value |
+| --- | --- | --- |
+| Steam Deck | `/home/deck/Games/WoW-7.3.5-Legion/` | `/home/deck/Games/WoW-7.3.5-Legion` |
+| Windows/WSL2 | `C:\Games\WoW-7.3.5-Legion-Client\` | `/mnt/c/Games/WoW-7.3.5-Legion-Client` |
 
 The server installer does not need to write into this directory.
 
@@ -130,6 +139,22 @@ write the client path or client contents into the repository, runtime, database,
 or an upload. As with any shell command, users who consider local paths sensitive
 should prefer environment variables or clear their own shell history.
 
+### Platform path rules
+
+On Steam Deck, enter the ordinary Linux path shown by Dolphin, normally under
+`/home/deck` or `/run/media/deck`.
+
+On Windows/WSL2, run the installer inside Ubuntu and translate the Windows drive
+to its WSL mount. For example:
+
+```text
+Windows client: C:\Games\WoW-7.3.5-Legion-Client
+Installer path: /mnt/c/Games/WoW-7.3.5-Legion-Client
+
+Windows data:   C:\Games\LegionData\Data
+Installer path: /mnt/c/Games/LegionData/Data
+```
+
 Do **not** point `--data-source` at the ordinary CASC `Data` directory inside a
 playable client unless it genuinely contains the four extracted directories
 shown above. A normal client `Data` directory containing CASC files is not the
@@ -161,13 +186,15 @@ No client or client-derived data is uploaded during this process.
 
 Before running the full installer, collect these three values:
 
-| Installer input | How the user obtains it | Example |
-| --- | --- | --- |
-| `--client-dir` | Absolute path to their complete operator-owned playable client | `/home/deck/Games/WoW-7.3.5-Legion` |
-| `--client-build` | Build visibly shown at the lower-left of the login screen | `26365` |
-| `--data-source` | Absolute path whose immediate children are `dbc/maps/vmaps/mmaps` | `/home/deck/Games/LegionData/Data` |
+| Installer input | How the user obtains it | Steam Deck example | Windows/WSL2 example |
+| --- | --- | --- | --- |
+| `--client-dir` | Absolute path to the complete operator-owned playable client | `/home/deck/Games/WoW-7.3.5-Legion` | `/mnt/c/Games/WoW-7.3.5-Legion-Client` |
+| `--client-build` | Build visibly shown at the lower-left of the login screen | `26365` | `26365` |
+| `--data-source` | Absolute path whose immediate children are `dbc/maps/vmaps/mmaps` | `/home/deck/Games/LegionData/Data` | `/mnt/c/Games/LegionData/Data` |
 
-Run a read-only prerequisite check before compiling:
+Run the read-only prerequisite check for the selected platform before compiling.
+
+Steam Deck:
 
 ```bash
 bash install/install.sh --check \
@@ -182,6 +209,19 @@ bash install/install.sh \
   --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
   --client-build 26365 \
   --data-source "/home/deck/Games/LegionData/Data"
+```
+
+Windows/WSL2, entered in Ubuntu:
+
+```bash
+bash install/install.sh --check \
+  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-build 26365
+
+bash install/install.sh \
+  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-build 26365 \
+  --data-source "/mnt/c/Games/LegionData/Data"
 ```
 
 ## Verify the client before server troubleshooting
@@ -202,6 +242,14 @@ Some client executables have incomplete metadata, so the login-screen build is
 the decisive check. This project does not publish a universal executable hash
 because different authorized locale/install variants may not be identical.
 
+Windows may also expose executable metadata. From PowerShell, substitute the
+real path:
+
+```powershell
+(Get-Item 'C:\Games\WoW-7.3.5-Legion-Client\Wow-64.exe').VersionInfo |
+  Select-Object FileVersion, ProductVersion
+```
+
 ## Keep an untouched backup
 
 Before changing configuration or installing addons:
@@ -214,23 +262,40 @@ Before changing configuration or installing addons:
 A modern launcher may update or replace files. The lab cannot reconstruct a
 damaged client.
 
-## Configure the local Steam Deck client
+## Configure the client
 
-Close the client. Open:
-
-```text
-CLIENT_FOLDER\WTF\Config.wtf
-```
-
-Ensure it contains:
+Both supported layouts run the client and server on the same physical device,
+so both use the local portal address:
 
 ```text
 SET portal "127.0.0.1"
 ```
 
+### Windows PC with Ubuntu/WSL2
+
+Close the Windows client. Open:
+
+```text
+CLIENT_FOLDER\WTF\Config.wtf
+```
+
 Legion uses `portal`; do not substitute the older WoTLK `realmlist.wtf`
-instructions. Add the compatible x64 executable to Steam as a Non-Steam Game
-and launch it through Proton rather than the current Battle.net launcher.
+instructions. Start the compatible Windows x64 executable directly rather than
+the current Battle.net launcher. The Docker server remains inside Ubuntu/WSL2.
+
+### Steam Deck
+
+Close the client and open this file in Kate:
+
+```text
+/home/deck/Games/WoW-7.3.5-Legion/WTF/Config.wtf
+```
+
+Add the compatible x64 executable to Steam as a Non-Steam Game and launch it
+through Proton. Follow [HOWTO-STEAM-DECK.md](../HOWTO-STEAM-DECK.md) for the
+complete native server, Proton, controller, and Gaming Mode workflow.
+
+### Account selection
 
 Log in with the local Battle.net-format account created at the worldserver
 console. The email-shaped name is only a record in the private server database;
@@ -240,11 +305,6 @@ it does not need to be a real mailbox. Use a non-personal example such as
 If the login screen shows a game-account selector such as `WoW1`, select the
 game account created beneath that Battle.net account. That selector is normal.
 
-For the complete single-device workflow, follow
-[HOWTO-STEAM-DECK.md](../HOWTO-STEAM-DECK.md): install the Linux server directly
-on SteamOS, start the local Docker services, and then launch the client through
-Proton. No second computer or router configuration is involved.
-
 ## Error guide
 
 | Client symptom | What it usually establishes | First checks |
@@ -252,7 +312,7 @@ Proton. No second computer or router configuration is involved.
 | Immediate disconnect / `BLZ51914001` | Authentication endpoint was not completed | `portal`, bnetserver, TCP 1119, exact build |
 | `No realms are currently available` / `WOW51900309` | Authentication worked, realm discovery did not | bnetserver/worldserver status, advertised realm address, build 26365 |
 | `World server is down` | Account and realm were found, world connection failed | worldserver readiness, ports 8085/8086, four data trees |
-| Loading screen hangs and times out | Character handoff began but world session did not finish | worldserver logs, LAN/firewall, data compatibility |
+| Loading screen hangs and times out | Character handoff began but world session did not finish | worldserver logs, Docker port binding, data compatibility |
 | Different version shown on login screen | Client mismatch | Obtain the matching operator-owned build; do not change server build blindly |
 
 Useful server checks:

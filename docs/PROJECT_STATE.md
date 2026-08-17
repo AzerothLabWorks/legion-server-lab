@@ -38,9 +38,8 @@
 - The core builds in a pinned Ubuntu 18.04 container to retain Boost 1.65 and
   other legacy ABI dependencies.
 
-This records the environment used during initial core bring-up; it is not a
-community installation alternative. The supported community target is a single
-Steam Deck running SteamOS/Arch Linux.
+This records the environment used during initial core bring-up. The supported
+community targets are Steam Deck/SteamOS and Windows with Ubuntu/WSL2.
 
 ## Verified milestones
 

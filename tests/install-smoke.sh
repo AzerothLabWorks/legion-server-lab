@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# The public installer accepts SteamOS/Arch only. This suite runs on the
-# repository's development/CI host and opts in explicitly.
-export LEGION_ALLOW_UNSUPPORTED_HOST=1
-
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 installer="$repo_root/install/install.sh"
 bootstrap="$repo_root/install/bootstrap.sh"
@@ -28,6 +24,7 @@ grep -q 'Set the IPv4 address or DNS hostname' \
 grep -q 'does not download or distribute' "$installer"
 grep -q 'exec bash.*install/install.sh' "$bootstrap"
 grep -q '7.3.5 build 26365' "$repo_root/docs/COMMUNITY_INSTALL.md"
+grep -q 'WSL2 Clean-Machine Installation' "$repo_root/HOWTO-WINDOWS-WSL2.md"
 grep -q 'Legion 7.3.5 on Steam Deck' "$repo_root/HOWTO-STEAM-DECK.md"
 grep -q 'SET portal "127.0.0.1"' "$repo_root/HOWTO-STEAM-DECK.md"
 if grep -qi 'WSL' "$repo_root/HOWTO-STEAM-DECK.md"; then
@@ -35,11 +32,8 @@ if grep -qi 'WSL' "$repo_root/HOWTO-STEAM-DECK.md"; then
     exit 1
 fi
 grep -q 'SteamOS/Arch Linux environment detected' "$repo_root/scripts/preflight.sh"
+grep -q 'Ubuntu WSL2 environment detected' "$repo_root/scripts/preflight.sh"
 grep -q 'docker-buildx' "$repo_root/HOWTO-STEAM-DECK.md"
-if grep -qi 'WSL' "$repo_root/README.md" "$repo_root/docs/COMMUNITY_INSTALL.md"; then
-    echo "Public installation entry points must remain Steam Deck focused" >&2
-    exit 1
-fi
 grep -q 'Client-derived data' "$repo_root/docs/DISTRIBUTION_BOUNDARY.md"
 grep -q 'Legion 7.3.5 Client and Data Prerequisites' \
     "$repo_root/docs/CLIENT_SETUP.md"
