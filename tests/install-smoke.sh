@@ -40,6 +40,9 @@ grep -q 'docker-buildx' "$repo_root/HOWTO-STEAM-DECK.md"
 grep -q 'Existing WoTLK or Docker setup: take the fast path' \
     "$repo_root/HOWTO-STEAM-DECK.md"
 grep -q 'sudo -v' "$repo_root/HOWTO-STEAM-DECK.md"
+grep -q '| Playable client |' "$repo_root/HOWTO-STEAM-DECK.md"
+grep -q 'Before you start: confirm these four things' \
+    "$repo_root/HOWTO-STEAM-DECK.md"
 grep -q 'Client-derived data' "$repo_root/docs/DISTRIBUTION_BOUNDARY.md"
 grep -q 'Legion 7.3.5 Client and Data Prerequisites' \
     "$repo_root/docs/CLIENT_SETUP.md"

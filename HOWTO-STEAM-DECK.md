@@ -46,31 +46,50 @@ research plan.
 
 | Requirement | Details |
 | --- | --- |
+| Playable client | A complete user-supplied **Legion 7.3.5 build 26365 Release x64** client copied to a stable folder on the Deck |
+| Extracted server data | A separate folder containing populated `dbc`, `maps`, `vmaps`, and `mmaps` directories compatible with build 26365 |
 | Device | x86-64 Steam Deck with current SteamOS |
 | Storage | Approximately **160 GB total free** for the client, Proton prefix, source/build, runtime, and extracted data |
 | Memory | The Deck's standard 16 GB is supported; compilation is intentionally limited to two jobs |
 | Time | Allow several hours for the first source build, plus as much as 15 minutes for initial database setup |
 | Power | Keep the Deck plugged in, awake, and on a stable ventilated surface |
-| Access | A configured Deck-local `sudo` password |
+| Network | An internet connection while the installer retrieves server source, packages, and container images |
+| Access | Deck-local `sudo` access when Docker or another required tool is not already installed |
 
-### Before you start
+### Before you start: confirm these four things
 
-Make sure you can check every item below:
+Do not begin the server installation until all four checks below are true.
 
-- [ ] The playable client reaches a login screen showing **7.3.5 (26365)
-  Release x64**.
-- [ ] You possess a **separate** directory whose immediate children are
-  populated `dbc`, `maps`, `vmaps`, and `mmaps` directories.
-- [ ] You have decided whether the large server source/runtime will use
-  internal storage or a Linux-formatted microSD card/external SSD.
-- [ ] The Deck is plugged in and sleep is disabled for the installation.
-- [ ] You understand that the repository does not download, endorse, or link
-  to third-party client, patched-executable, repack, or extracted-data
-  downloads.
+1. **Your Legion client is already on the Deck and works.** Launch it once and
+   confirm that the lower-left corner of the login screen says **Version 7.3.5
+   (26365) Release x64**. A current retail or Classic client will not work.
+2. **Your extracted server data is ready in a different folder.** The folder
+   supplied to the installer must look like this and each directory must
+   contain files:
+
+   ```text
+   LegionData/Data/
+   |-- dbc/
+   |-- maps/
+   |-- vmaps/
+   `-- mmaps/
+   ```
+
+3. **The Deck has enough storage.** Plan for approximately **160 GB free**. If
+   internal storage is insufficient, have a sufficiently large
+   Linux-formatted microSD card or external SSD mounted before continuing.
+4. **The Deck is ready for a long installation.** Plug it into power, place it
+   on a stable ventilated surface, and temporarily disable automatic sleep
+   under **System Settings > Power Management** while plugged in.
 
 The playable client's ordinary CASC `Data` directory is **not** the extracted
-server-data directory. The installer checks both inputs but never copies or
-modifies the playable client.
+server-data directory shown above. This is the most common prerequisite
+mistake. The installer checks both inputs but never copies or modifies the
+playable client.
+
+This repository does not download, endorse, or link to third-party clients,
+patched executables, repacks, or extracted-data downloads. Users must obtain
+compatible inputs independently and lawfully before following this guide.
 
 The 64 GB LCD model is not a realistic internal-storage target. Use a
 sufficiently large microSD card or external SSD, preferably with a Linux
