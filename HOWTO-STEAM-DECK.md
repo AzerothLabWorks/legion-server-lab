@@ -154,18 +154,53 @@ The server runs natively in Docker on SteamOS. It consumes significant storage
 and battery and is unavailable while the Deck is asleep, so keep the Deck on
 power and awake during installation and gameplay.
 
-### 1. Set a sudo password
+### Existing WoTLK or Docker setup: take the fast path
+
+If this Deck already runs a WoTLK lab or another Docker workload, check the
+existing tools before changing SteamOS:
+
+```bash
+docker info
+docker compose version
+docker buildx version
+git --version
+openssl version
+```
+
+If every command succeeds and `docker info` connects without `sudo`, keep the
+existing installation and skip directly to Step 3. The Legion lab uses its own
+repository, runtime directories, database port, and Compose project; it does
+not reuse or replace the WoTLK files. Stop the WoTLK stack before starting
+Legion if it occupies ports 1119, 8085, or 8086.
+
+If any command is missing or Docker cannot connect, continue with Steps 1 and
+2. Do not remove a working Docker installation merely to follow this guide.
+
+### 1. Confirm sudo access
 
 In Konsole:
 
 ```bash
-passwd
+sudo -v
 ```
 
-Choose a Deck-local password and keep it private. Characters do not appear
-while a Linux password is entered; that is normal.
+If the existing Deck password is accepted, nothing needs to be changed. The
+password is not displayed while typing; that is normal.
+
+If this clean Deck does not yet have a local password, set one and then confirm
+sudo access:
+
+```bash
+passwd
+sudo -v
+```
+
+Choose a Deck-local password and keep it private. Do not change a working
+password simply because this guide uses `passwd` for clean-device setup.
 
 ### 2. Install Docker and required tools
+
+Complete this step only when the fast-path checks above did not all succeed.
 
 SteamOS normally keeps its system image read-only. The following uses SteamOS's
 Arch package manager. A SteamOS update can remove these system-installed
