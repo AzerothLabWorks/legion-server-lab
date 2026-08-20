@@ -28,6 +28,10 @@ Release x64** client and compatible extracted server data. Read
 [DISTRIBUTION_BOUNDARY.md](DISTRIBUTION_BOUNDARY.md) before installing or
 sharing the project.
 
+This build does not currently include a viable Legion Playerbots module. The
+companion auto-loot feature does not create autonomous players, populate the
+world, or provide dungeon and raid groups.
+
 ## Platform Paths
 
 | Input | Steam Deck | Windows/WSL2 |
@@ -66,7 +70,8 @@ Steam Deck example:
 ```bash
 LEGION_MIN_FREE_GB=100 bash install/install.sh --check \
   --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
-  --client-build 26365
+  --client-build 26365 \
+  --data-source "/home/deck/Games/LegionData/Data"
 ```
 
 Windows/WSL2 example, entered in Ubuntu:
@@ -74,12 +79,14 @@ Windows/WSL2 example, entered in Ubuntu:
 ```bash
 bash install/install.sh --check \
   --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
-  --client-build 26365
+  --client-build 26365 \
+  --data-source "/mnt/c/Games/LegionData/Data"
 ```
 
 The check validates the selected supported host, x86-64, Git, OpenSSL, Docker
-Engine, Docker Compose, Docker Buildx, disk space, and the client prerequisite.
-It does not execute, copy, or modify the playable client.
+Engine, Docker Compose, Docker Buildx, disk space, client prerequisite, and all
+four supplied server-data trees. It does not execute, copy, or modify the
+playable client or server data.
 
 ## Build and Start
 
@@ -107,7 +114,7 @@ Resume later with the same platform paths plus `--skip-build`.
 
 ## Create the First Account
 
-After all services are healthy:
+After the installer prints `LEGION SERVER READY`:
 
 ```bash
 cd ~/legion-server-lab
@@ -150,6 +157,10 @@ bash scripts/compose.sh restart worldserver
 bash scripts/compose.sh down
 ```
 
+The installer also creates `~/legion-server-launcher.sh`, which supports
+`start`, `stop`, `status`, and `logs`. Running it without an argument starts the
+services and waits for the worldserver-ready marker.
+
 ## Updating
 
 ```bash
@@ -174,6 +185,14 @@ Back up `~/legion-server-runtime/mysql` before core or database changes.
   populated under `~/legion-server-runtime/data`.
 - **Build is killed:** check free space and reduce `LEGION_BUILD_JOBS`.
 
-This remains an experimental preservation server. Reports should include host
-platform, client build, character, zone, quest or creature ID, exact
-reproduction steps, and relevant server logs.
+This remains an experimental preservation server. Create a sanitized starting
+point for a support request with:
+
+```bash
+bash scripts/support-report.sh
+```
+
+Review the generated report before sharing it. Reports should also include the
+client build, character, zone, quest or creature ID, exact reproduction steps,
+and expected behavior. Never attach clients, repacks, extracted data, database
+directories, or passwords.

@@ -9,6 +9,9 @@ bash -n "$installer"
 bash -n "$bootstrap"
 bash -n "$repo_root/scripts/init-local-env.sh"
 bash -n "$repo_root/scripts/preflight.sh"
+bash -n "$repo_root/scripts/wait-for-worldserver.sh"
+bash -n "$repo_root/scripts/server-launcher.sh"
+bash -n "$repo_root/scripts/support-report.sh"
 bash -n "$repo_root/scripts/verify-managed-source.sh"
 bash -n "$repo_root/scripts/write-managed-source-manifest.sh"
 bash -n "$repo_root/scripts/configure-realm-address.sh"
@@ -38,6 +41,9 @@ grep -q 'Client-derived data' "$repo_root/docs/DISTRIBUTION_BOUNDARY.md"
 grep -q 'Legion 7.3.5 Client and Data Prerequisites' \
     "$repo_root/docs/CLIENT_SETUP.md"
 grep -q 'docs/CLIENT_SETUP.md' "$repo_root/install/install.sh"
+grep -q 'LEGION SERVER READY' "$repo_root/scripts/wait-for-worldserver.sh"
+grep -q 'This Legion build does not currently include a viable Playerbots module' \
+    "$repo_root/install/install.sh"
 test -f "$repo_root/LICENSE"
 
 tmp_root="$(mktemp -d)"
@@ -62,12 +68,25 @@ test -d "$tmp_root/target/.git"
 
 mkdir -p "$tmp_root/client/Data"
 touch "$tmp_root/client/WoW-Legion-64bit.exe"
+mkdir -p "$tmp_root/server-data"/{dbc,maps,vmaps,mmaps}
+for tree in dbc maps vmaps mmaps; do
+    touch "$tmp_root/server-data/$tree/test-file"
+done
 client_check_output="$(
     LEGION_MIN_FREE_GB=0 bash "$installer" --check \
-        --client-dir "$tmp_root/client" --client-build 26365
+        --client-dir "$tmp_root/client" --client-build 26365 \
+        --data-source "$tmp_root/server-data"
 )"
 grep -q 'reported login-screen build: 26365' <<< "$client_check_output"
 grep -q 'will not be copied or modified' <<< "$client_check_output"
+grep -q 'Compatible server-data directory structure supplied' <<< "$client_check_output"
+grep -q 'No source, runtime, client, or data files were modified' <<< "$client_check_output"
+mkdir -p "$tmp_root/incomplete-data"/{dbc,maps,vmaps}
+if LEGION_MIN_FREE_GB=0 bash "$installer" --check \
+    --data-source "$tmp_root/incomplete-data" >/dev/null 2>&1; then
+    echo "Incomplete server-data tree was accepted" >&2
+    exit 1
+fi
 if LEGION_MIN_FREE_GB=0 bash "$installer" --check \
     --client-dir "$tmp_root/client" --client-build 12340 >/dev/null 2>&1; then
     echo "Unsupported client build was accepted" >&2

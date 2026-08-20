@@ -25,7 +25,7 @@ Options:
   --data-source PATH  Copy user-supplied build-26365 dbc/maps/vmaps/mmaps data
   --skip-build        Reuse an existing compiled server under the runtime root
   --no-start          Prepare everything but do not start Docker services
-  --check             Check the supported host, Docker, tools, and disk space
+  --check             Check the host, tools, disk, and supplied client/data
   --help              Show this help
 
 Environment overrides:
@@ -51,6 +51,10 @@ USAGE
 
 info() {
     printf '%s\n' "$*"
+}
+
+phase() {
+    printf '\n== %s ==\n' "$*"
 }
 
 die() {
@@ -182,7 +186,7 @@ prepare_environment() {
     set +a
 
     [[ "$LEGION_RUNTIME_ROOT" == "$RUNTIME_ROOT" ]] || die ".env runtime root differs from requested root: $LEGION_RUNTIME_ROOT"
-    mkdir -p "$LEGION_RUNTIME_ROOT/data"
+    mkdir -p "$LEGION_RUNTIME_ROOT/data" "$LEGION_RUNTIME_ROOT/logs"
 }
 
 validate_data_tree() {
@@ -192,6 +196,22 @@ validate_data_tree() {
         [[ -d "$root/$tree" ]] || return 1
         [[ -n "$(find "$root/$tree" -type f -print -quit 2>/dev/null)" ]] || return 1
     done
+}
+
+validate_supplied_data() {
+    if [[ -z "$DATA_SOURCE" ]]; then
+        if [[ "$CHECK_ONLY" -eq 1 ]]; then
+            info "[warn] No --data-source was supplied; server-data compatibility was not checked."
+        fi
+        return 0
+    fi
+
+    [[ -d "$DATA_SOURCE" ]] || die "Data source directory not found: $DATA_SOURCE"
+    validate_data_tree "$DATA_SOURCE" || \
+        die "Data source must contain populated dbc, maps, vmaps, and mmaps directories."
+
+    info "Compatible server-data directory structure supplied:"
+    describe_data_tree "$DATA_SOURCE"
 }
 
 describe_data_tree() {
@@ -226,7 +246,11 @@ install_data() {
 
 build_and_prepare() {
     if [[ "$SKIP_BUILD" -eq 0 ]]; then
-        LEGION_SOURCE_DIR="$SOURCE_DIR" bash "$REPO_ROOT/scripts/build-core.sh"
+        local build_log
+        build_log="$LEGION_RUNTIME_ROOT/logs/build-$(date -u +%Y%m%dT%H%M%SZ).log"
+        info "Build output is also being saved to: $build_log"
+        LEGION_SOURCE_DIR="$SOURCE_DIR" bash "$REPO_ROOT/scripts/build-core.sh" \
+            2>&1 | tee "$build_log"
     elif [[ ! -x "$LEGION_RUNTIME_ROOT/server/bin/worldserver" ]]; then
         die "--skip-build requested, but no compiled worldserver was found."
     fi
@@ -254,20 +278,88 @@ start_server() {
     wait_for_mysql || die "MySQL did not become healthy. Run: docker compose logs mysql"
     bash "$REPO_ROOT/scripts/apply-required-updates.sh"
     docker compose up -d bnetserver worldserver
+    bash "$REPO_ROOT/scripts/wait-for-worldserver.sh"
     docker compose ps
+}
+
+write_operator_files() {
+    local launcher="$HOME/legion-server-launcher.sh"
+    local target="$REPO_ROOT/scripts/server-launcher.sh"
+
+    {
+        printf '#!/usr/bin/env bash\n'
+        printf 'exec bash %q "$@"\n' "$target"
+    } > "$launcher"
+    chmod 0700 "$launcher"
+    info "Created server launcher: $launcher"
+}
+
+write_install_summary() {
+    local summary="$LEGION_RUNTIME_ROOT/INSTALL_SUMMARY.txt"
+    local client_location="${CLIENT_DIR:-not supplied}"
+    local client_build="${CLIENT_BUILD:-not supplied}"
+
+    cat > "$summary" <<EOF
+AzerothLabWorks Legion Server Lab
+Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+Repository: $REPO_ROOT
+Upstream source: $SOURCE_DIR
+Runtime: $LEGION_RUNTIME_ROOT
+Server data: $LEGION_DATA_ROOT
+Playable client: $client_location
+Reported client build: $client_build
+
+Start and wait until ready:
+  $HOME/legion-server-launcher.sh
+
+Stop cleanly:
+  $HOME/legion-server-launcher.sh stop
+
+Status:
+  $HOME/legion-server-launcher.sh status
+
+Live logs:
+  $HOME/legion-server-launcher.sh logs
+
+Attach to the worldserver console:
+  cd "$REPO_ROOT"
+  docker compose attach worldserver
+  Detach with Ctrl+P, then Ctrl+Q. Do not use Ctrl+C.
+
+Create a support report:
+  bash "$REPO_ROOT/scripts/support-report.sh"
+
+Playerbots status:
+  This Legion build does not currently include a viable Playerbots module.
+
+This file intentionally contains no database or game-account passwords.
+EOF
+    chmod 0600 "$summary"
+    info "Created installation reference: $summary"
 }
 
 main() {
     parse_args "$@"
     REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+    phase "Phase 1 of 6: Validate the host and supplied prerequisites"
     bash "$REPO_ROOT/scripts/preflight.sh"
     validate_client_info
-    [[ "$CHECK_ONLY" -eq 0 ]] || exit 0
+    validate_supplied_data
+    if [[ "$CHECK_ONLY" -eq 1 ]]; then
+        info "Preflight completed. No source, runtime, client, or data files were modified."
+        exit 0
+    fi
+
+    phase "Phase 2 of 6: Prepare the pinned server source"
     prepare_source
+
+    phase "Phase 3 of 6: Build and prepare the Linux runtime"
     prepare_environment
     build_and_prepare
 
+    phase "Phase 4 of 6: Validate and install client-derived server data"
     if ! install_data; then
         cat <<EOF
 
@@ -288,13 +380,18 @@ EOF
         exit 2
     fi
 
+    phase "Phase 5 of 6: Create operator shortcuts and reference information"
+    write_operator_files
+    write_install_summary
+
     if [[ "$START_SERVER" -eq 1 ]]; then
+        phase "Phase 6 of 6: Initialize services and wait for the world server"
         start_server
         info "Installation completed. Continue with your platform guide:"
         info "  Steam Deck: HOWTO-STEAM-DECK.md"
         info "  Windows/WSL2: HOWTO-WINDOWS-WSL2.md"
     else
-        info "Preparation completed. Start later with: bash scripts/compose.sh up -d mysql bnetserver worldserver"
+        info "Preparation completed. Start later with: $HOME/legion-server-launcher.sh"
     fi
 }
 

@@ -19,6 +19,8 @@ are exposed to Ubuntu/WSL2 under `/mnt/c/...`.
 - Server runtime: Docker Compose on SteamOS/Arch or Ubuntu/WSL2
 - Status: authentication, realm selection, world entry, gameplay, addons, and
   companion auto-loot validated against build 26365
+- Playerbots: no viable Legion Playerbots module is included at this time; the
+  companion auto-loot feature is not a world-population or party-bot system
 
 The server uses Linux binaries built from pinned source, with separately managed
 database and extracted game-data volumes. Prebuilt server executables and
@@ -68,7 +70,8 @@ After completing the platform prerequisites, the shared installer interface is:
 ```bash
 bash install/install.sh --check \
   --client-dir /platform/path/to/WoW-7.3.5-Legion \
-  --client-build 26365
+  --client-build 26365 \
+  --data-source /platform/path/to/LegionData/Data
 
 bash install/install.sh \
   --client-dir /platform/path/to/WoW-7.3.5-Legion \
@@ -80,11 +83,14 @@ Use the exact paths shown in the selected platform guide. The installer builds
 the open-source server but does not download or distribute World of Warcraft
 clients or client-derived game data.
 
-An optional reviewed bootstrap is also available after platform dependencies
-are installed:
+An optional bootstrap is also available after platform dependencies are
+installed. Download it first so it can be reviewed before execution:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/AzerothLabWorks/legion-server-lab/main/install/bootstrap.sh | bash
+curl -fsSL -o ~/legion-bootstrap.sh \
+  https://raw.githubusercontent.com/AzerothLabWorks/legion-server-lab/main/install/bootstrap.sh
+less ~/legion-bootstrap.sh
+bash ~/legion-bootstrap.sh
 ```
 
 ## Project documentation

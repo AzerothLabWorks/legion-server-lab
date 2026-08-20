@@ -68,6 +68,13 @@ git ls-files | grep -Ei '\.(exe|dll|7z|rar|zip|dump|sql\.gz)$' && \
 The repository `.gitignore` is a guardrail, not a substitute for reviewing the
 actual commit and release contents.
 
+Official project documentation and release notes must not link to or endorse
+third-party pages, videos, or social posts whose purpose includes distributing
+clients, modified executables, repacks, database dumps, or extracted game data.
+An indirect discovery link creates the same project-boundary concern as a
+direct file link. Operators remain responsible for obtaining compatible inputs
+independently and lawfully.
+
 ## Independence and operator responsibility
 
 World of Warcraft and Blizzard Entertainment are trademarks or property of

@@ -114,8 +114,8 @@ bash install/install.sh --check \
 The check is read-only. It validates Linux/WSL, x86-64, Git, OpenSSL, Docker,
 Compose v2, the Docker daemon, available disk space, the supplied client
 directory, and the operator-confirmed login-screen build. Change the client path
-to the location of your own copy. A headless server operator can omit both
-client options.
+to your actual location. A headless server operator can omit both client
+options.
 
 The installer creates this isolated layout:
 
@@ -165,6 +165,19 @@ Do not point `--data-source` at a normal client CASC `Data` directory. It must b
 the extracted four-tree layout described in
 [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md).
 
+Before beginning the long build, validate the client and all four server-data
+trees together:
+
+```bash
+bash install/install.sh --check \
+  --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
+  --client-build 26365 \
+  --data-source "/mnt/c/Games/Legion-Server-Data/Data"
+```
+
+The command is read-only and should report a nonzero file count for every data
+tree.
+
 ## 7. Build and Start the Server
 
 From `~/legion-server-lab`:
@@ -185,11 +198,13 @@ Change that example to the real location. The installer will:
 4. generate random local database passwords in the ignored `.env` file;
 5. prepare the upstream database and lab migrations;
 6. copy the four data trees to the WSL runtime; and
-7. start MySQL, Battle.net authentication, and the world server.
+7. start MySQL, Battle.net authentication, and the world server; and
+8. wait for the actual worldserver-ready marker before reporting success.
 
 The first compilation and database import can take a while. The terminal shows
-build progress. In another Ubuntu terminal, database progress can be watched
-with:
+named phases, saves build output under `~/legion-server-runtime/logs/`, and
+prints `LEGION SERVER READY` when the client can connect. In another Ubuntu
+terminal, database progress can be watched with:
 
 ```bash
 cd ~/legion-server-lab
@@ -224,8 +239,9 @@ docker compose ps
 docker compose logs --tail=100 bnetserver worldserver
 ```
 
-`mysql`, `bnetserver`, and `worldserver` should be running. Wait for the world
-log to report that the world server is ready before connecting.
+`mysql`, `bnetserver`, and `worldserver` should be running. The installation
+terminal or `bash scripts/wait-for-worldserver.sh` must print
+`LEGION SERVER READY` before connecting.
 
 The local endpoints are:
 
@@ -298,13 +314,16 @@ docker compose ps
 docker compose logs -f bnetserver worldserver
 
 # Start an existing installation
-bash scripts/compose.sh up -d mysql bnetserver worldserver
+~/legion-server-launcher.sh
+
+# Stop the Legion stack without deleting data
+~/legion-server-launcher.sh stop
 
 # Restart only the world server
 bash scripts/compose.sh restart worldserver
 
-# Stop the Legion stack without deleting data
-bash scripts/compose.sh down
+# Generate a support report for review before sharing
+bash scripts/support-report.sh
 ```
 
 Do not add `-v` to `docker compose down`; that option is unnecessary for this
