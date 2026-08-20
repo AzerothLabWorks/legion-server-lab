@@ -40,6 +40,9 @@ grep -q 'docker-buildx' "$repo_root/HOWTO-STEAM-DECK.md"
 grep -q 'Client-derived data' "$repo_root/docs/DISTRIBUTION_BOUNDARY.md"
 grep -q 'Legion 7.3.5 Client and Data Prerequisites' \
     "$repo_root/docs/CLIENT_SETUP.md"
+grep -q 'LEGION SERVER READY' "$repo_root/docs/CLIENT_SETUP.md"
+grep -q 'permission-restricted runtime file' "$repo_root/docs/CLIENT_SETUP.md"
+grep -q 'third-party binaries' "$repo_root/docs/CLIENT_SETUP.md"
 grep -q 'docs/CLIENT_SETUP.md' "$repo_root/install/install.sh"
 grep -q 'LEGION SERVER READY' "$repo_root/scripts/wait-for-worldserver.sh"
 grep -q 'This Legion build does not currently include a viable Playerbots module' \

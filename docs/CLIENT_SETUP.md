@@ -61,6 +61,14 @@ for example from their own retained backup or archival storage. Do not ask
 maintainers to identify unofficial download sites, and do not attach a client
 or extracted data to an issue.
 
+Client and repack files found independently on the internet are unverified
+third-party binaries. This project cannot evaluate their safety, completeness,
+or licensing. Avoid bundled download managers and installers, do not run
+unknown programs with administrator privileges, and scan unfamiliar files with
+the security tools appropriate for the selected platform. The server installer
+only needs a user-supplied playable-client path and the separate extracted data
+path; it does not need a third-party repack launcher or bundled server service.
+
 Blizzard's current EULA restricts unauthorized servers, protocol emulation,
 unauthorized connections, and transfers of Platform copies. Each operator is
 responsible for reviewing the applicable terms and law before proceeding. This
@@ -134,10 +142,12 @@ LEGION_DATA_SOURCE="/absolute/path/to/LegionData/Data" \
 ```
 
 Command-line options take precedence over the corresponding environment values.
-The installer prints the detected values to the local terminal but does not
-write the client path or client contents into the repository, runtime, database,
-or an upload. As with any shell command, users who consider local paths sensitive
-should prefer environment variables or clear their own shell history.
+The installer prints the detected values to the local terminal and records the
+client **path** in the permission-restricted runtime file
+`INSTALL_SUMMARY.txt`. It does not copy the client contents into the repository,
+runtime, database, summary, or an upload. As with any shell command, users who
+consider local paths sensitive should prefer environment variables, choose a
+non-identifying directory name, or clear their own shell history.
 
 ### Platform path rules
 
@@ -199,10 +209,12 @@ Steam Deck:
 ```bash
 bash install/install.sh --check \
   --client-dir "/home/deck/Games/WoW-7.3.5-Legion" \
-  --client-build 26365
+  --client-build 26365 \
+  --data-source "/home/deck/Games/LegionData/Data"
 ```
 
-Then run the full installation with the same client values plus the data source:
+After it passes, run the full installation with the same values and omit
+`--check`:
 
 ```bash
 bash install/install.sh \
@@ -216,12 +228,29 @@ Windows/WSL2, entered in Ubuntu:
 ```bash
 bash install/install.sh --check \
   --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
-  --client-build 26365
+  --client-build 26365 \
+  --data-source "/mnt/c/Games/LegionData/Data"
+```
 
+After it passes:
+
+```bash
 bash install/install.sh \
   --client-dir "/mnt/c/Games/WoW-7.3.5-Legion-Client" \
   --client-build 26365 \
   --data-source "/mnt/c/Games/LegionData/Data"
+```
+
+The `--check` command is read-only and should report a nonzero file count for
+each of `dbc`, `maps`, `vmaps`, and `mmaps`. The full installer saves build logs
+under the runtime `logs` directory and creates `INSTALL_SUMMARY.txt` containing
+the actual local paths and routine management commands. It intentionally stores
+no database or game-account passwords.
+
+Do not launch the client until installation prints the exact success marker:
+
+```text
+LEGION SERVER READY
 ```
 
 ## Verify the client before server troubleshooting
