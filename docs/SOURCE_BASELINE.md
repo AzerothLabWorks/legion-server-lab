@@ -108,6 +108,23 @@ on flat terrain and compare ordinary Lightning Bolt pulls and normal melee
 combat; non-Feral-Lunge movement and creature approach behavior must remain
 unchanged.
 
+Completed quest turn-in markers are anchored to their configured ender spawns
+by `0022-anchor-quest-turnin-pois-to-enders.patch`. The world database contains
+POI rows gathered from multiple verified client builds, and some historical
+completion blobs share a point index with newer objective geometry. The stock
+loader merges those points, which can place the completion marker between the
+real quest giver and an unrelated objective area. The patch leaves objective
+and navigation POIs unchanged. For an `ObjectiveIndex = -1` completion blob it
+selects the nearest configured creature or gameobject ender on the same map and
+uses that precise spawn position. This is faction-neutral and applies to all
+quests with a static configured ender.
+
+Regression test: complete **Fine Linen Goods** (quest 83) without turning it in
+and open the Elwynn Forest map. Its selected completion marker must be at Sara
+Timberlain in Eastvale Logging Camp, not between Eastvale and Goldshire. Confirm
+that **The Jasperlode Mine** still points to Marshal Dughan in Goldshire and
+that an incomplete quest continues to show its normal objective area.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's

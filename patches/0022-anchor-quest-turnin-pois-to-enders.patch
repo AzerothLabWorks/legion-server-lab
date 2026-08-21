@@ -1,0 +1,90 @@
+diff --git a/src/server/game/Globals/QuestData.cpp b/src/server/game/Globals/QuestData.cpp
+--- a/src/server/game/Globals/QuestData.cpp
++++ b/src/server/game/Globals/QuestData.cpp
+@@ -1373,6 +1373,40 @@ void QuestDataStoreMgr::LoadQuestPOI()
+         } while (points->NextRow());
+     }
+ 
++    // Older and newer verified-build POI rows can share the same point index.
++    // That can turn a single quest-completion marker into a polygon spanning
++    // both the objective area and the quest giver. Use the configured quest
++    // ender spawn as the authoritative location for ObjectiveIndex -1 POIs.
++    struct QuestEnderPoint
++    {
++        int32 MapID;
++        QuestPOIPoint Point;
++    };
++
++    std::unordered_map<int32, std::vector<QuestEnderPoint>> questEnderPoints;
++    QueryResult enderPoints = WorldDatabase.Query(
++        "SELECT quest, map, ROUND(position_x), ROUND(position_y) FROM ("
++        "SELECT qe.quest, c.map, c.position_x, c.position_y "
++        "FROM creature_questender qe INNER JOIN creature c ON c.id = qe.id "
++        "UNION ALL "
++        "SELECT qe.quest, g.map, g.position_x, g.position_y "
++        "FROM gameobject_questender qe INNER JOIN gameobject g ON g.id = qe.id"
++        ") quest_enders");
++
++    if (enderPoints)
++    {
++        do
++        {
++            Field* fields = enderPoints->Fetch();
++            int32 QuestID = fields[0].GetInt32();
++            int32 MapID = fields[1].GetInt32();
++            int32 X = fields[2].GetInt32();
++            int32 Y = fields[3].GetInt32();
++
++            questEnderPoints[QuestID].push_back({ MapID, QuestPOIPoint(X, Y) });
++        } while (enderPoints->NextRow());
++    }
++
+     do
+     {
+         Field* fields = result->Fetch();
+@@ -1400,6 +1434,45 @@ void QuestDataStoreMgr::LoadQuestPOI()
+         if (QuestID < int32(POIs.size()) && Idx1 < int32(POIs[QuestID].size()))
+         {
+             POI.points = POIs[QuestID][Idx1];
++
++            if (ObjectiveIndex == -1 && !POI.points.empty())
++            {
++                auto enderItr = questEnderPoints.find(QuestID);
++                if (enderItr != questEnderPoints.end())
++                {
++                    double centerX = 0.0;
++                    double centerY = 0.0;
++                    for (QuestPOIPoint const& point : POI.points)
++                    {
++                        centerX += point.X;
++                        centerY += point.Y;
++                    }
++
++                    centerX /= POI.points.size();
++                    centerY /= POI.points.size();
++
++                    QuestPOIPoint const* nearestEnder = nullptr;
++                    double nearestDistanceSq = 0.0;
++                    for (QuestEnderPoint const& ender : enderItr->second)
++                    {
++                        if (ender.MapID != MapID)
++                            continue;
++
++                        double deltaX = ender.Point.X - centerX;
++                        double deltaY = ender.Point.Y - centerY;
++                        double distanceSq = deltaX * deltaX + deltaY * deltaY;
++                        if (!nearestEnder || distanceSq < nearestDistanceSq)
++                        {
++                            nearestEnder = &ender.Point;
++                            nearestDistanceSq = distanceSq;
++                        }
++                    }
++
++                    if (nearestEnder)
++                        POI.points.assign(1, *nearestEnder);
++                }
++            }
++
+             _questPOIStore[QuestID].push_back(POI);
+         }
+         else
