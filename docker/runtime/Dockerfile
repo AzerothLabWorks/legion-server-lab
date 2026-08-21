@@ -1,7 +1,7 @@
 FROM ubuntu:18.04
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         ca-certificates \
         libboost-filesystem1.65.1 \
         libboost-program-options1.65.1 \
@@ -12,6 +12,7 @@ RUN apt-get update \
         libmysqlclient20 \
         libreadline7 \
         libssl1.1 \
+        tzdata \
         zlib1g \
     && rm -rf /var/lib/apt/lists/*
 

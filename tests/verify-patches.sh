@@ -49,5 +49,10 @@ grep -q 'ObjectiveIndex == -1' "$verify_dir/source/src/server/game/Globals/Quest
 grep -q 'POI.points.assign(1, \*nearestEnder)' "$verify_dir/source/src/server/game/Globals/QuestData.cpp"
 grep -q 'Adds 10 coins to your in-game Shop balance' "$repo_root/database/70-nordrassil-coin-localization.sql"
 grep -q '7005056, 2442913102, 505056' "$repo_root/database/70-nordrassil-coin-localization.sql"
+grep -q 'azerothlab_removed_creature_spawns' "$repo_root/database/80-deduplicate-static-creature-spawns.sql"
+grep -q '125434' "$repo_root/database/80-deduplicate-static-creature-spawns.sql"
+grep -q 'LEGION_TIMEZONE:-America/Los_Angeles' "$repo_root/compose.yaml"
+grep -q 'LEGION_TIMEZONE=America/Los_Angeles' "$repo_root/.env.example"
+grep -q 'tzdata' "$repo_root/docker/runtime/Dockerfile"
 
 echo "fresh patch verification passed"

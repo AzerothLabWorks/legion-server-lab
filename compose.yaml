@@ -5,6 +5,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${LEGION_DB_ROOT_PASSWORD:?set LEGION_DB_ROOT_PASSWORD in .env}
       MYSQL_USER: legion
       MYSQL_PASSWORD: ${LEGION_DB_PASSWORD:?set LEGION_DB_PASSWORD in .env}
+      TZ: ${LEGION_TIMEZONE:-America/Los_Angeles}
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
@@ -30,6 +31,8 @@ services:
         condition: service_healthy
     working_dir: /opt/legion/server/bin
     command: ["./bnetserver", "-c", "/opt/legion/config/bnetserver.conf"]
+    environment:
+      TZ: ${LEGION_TIMEZONE:-America/Los_Angeles}
     ports:
       - "1119:1119"
       - "${LEGION_REST_BIND_ADDRESS:-127.0.0.1}:8081:8081"
@@ -49,6 +52,8 @@ services:
         condition: service_started
     working_dir: /opt/legion/server/bin
     command: ["./worldserver", "-c", "/opt/legion/config/worldserver.conf"]
+    environment:
+      TZ: ${LEGION_TIMEZONE:-America/Los_Angeles}
     ports:
       - "8085:8085"
       - "8086:8086"

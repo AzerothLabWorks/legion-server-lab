@@ -13,7 +13,9 @@ contains only orchestration and templates.
 ## Prepare
 
 Copy `.env.example` to `.env`, replace both example passwords, and confirm the
-selected platform's Linux paths. Then run from the repository:
+selected platform's Linux paths. `LEGION_TIMEZONE` defaults to
+`America/Los_Angeles`; replace it with another IANA timezone name if desired.
+Then run from the repository:
 
 ```bash
 set -a
@@ -66,6 +68,24 @@ and listens on TCP 8085. Realm 1 is pinned to client build 26365 by
 defaults to `127.0.0.1`. REST port 8081 remains loopback-only unless
 `LEGION_REST_BIND_ADDRESS` is explicitly changed. Both supported local-host
 workflows keep it loopback-only.
+
+All three containers receive `LEGION_TIMEZONE`, so server logs, game time, and
+database-local timestamps use the same configured timezone after the services
+are recreated.
+
+## Duplicate creature cleanup
+
+The source-matched world database contains a limited number of duplicate
+static creature records. `scripts/apply-required-updates.sh` removes only
+byte-equivalent spawn rows whose duplicate group has no GUID-specific addon,
+event, pool, formation, transport, linked-respawn, conversation, or SmartAI
+references. It also removes the confirmed extra Chef Grual spawn in Scarlet
+Raven Tavern.
+
+Before deletion, every affected row is copied to
+`legion_world.azerothlab_removed_creature_spawns`. The migration is idempotent,
+and that archive makes an individual spawn recoverable if later testing finds
+that it was intentional.
 
 ## Game data
 

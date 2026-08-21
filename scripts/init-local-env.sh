@@ -15,6 +15,7 @@ db_password="$(openssl rand -hex 24)"
 db_root_password="$(openssl rand -hex 24)"
 realm_address="${LEGION_REALM_ADDRESS:-127.0.0.1}"
 rest_bind_address="${LEGION_REST_BIND_ADDRESS:-127.0.0.1}"
+timezone="${LEGION_TIMEZONE:-America/Los_Angeles}"
 
 umask 077
 cat > "$env_file" <<EOF
@@ -25,6 +26,7 @@ LEGION_DB_PASSWORD="$db_password"
 LEGION_DB_ROOT_PASSWORD="$db_root_password"
 LEGION_REALM_ADDRESS="$realm_address"
 LEGION_REST_BIND_ADDRESS="$rest_bind_address"
+LEGION_TIMEZONE="$timezone"
 EOF
 
 echo "Created local-only environment file: $env_file"

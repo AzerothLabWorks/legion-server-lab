@@ -33,6 +33,10 @@ gt/
 *.sql
 *.sql.gz
 *.dump
+!database/
+database/*
+!database/70-nordrassil-coin-localization.sql
+!database/80-deduplicate-static-creature-spawns.sql
 
 # WoW clients, repacks, archives, and executables
 client/

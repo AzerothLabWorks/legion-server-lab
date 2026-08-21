@@ -78,3 +78,7 @@ fi
 docker compose exec -T mysql \
     mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
     < "$repo_root/database/70-nordrassil-coin-localization.sql"
+
+docker compose exec -T mysql \
+    mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    < "$repo_root/database/80-deduplicate-static-creature-spawns.sql"
