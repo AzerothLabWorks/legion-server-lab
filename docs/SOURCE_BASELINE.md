@@ -125,6 +125,24 @@ Timberlain in Eastvale Logging Camp, not between Eastvale and Goldshire. Confirm
 that **The Jasperlode Mine** still points to Marshal Dughan in Goldshire and
 that an incomplete quest continues to show its normal objective area.
 
+Incomplete objective markers are isolated to their matching captured client
+build by `0025-match-quest-pois-to-verified-build.patch`. The archived database
+combines `quest_poi` and `quest_poi_points` records from several builds, but its
+point-table primary key does not include `VerifiedBuild`. Reused point indexes
+can consequently attach a build-26124 objective to a build-23877 completion
+point at the quest giver. The loader now groups coordinates by quest, point
+index, and verified build; rejects cross-build point attachment; and retains
+all shapes from only the newest usable build of each logical POI blob. A
+build-zero coordinate remains available as the narrow legacy fallback.
+
+Regression test: while **Wanted! Marez Cowl** (quest 26024), **Wand over Fist**
+(quest 26036), and **Wanted! Otto and Falconcrest** (quest 26079) are incomplete,
+open the Arathi Highlands map at Refuge Pointe. Their objective markers must
+identify their remote objective areas rather than Captain Nials or Skuerto.
+Move away from the camp and reopen the map to confirm that the same objective
+locations remain visible. After completing a quest, its `?` must still move to
+the configured turn-in NPC.
+
 Unscripted enemy caster behavior is restored by
 `0024-restore-unscripted-caster-ai.patch`. The archived world database assigns
 many creatures to `SmartAI` without providing an entry-level or spawn-level
