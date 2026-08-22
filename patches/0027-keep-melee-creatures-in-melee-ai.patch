@@ -1,0 +1,13 @@
+diff --git a/src/server/game/AI/CreatureAISelector.cpp b/src/server/game/AI/CreatureAISelector.cpp
+--- a/src/server/game/AI/CreatureAISelector.cpp
++++ b/src/server/game/AI/CreatureAISelector.cpp
+@@ -70 +70,9 @@ namespace
++        // creature_template_spell contains imported auxiliary and artifact
++        // abilities as well as a creature's intended combat kit.  A ranged
++        // entry there must not turn Warrior, Rogue, or Paladin-class melee
++        // creatures into stationary casters.  UNIT_CLASS_MAGE is the
++        // database's explicit ranged-caster classification for creatures.
++        if (creature->getClass() != UNIT_CLASS_MAGE)
++            return false;
++
+         if (!aiName.empty() && aiName != "SmartAI")

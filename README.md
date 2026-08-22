@@ -34,7 +34,7 @@ issues found during hands-on Legion 7.3.5 gameplay. Current improvements include
 | Area | Improvements |
 | --- | --- |
 | Questing | Quest markers refresh as objectives change, completed quests point to their configured turn-in NPCs, objective POIs are kept within their verified client build, and multi-quest NPCs continue to offer the next available quest. |
-| Creature combat | Unscripted caster enemies use their ranged abilities, zero-cooldown imports cannot spam damage/control/buff spells, dead creatures stop updating combat AI, and Feral Lunge has improved landing behavior. |
+| Creature combat | Unscripted casters use their full ranged kits, melee-class enemies close into attack range and retain special abilities despite split or missing AI data, zero-cooldown imports cannot spam damage/control/buff spells, dead creatures stop updating combat AI, and Feral Lunge has improved landing behavior. |
 | World data | Exact, nearby singleton, and cross-generation duplicate creature spawns are cleaned through repeatable migrations. Realm time uses a configurable local timezone and defaults to Pacific Time. |
 | Player QoL | Optional level-1 starter riding, mounts, gold, bags, and companion; silent companion auto-loot within 40 yards; and restored native bag sorting. |
 | Localization | Nordrassil Coin descriptions, redemption feedback, shop balance messages, and managed server broadcasts use English text. |

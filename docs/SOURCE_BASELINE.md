@@ -162,6 +162,36 @@ to the player and relying only on melee. Repeat with an ordinary melee creature
 and a scripted caster; the melee creature must retain normal chase behavior and
 the scripted caster must retain its encounter AI.
 
+Automatic caster fallback is restricted to the creature database's explicit
+`UNIT_CLASS_MAGE` classification by
+`0027-keep-melee-creatures-in-melee-ai.patch`. Imported
+`creature_template_spell` rows include auxiliary and artifact abilities that
+are not reliable evidence that a Warrior-, Rogue-, or Paladin-class creature is
+a ranged caster. Without this guard, melee creatures such as **Syndicate
+Thief** (entry 24477) could stop at spell range, occasionally cast a special
+ability, and never close far enough to auto-attack.
+
+Regression test: aggro one and then two **Syndicate Thieves** at Stromgarde
+Keep. Every Thief must chase into melee range and auto-attack, while retaining
+Backstab, Disarm, and Poison. Then pull a **Skeletal Mage** (entry 203) from
+range and verify that it still stops to cast Frostbolt.
+
+Melee special abilities are restored by
+`0028-restore-melee-special-abilities.patch`. Some ordinary melee templates are
+assigned `SmartAI` even though neither the template nor the individual spawn
+has a SmartAI script. Those templates now fall through to the core's normal
+`AggressorAI`. AggressorAI also merges and deduplicates the legacy
+`spell1`-`spell8` fields with `creature_template_spell`, matching the behavior
+already used for the caster fallback. This lets melee enemies chase and swing
+while retaining their intended combat abilities.
+
+Regression test: fight **Syndicate Thief** (entry 24477), **Syndicate Prowler**
+(entry 2588), and **Boulderfist Brute** (entry 2566). They must close into melee,
+auto-attack, and intermittently use abilities such as Backstab, Disarm, Poison,
+Fist of Stone, and Stomp without spamming them. Fight a **Skeletal Mage** (entry
+203) and **Boulderfist Magus** (entry 2567) to verify that ranged casters still
+use Frostbolt plus their other configured abilities.
+
 Zero-cooldown creature spell loops are prevented by
 `0026-enforce-caster-ai-cooldowns.patch`. Much of the imported Legion spell data
 has no native recovery time, which previously caused `CasterAI` to reschedule an

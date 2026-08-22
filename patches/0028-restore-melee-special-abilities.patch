@@ -1,0 +1,102 @@
+diff --git a/src/server/game/AI/CoreAI/CombatAI.cpp b/src/server/game/AI/CoreAI/CombatAI.cpp
+--- a/src/server/game/AI/CoreAI/CombatAI.cpp
++++ b/src/server/game/AI/CoreAI/CombatAI.cpp
+@@ -245,6 +245,18 @@ void AggressorAI::JustDied(Unit* killer)
+-    for (auto& spell : *me->CreatureSpells)
+-        if (AISpellInfo[spell.second.SpellID].condition == AICOND_DIE)
+-            if (SpellInfo const* sInfo = sSpellMgr->GetSpellInfo(spell.second.SpellID))
++    SpellVct spells;
++    for (uint32 spellId : me->m_templateSpells)
++        if (spellId && sSpellMgr->GetSpellInfo(spellId))
++            spells.push_back(spellId);
++
++    if (me->CreatureSpells)
++        for (CreatureSpellList::value_type const& creatureSpell : *me->CreatureSpells)
++            if (uint32 spellId = creatureSpell.second.SpellID)
++                if (sSpellMgr->GetSpellInfo(spellId)
++                    && std::find(spells.begin(), spells.end(), spellId) == spells.end())
++                    spells.push_back(spellId);
++
++    for (uint32 spellId : spells)
++        if (AISpellInfo[spellId].condition == AICOND_DIE)
++            if (SpellInfo const* sInfo = sSpellMgr->GetSpellInfo(spellId))
+                 if (sInfo->CanAutoCast(me, killer))
+-                    me->CastSpell(killer, spell.second.SpellID, true);
++                    me->CastSpell(killer, spellId, true);
+ }
+@@ -262,13 +274,32 @@ void AggressorAI::EnterCombat(Unit* who)
+     me->CastStop();
+-    for (auto& spell : *me->CreatureSpells)
++
++    // The Legion archive splits ordinary creature abilities between the
++    // legacy spell1-spell8 columns and creature_template_spell. Merge both so
++    // melee fallback AI retains its full combat kit without duplicate events.
++    SpellVct spells;
++    for (uint32 spellId : me->m_templateSpells)
++        if (spellId && sSpellMgr->GetSpellInfo(spellId))
++            spells.push_back(spellId);
++
++    if (me->CreatureSpells)
++        for (CreatureSpellList::value_type const& creatureSpell : *me->CreatureSpells)
++            if (uint32 spellId = creatureSpell.second.SpellID)
++                if (sSpellMgr->GetSpellInfo(spellId)
++                    && std::find(spells.begin(), spells.end(), spellId) == spells.end())
++                    spells.push_back(spellId);
++
++    for (uint32 spellId : spells)
+     {
+-        if (AISpellInfo[spell.second.SpellID].condition == AICOND_AGGRO)
++        if (AISpellInfo[spellId].condition == AICOND_AGGRO)
+         {
+-            if (SpellInfo const* sInfo = sSpellMgr->GetSpellInfo(spell.second.SpellID))
++            if (SpellInfo const* sInfo = sSpellMgr->GetSpellInfo(spellId))
+                 if (sInfo->CanAutoCast(me, who))
+-                    me->CastSpell(who, spell.second.SpellID, false);
++                    me->CastSpell(who, spellId, false);
++        }
++        else if (AISpellInfo[spellId].condition == AICOND_COMBAT)
++        {
++            uint32 cooldown = std::max<uint32>(AISpellInfo[spellId].cooldown, 5000);
++            spellCasts.ScheduleEvent(spellId, cooldown + urand(0, cooldown));
+         }
+-        else if (AISpellInfo[spell.second.SpellID].condition == AICOND_COMBAT)
+-            spellCasts.ScheduleEvent(spell.second.SpellID, AISpellInfo[spell.second.SpellID].cooldown + rand() % AISpellInfo[spell.second.SpellID].cooldown);
+     }
+     if (me->m_CanCallAssistance)
+diff --git a/src/server/game/AI/CreatureAISelector.cpp b/src/server/game/AI/CreatureAISelector.cpp
+--- a/src/server/game/AI/CreatureAISelector.cpp
++++ b/src/server/game/AI/CreatureAISelector.cpp
+@@ -64 +64,11 @@ namespace
++
++    bool HasSmartScript(Creature const* creature)
++    {
++        if (sSmartScriptMgr->HasScript(static_cast<int32>(creature->GetEntry()), SMART_SCRIPT_TYPE_CREATURE))
++            return true;
++
++        uint64 spawnId = creature->GetDBTableGUIDLow();
++        return spawnId && sSmartScriptMgr->HasScript(-static_cast<int32>(spawnId), SMART_SCRIPT_TYPE_CREATURE);
++    }
++
+     bool ShouldUseCasterFallback(Creature const* creature, std::string const& aiName)
+@@ -81,11 +90,4 @@ namespace
+-        if (aiName == "SmartAI")
+-        {
+-            if (sSmartScriptMgr->HasScript(static_cast<int32>(creature->GetEntry()), SMART_SCRIPT_TYPE_CREATURE))
+-                return false;
+-
+-            uint64 spawnId = creature->GetDBTableGUIDLow();
+-            if (spawnId && sSmartScriptMgr->HasScript(-static_cast<int32>(spawnId), SMART_SCRIPT_TYPE_CREATURE))
+-                return false;
+-        }
+-
++        if (aiName == "SmartAI" && HasSmartScript(creature))
++            return false;
++
+         return HasOffensiveRangedSpell(creature);
+@@ -105,4 +107,5 @@ namespace FactorySelector
+         auto ainame = creature->GetAIName();
++        bool missingSmartAI = !aiFactory && ainame == "SmartAI" && !HasSmartScript(creature);
+         bool useCasterFallback = !aiFactory && ShouldUseCasterFallback(creature, ainame);
+-        if (!aiFactory && !ainame.empty() && !useCasterFallback)
++        if (!aiFactory && !ainame.empty() && !useCasterFallback && !missingSmartAI)
+             aiFactory = sCreatureAIRegistry->GetRegistryItem(ainame);

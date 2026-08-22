@@ -40,6 +40,10 @@ for patch_file in "$repo_root"/patches/*.patch; do
         && grep -q 'POI.points.assign(1, \*nearestEnder)' "$SOURCE_DIR/src/server/game/Globals/QuestData.cpp" \
         && grep -q 'using QuestPOIPointKey = std::tuple' "$SOURCE_DIR/src/server/game/Globals/QuestData.cpp"; then
         : # Applied, then intentionally refactored by the verified-build POI patch.
+    elif [[ "$(basename "$patch_file")" == "0024-restore-unscripted-caster-ai.patch" ]] \
+        && grep -q 'CONFIG_CREATURE_CASTER_AI_FALLBACK' "$SOURCE_DIR/src/server/game/AI/CreatureAISelector.cpp" \
+        && grep -q 'creature->getClass() != UNIT_CLASS_MAGE' "$SOURCE_DIR/src/server/game/AI/CreatureAISelector.cpp"; then
+        : # Applied, then intentionally narrowed by the melee-class guard patch.
     else
         echo "Patch cannot be applied cleanly: $patch_file" >&2
         exit 1
