@@ -1,0 +1,58 @@
+diff --git a/src/common/Utilities/WowTime.cpp b/src/common/Utilities/WowTime.cpp
+--- a/src/common/Utilities/WowTime.cpp
++++ b/src/common/Utilities/WowTime.cpp
+@@ -36,6 +36,27 @@ uint32 WowTime::Encode(time_t time)
+     return wTime.Encode();
+ }
+ 
++uint32 WowTime::EncodeLocal(time_t time)
++{
++    tm timeInfo{};
++
++#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
++    localtime_s(&timeInfo, &time);
++#else
++    localtime_r(&time, &timeInfo);
++#endif
++
++    WowTime wTime;
++    wTime.Year = timeInfo.tm_year - 100;
++    wTime.Month = timeInfo.tm_mon;
++    wTime.MonthDay = timeInfo.tm_mday - 1;
++    wTime.Hour = timeInfo.tm_hour;
++    wTime.Minute = timeInfo.tm_min;
++    wTime.WeekDay = timeInfo.tm_wday;
++
++    return wTime.Encode();
++}
++
+ void WowTime::Decode(uint32 encodedTime)
+ {
+     int temp = encodedTime & 0x3F;
+diff --git a/src/common/Utilities/WowTime.hpp b/src/common/Utilities/WowTime.hpp
+--- a/src/common/Utilities/WowTime.hpp
++++ b/src/common/Utilities/WowTime.hpp
+@@ -48,6 +48,7 @@ namespace MS
+ 
+             uint32 Encode();
+             static uint32 Encode(time_t p_Time);
++            static uint32 EncodeLocal(time_t p_Time);
+             void Decode(uint32 p_EncodedTime);
+             static WowTime FromEncodedTime(uint32 p_EncodedTime);
+ 
+diff --git a/src/server/game/Server/Packets/MiscPackets.cpp b/src/server/game/Server/Packets/MiscPackets.cpp
+--- a/src/server/game/Server/Packets/MiscPackets.cpp
++++ b/src/server/game/Server/Packets/MiscPackets.cpp
+@@ -37,8 +37,10 @@ WorldPacket const* WorldPackets::Misc::InvalidatePlayer::Write()
+ 
+ WorldPacket const* WorldPackets::Misc::LoginSetTimeSpeed::Write()
+ {
+-    _worldPacket << MS::Utilities::WowTime::Encode(ServerTime);
+-    _worldPacket << MS::Utilities::WowTime::Encode(GameTime);
++    // Realm/game clocks are wall-clock values. Encode them in the server's
++    // configured local timezone while leaving calendar timestamps in UTC.
++    _worldPacket << MS::Utilities::WowTime::EncodeLocal(ServerTime);
++    _worldPacket << MS::Utilities::WowTime::EncodeLocal(GameTime);
+     _worldPacket << float(NewSpeed);
+     _worldPacket << uint32(ServerTimeHolidayOffset);
+     _worldPacket << uint32(GameTimeHolidayOffset);

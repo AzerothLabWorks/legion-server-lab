@@ -7,7 +7,14 @@ runtime_root="${LEGION_RUNTIME_ROOT:-$HOME/legion-server-runtime}"
 install_root="${LEGION_INSTALL_ROOT:-$runtime_root/server}"
 build_image="${LEGION_BUILD_IMAGE:-legion-server-build:ubuntu18.04}"
 db_password="${LEGION_DB_PASSWORD:?set LEGION_DB_PASSWORD before preparing runtime configuration}"
+server_timezone="${LEGION_TIMEZONE:-America/Los_Angeles}"
 db_archive="$source_root/sql/base/Legion_Proyect-DB.7z"
+
+if [[ ! "$server_timezone" =~ ^[A-Za-z0-9._+-]+(/[A-Za-z0-9._+-]+)*$ ]]; then
+    echo "Invalid LEGION_TIMEZONE: $server_timezone" >&2
+    echo "Use an IANA timezone name such as America/Los_Angeles or UTC." >&2
+    exit 1
+fi
 
 if [[ ! -f "$db_archive" ]]; then
     echo "Database archive not found: $db_archive" >&2
@@ -98,5 +105,12 @@ awk '
     { print }
 ' "$runtime_root/config/worldserver.conf.tmp" > "$runtime_root/config/worldserver.conf"
 rm "$runtime_root/config/worldserver.conf.tmp"
+
+cat >> "$runtime_root/config/worldserver.conf" <<EOF
+
+# AzerothLabWorks local realm clock configuration.
+ServerTimeTZ = "$server_timezone"
+GameTimeTZ = "$server_timezone"
+EOF
 
 echo "Prepared configuration and database bootstrap files under $runtime_root"

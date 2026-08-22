@@ -69,18 +69,26 @@ defaults to `127.0.0.1`. REST port 8081 remains loopback-only unless
 `LEGION_REST_BIND_ADDRESS` is explicitly changed. Both supported local-host
 workflows keep it loopback-only.
 
-All three containers receive `LEGION_TIMEZONE`, so server logs, game time, and
-database-local timestamps use the same configured timezone after the services
-are recreated.
+All three containers receive `LEGION_TIMEZONE`, and the generated worldserver
+configuration advertises that IANA timezone to the client. The patched login
+clock packet uses the same local timezone, so realm time, logs, and
+database-local timestamps agree after the services are rebuilt and recreated.
 
 ## Duplicate creature cleanup
 
 The source-matched world database contains a limited number of duplicate
-static creature records. `scripts/apply-required-updates.sh` removes only
+static creature records. `scripts/apply-required-updates.sh` first removes only
 byte-equivalent spawn rows whose duplicate group has no GUID-specific addon,
 event, pool, formation, transport, linked-respawn, conversation, or SmartAI
 references. It also removes the confirmed extra Chef Grual spawn in Scarlet
 Raven Tavern.
+
+A second conservative world-wide pass handles nearby duplicates whose position
+or facing differs. It is limited to structurally equivalent service, quest, or
+uniquely titled NPC entries with exactly two global spawns. Both rows must be
+in the same map/area/phase, within 15 yards, from separate GUID generations,
+and free of spawn-specific references. Ordinary mob packs, guards, commoners,
+and scripted pairs are therefore left intact.
 
 Before deletion, every affected row is copied to
 `legion_world.azerothlab_removed_creature_spawns`. The migration is idempotent,

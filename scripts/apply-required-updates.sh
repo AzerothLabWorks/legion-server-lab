@@ -82,3 +82,7 @@ docker compose exec -T mysql \
 docker compose exec -T mysql \
     mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
     < "$repo_root/database/80-deduplicate-static-creature-spawns.sql"
+
+docker compose exec -T mysql \
+    mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    < "$repo_root/database/81-deduplicate-nearby-singleton-npcs.sql"
