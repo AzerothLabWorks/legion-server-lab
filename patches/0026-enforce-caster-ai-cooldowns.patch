@@ -1,0 +1,54 @@
+diff --git a/src/server/game/AI/CoreAI/CombatAI.cpp b/src/server/game/AI/CoreAI/CombatAI.cpp
+--- a/src/server/game/AI/CoreAI/CombatAI.cpp
++++ b/src/server/game/AI/CoreAI/CombatAI.cpp
+@@ -382,6 +382,22 @@ void CombatAI::UpdateAI(uint32 diff)
+         DoMeleeAttackIfReady();
+ }
+-
++
++namespace
++{
++    uint32 GetCasterAISpellCooldown(uint32 spellId)
++    {
++        AISpellInfoType const* spell = GetAISpellInfo(spellId);
++
++        // Many imported Legion creature spells have no DB2 recovery time.
++        // Preserve real cooldowns, but use the AI category cooldown (including
++        // its control/damage safeguards) when the client data supplies none.
++        if (spell->realCooldown >= spell->cooldown)
++            return spell->realCooldown;
++
++        return spell->cooldown + urand(0, spell->cooldown);
++    }
++}
++
+ /////////////////
+ //CasterAI
+ /////////////////
+@@ -433,7 +448,7 @@ void CasterAI::EnterCombat(Unit* who)
+             me->CastSpell(who, *itr, false);
+         else if (AISpellInfo[*itr].condition == AICOND_COMBAT)
+         {
+-            uint32 cooldown = GetAISpellInfo(*itr)->realCooldown;
++            uint32 cooldown = GetCasterAISpellCooldown(*itr);
+             if (count == spell)
+             {
+                 DoCast(spells[spell]);
+@@ -468,9 +483,14 @@ void CasterAI::UpdateAI(uint32 diff)
+-
++
+     if (uint32 spellId = events.ExecuteEvent())
+     {
+-        DoCast(spellId);
++        // Positive combat buffs should not be spammed while their aura is
++        // already active. Debuffs are already protected by DoCast targeting.
++        if (AISpellInfo[spellId].target != AITARGET_BUFF || !me->HasAura(spellId))
++            DoCast(spellId);
++
+         uint32 casttime = me->GetCurrentSpellCastTime(spellId);
+-        events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
++        events.ScheduleEvent(spellId,
++            (casttime ? casttime : 500) + GetCasterAISpellCooldown(spellId));
+     }
+     else if (me->IsWithinMeleeRange(me->getVictim()))
+         DoMeleeAttackIfReady();

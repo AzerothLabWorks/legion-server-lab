@@ -162,6 +162,22 @@ to the player and relying only on melee. Repeat with an ordinary melee creature
 and a scripted caster; the melee creature must retain normal chase behavior and
 the scripted caster must retain its encounter AI.
 
+Zero-cooldown creature spell loops are prevented by
+`0026-enforce-caster-ai-cooldowns.patch`. Much of the imported Legion spell data
+has no native recovery time, which previously caused `CasterAI` to reschedule an
+instant ability after only 500 milliseconds. The scheduler now preserves real
+cooldowns when present and otherwise uses the core's existing AI safeguards:
+5-10 seconds for utility abilities, 10-20 seconds for damage, and 15-30 seconds
+for control. It also skips recasting a positive combat buff while that aura is
+already active.
+
+Regression test: fight a **Boulderfist Brute** (entry 2566), **Boulderfist
+Magus** (entry 2567), **Syndicate Prowler** (entry 2588), and **Syndicate Thief**
+(entry 24477). Fire Blast, Knockdown, Stomp, Disarm, and other special abilities
+must be separated by visible normal attacks instead of repeating every combat
+update. Enrage- or Bloodlust-style buffs must not be reapplied continuously
+while active. Each creature must remain capable of using its special abilities.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's
