@@ -125,6 +125,25 @@ Timberlain in Eastvale Logging Camp, not between Eastvale and Goldshire. Confirm
 that **The Jasperlode Mine** still points to Marshal Dughan in Goldshire and
 that an incomplete quest continues to show its normal objective area.
 
+Unscripted enemy caster behavior is restored by
+`0024-restore-unscripted-caster-ai.patch`. The archived world database assigns
+many creatures to `SmartAI` without providing an entry-level or spawn-level
+SmartAI script. Those creatures previously ignored valid ranged combat spells
+in `creature_template_spell`, ran into melee range, and only auto-attacked. The
+fallback selects `CasterAI` only for ordinary hostile creatures with a real
+offensive ranged spell and no working C++ or SmartAI script. Pets, summons,
+vehicles, guards, triggers, critters, world bosses, and scripted encounters
+retain their existing AI. `CasterAI` now merges both Legion creature-spell
+storage formats, maintains a usable casting distance, and can still make a
+melee swing if its victim closes the gap. Set
+`CreatureAI.CasterFallback.Enable = 0` for an immediate configuration rollback.
+
+Regression test: pull a **Skeletal Mage** (entry 203) from outside melee range.
+It must stop at casting distance and use Frostbolt rather than running directly
+to the player and relying only on melee. Repeat with an ordinary melee creature
+and a scripted caster; the melee creature must retain normal chase behavior and
+the scripted caster must retain its encounter AI.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's

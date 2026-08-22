@@ -1,0 +1,232 @@
+diff --git a/src/server/game/AI/CoreAI/CombatAI.cpp b/src/server/game/AI/CoreAI/CombatAI.cpp
+index bd77a48..d468f45 100644
+--- a/src/server/game/AI/CoreAI/CombatAI.cpp
++++ b/src/server/game/AI/CoreAI/CombatAI.cpp
+@@ -387,12 +387,37 @@ void CasterAI::InitializeAI()
+ {
+     CombatAI::InitializeAI();
+ 
++    // Legion world data stores creature spells in both the legacy template
++    // columns and creature_template_spell. CasterAI historically read only the
++    // legacy columns, leaving many otherwise valid casters with no spell list.
++    if (me->CreatureSpells)
++        for (CreatureSpellList::value_type const& creatureSpell : *me->CreatureSpells)
++        {
++            uint32 spellId = creatureSpell.second.SpellID;
++            if (spellId && sSpellMgr->GetSpellInfo(spellId)
++                && std::find(spells.begin(), spells.end(), spellId) == spells.end())
++                spells.push_back(spellId);
++        }
++
++    // Keep enough distance to cast the shortest hostile ranged combat spell.
++    // AISpellInfo already applies a 75% range safety margin.
+     m_attackDist = MAGIC_RANGE;
+-    for (auto& spell : spells)
+-        if (AISpellInfo[spell].condition == AICOND_COMBAT && m_attackDist > GetAISpellInfo(spell)->maxRange)
+-            m_attackDist = GetAISpellInfo(spell)->maxRange;
+-    if (m_attackDist < MAGIC_RANGE)
+-        m_attackDist = MAGIC_RANGE;
++    bool foundRangedSpell = false;
++    for (uint32 spellId : spells)
++    {
++        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
++        float spellRange = GetAISpellInfo(spellId)->maxRange;
++        bool offensive = spellInfo && (spellInfo->IsDamageSpell() || spellInfo->IsControlSpell()
++            || spellInfo->HasAura(SPELL_AURA_PERIODIC_DAMAGE)
++            || spellInfo->HasAura(SPELL_AURA_PERIODIC_DAMAGE_PERCENT)
++            || spellInfo->HasAura(SPELL_AURA_PERIODIC_LEECH));
++        if (!offensive || spellInfo->IsPositive() || AISpellInfo[spellId].condition != AICOND_COMBAT
++            || spellRange <= MELEE_RANGE)
++            continue;
++
++        m_attackDist = foundRangedSpell ? std::min(m_attackDist, spellRange) : std::min(MAGIC_RANGE, spellRange);
++        foundRangedSpell = true;
++    }
+ }
+ 
+ void CasterAI::EnterCombat(Unit* who)
+@@ -445,6 +470,8 @@ void CasterAI::UpdateAI(uint32 diff)
+         uint32 casttime = me->GetCurrentSpellCastTime(spellId);
+         events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
+     }
++    else if (me->IsWithinMeleeRange(me->getVictim()))
++        DoMeleeAttackIfReady();
+ }
+ 
+ //////////////
+diff --git a/src/server/game/AI/CreatureAISelector.cpp b/src/server/game/AI/CreatureAISelector.cpp
+index e550361..fe49d0b 100644
+--- a/src/server/game/AI/CreatureAISelector.cpp
++++ b/src/server/game/AI/CreatureAISelector.cpp
+@@ -19,6 +19,10 @@
+ #include "Creature.h"
+ #include "CreatureAISelector.h"
+ #include "PassiveAI.h"
++#include "SmartScriptMgr.h"
++#include "SpellInfo.h"
++#include "SpellMgr.h"
++#include "World.h"
+ 
+ #include "MovementGenerator.h"
+ #include "Pet.h"
+@@ -26,6 +30,60 @@
+ #include "CreatureAIFactory.h"
+ #include "ScriptMgr.h"
+ 
++namespace
++{
++    bool IsOffensiveRangedSpell(uint32 spellId)
++    {
++        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
++        if (!spellInfo || spellInfo->IsPassive() || spellInfo->IsPositive())
++            return false;
++
++        if (spellInfo->GetMaxRange(false) <= MELEE_RANGE)
++            return false;
++
++        return spellInfo->IsDamageSpell() || spellInfo->IsControlSpell()
++            || spellInfo->HasAura(SPELL_AURA_PERIODIC_DAMAGE)
++            || spellInfo->HasAura(SPELL_AURA_PERIODIC_DAMAGE_PERCENT)
++            || spellInfo->HasAura(SPELL_AURA_PERIODIC_LEECH);
++    }
++
++    bool HasOffensiveRangedSpell(Creature const* creature)
++    {
++        for (uint32 spellId : creature->m_templateSpells)
++            if (IsOffensiveRangedSpell(spellId))
++                return true;
++
++        if (creature->CreatureSpells)
++            for (CreatureSpellList::value_type const& spell : *creature->CreatureSpells)
++                if (IsOffensiveRangedSpell(spell.second.SpellID))
++                    return true;
++
++        return false;
++    }
++
++    bool ShouldUseCasterFallback(Creature const* creature, std::string const& aiName)
++    {
++        if (!sWorld->getBoolConfig(CONFIG_CREATURE_CASTER_AI_FALLBACK)
++            || creature->isCivilian() || creature->IsNeutralToAll() || creature->isWorldBoss())
++            return false;
++
++        if (!aiName.empty() && aiName != "SmartAI")
++            return false;
++
++        if (aiName == "SmartAI")
++        {
++            if (sSmartScriptMgr->HasScript(static_cast<int32>(creature->GetEntry()), SMART_SCRIPT_TYPE_CREATURE))
++                return false;
++
++            uint64 spawnId = creature->GetDBTableGUIDLow();
++            if (spawnId && sSmartScriptMgr->HasScript(-static_cast<int32>(spawnId), SMART_SCRIPT_TYPE_CREATURE))
++                return false;
++        }
++
++        return HasOffensiveRangedSpell(creature);
++    }
++}
++
+ namespace FactorySelector
+ {
+     CreatureAI* selectAI(Creature* creature)
+@@ -39,7 +97,8 @@ namespace FactorySelector
+                 return scriptedAI;
+ 
+         auto ainame = creature->GetAIName();
+-        if (!aiFactory && !ainame.empty())
++        bool useCasterFallback = !aiFactory && ShouldUseCasterFallback(creature, ainame);
++        if (!aiFactory && !ainame.empty() && !useCasterFallback)
+             aiFactory = sCreatureAIRegistry->GetRegistryItem(ainame);
+ 
+         if (!aiFactory)
+@@ -72,6 +131,9 @@ namespace FactorySelector
+                 aiFactory = sCreatureAIRegistry->GetRegistryItem("CritterAI");
+         }
+ 
++        if (!aiFactory && useCasterFallback)
++            aiFactory = sCreatureAIRegistry->GetRegistryItem("CasterAI");
++
+         if (!aiFactory)
+         {
+             auto best_val = -1;
+diff --git a/src/server/game/AI/SmartScripts/SmartScriptMgr.cpp b/src/server/game/AI/SmartScripts/SmartScriptMgr.cpp
+index 95e3f95..ab4e52a 100644
+--- a/src/server/game/AI/SmartScripts/SmartScriptMgr.cpp
++++ b/src/server/game/AI/SmartScripts/SmartScriptMgr.cpp
+@@ -298,6 +298,16 @@ SmartAIEventList SmartAIMgr::GetScript(int32 entry, SmartScriptType type)
+     return temp;
+ }
+ 
++bool SmartAIMgr::HasScript(int32 entry, SmartScriptType type) const
++{
++    if (type >= SMART_SCRIPT_TYPE_MAX)
++        return false;
++
++    SmartAIEventMap const& eventMap = mEventMap[type];
++    SmartAIEventMap::const_iterator itr = eventMap.find(entry);
++    return itr != eventMap.end() && !itr->second.empty();
++}
++
+ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
+ {
+     if (e.GetActionType() == SMART_ACTION_INSTALL_AI_TEMPLATE)
+diff --git a/src/server/game/AI/SmartScripts/SmartScriptMgr.h b/src/server/game/AI/SmartScripts/SmartScriptMgr.h
+index ea4d322..89ff542 100644
+--- a/src/server/game/AI/SmartScripts/SmartScriptMgr.h
++++ b/src/server/game/AI/SmartScripts/SmartScriptMgr.h
+@@ -1706,6 +1706,7 @@ class SmartAIMgr
+         void LoadSmartAIFromDB();
+ 
+         SmartAIEventList GetScript(int32 entry, SmartScriptType type);
++        bool HasScript(int32 entry, SmartScriptType type) const;
+ 
+     private:
+         //event stores
+diff --git a/src/server/game/World/World.cpp b/src/server/game/World/World.cpp
+index a2aa887..1292ddb 100644
+--- a/src/server/game/World/World.cpp
++++ b/src/server/game/World/World.cpp
+@@ -1558,6 +1558,8 @@ void World::LoadConfigSettings(bool reload)
+ 
+ 	m_bool_configs[CONFIG_AUTO_SAY_HELLO] = sConfigMgr->GetBoolDefault("Auto.Say.Hello", false);
+ 
++    m_bool_configs[CONFIG_CREATURE_CASTER_AI_FALLBACK] = sConfigMgr->GetBoolDefault("CreatureAI.CasterFallback.Enable", true);
++
+ 	// PvP Template Stads
+ 	m_int_configs[CONFIG_PVP_TEMPLATE_MAIN_STAD] = sConfigMgr->GetIntDefault("PvP.TemplateMainStad", 0);
+ 	m_int_configs[CONFIG_PVP_TEMPLATE_STAMINA_STAD] = sConfigMgr->GetIntDefault("PvP.TemplateStaminaStad", 0);
+diff --git a/src/server/game/World/World.h b/src/server/game/World/World.h
+index bc0368f..4a1ba2f 100644
+--- a/src/server/game/World/World.h
++++ b/src/server/game/World/World.h
+@@ -246,6 +246,7 @@ enum WorldBoolConfigs
+ 	CONFIG_PLAYER_ALLOW_PVP_TALENTS_ALL_THE_TIME,
+     CONFIG_AUTO_SAY_HELLO,
+ 	CONFIG_ENABLE_CUSTOM_STAD,
++    CONFIG_CREATURE_CASTER_AI_FALLBACK,
+     BOOL_CONFIG_VALUE_COUNT
+ };
+ 
+diff --git a/src/server/worldserver/worldserver.conf.dist b/src/server/worldserver/worldserver.conf.dist
+index 56c8519..d5df0a9 100644
+--- a/src/server/worldserver/worldserver.conf.dist
++++ b/src/server/worldserver/worldserver.conf.dist
+@@ -4174,6 +4174,17 @@ PvPKill.Announcer = 1
+ 
+ Auto.Say.Hello = 1
+ 
++#
++#    CreatureAI.CasterFallback.Enable
++#        Description: Lets ordinary hostile creatures with valid ranged combat
++#                     spells use CasterAI when they have no working C++ or
++#                     SmartAI script. Scripted encounters and special creature
++#                     types keep their existing AI.
++#        Default:     1 - (Enabled)
++#                     0 - (Disabled)
++
++CreatureAI.CasterFallback.Enable = 1
++
+ #
+ #     Bpay.Enabled
+ #        Description: Enable BattlePay ingame shop button (need to fill the database)

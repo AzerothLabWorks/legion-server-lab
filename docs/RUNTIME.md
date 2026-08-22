@@ -90,6 +90,15 @@ in the same map/area/phase, within 15 yards, from separate GUID generations,
 and free of spawn-specific references. Ordinary mob packs, guards, commoners,
 and scripted pairs are therefore left intact.
 
+A third pass handles ordinary creatures duplicated by later spawn imports. It
+requires the same creature entry, map, area, phase, spawn mask, behavioral
+fields, and a position within three yards, plus a GUID-generation gap greater
+than 1,000. Spawn-specific addons, events, pools, formations, transports,
+linked-respawns, conversations, and SmartAI remain protected. Different-entry
+mixed packs are never candidates; for example, the Nightbane Vile Fang and
+Nightbane Tainted One pairs at Roland's Doom are intentional quest packs rather
+than duplicate rows.
+
 Before deletion, every affected row is copied to
 `legion_world.azerothlab_removed_creature_spawns`. The migration is idempotent,
 and that archive makes an individual spawn recoverable if later testing finds

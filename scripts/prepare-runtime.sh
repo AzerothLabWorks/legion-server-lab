@@ -94,6 +94,7 @@ sed \
     -e 's#^CompanionAutoLoot.Radius.*#CompanionAutoLoot.Radius = 40#' \
     -e 's#^CompanionAutoLoot.OutOfCombatOnly.*#CompanionAutoLoot.OutOfCombatOnly = 0#' \
     -e 's#^StartupQoL.Enable.*#StartupQoL.Enable = 1#' \
+    -e 's#^CreatureAI.CasterFallback.Enable.*#CreatureAI.CasterFallback.Enable = 1#' \
     "$install_root/etc/worldserver.conf.dist" > "$runtime_root/config/worldserver.conf.tmp"
 
 # The archived upstream template repeats these two update-system keys. Its
