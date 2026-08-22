@@ -50,6 +50,7 @@ grep -q 'POI.points.assign(1, \*nearestEnder)' "$verify_dir/source/src/server/ga
 grep -q 'using QuestPOIPointKey = std::tuple' "$verify_dir/source/src/server/game/Globals/QuestData.cpp"
 grep -q 'VerifiedBuild FROM quest_poi_points' "$verify_dir/source/src/server/game/Globals/QuestData.cpp"
 grep -q 'skippedMismatchedPointBuilds' "$verify_dir/source/src/server/game/Globals/QuestData.cpp"
+grep -q 'intentionally refactored by the verified-build POI patch' "$repo_root/scripts/build-core.sh"
 grep -q 'CONFIG_CREATURE_CASTER_AI_FALLBACK' "$verify_dir/source/src/server/game/AI/CreatureAISelector.cpp"
 grep -q 'creature_template_spell' "$verify_dir/source/src/server/game/AI/CoreAI/CombatAI.cpp"
 grep -q 'CreatureAI.CasterFallback.Enable = 1' "$verify_dir/source/src/server/worldserver/worldserver.conf.dist"

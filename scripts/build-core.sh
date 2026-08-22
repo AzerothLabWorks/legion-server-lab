@@ -36,6 +36,10 @@ for patch_file in "$repo_root"/patches/*.patch; do
         && grep -q 'AddSC_startup_qol' "$SOURCE_DIR/src/server/scripts/ScriptLoader.cpp" \
         && grep -q 'StartupQoL.Enable = 0' "$SOURCE_DIR/src/server/worldserver/worldserver.conf.dist"; then
         : # Already applied; its documentation-only context was subsequently refined.
+    elif [[ "$(basename "$patch_file")" == "0022-anchor-quest-turnin-pois-to-enders.patch" ]] \
+        && grep -q 'POI.points.assign(1, \*nearestEnder)' "$SOURCE_DIR/src/server/game/Globals/QuestData.cpp" \
+        && grep -q 'using QuestPOIPointKey = std::tuple' "$SOURCE_DIR/src/server/game/Globals/QuestData.cpp"; then
+        : # Applied, then intentionally refactored by the verified-build POI patch.
     else
         echo "Patch cannot be applied cleanly: $patch_file" >&2
         exit 1
