@@ -223,6 +223,31 @@ Fight at least one to confirm that Backstab, Disarm, and Poison remain available
 without the creature applying a permanent sleep state. Confirm that unrelated
 ambient sleeping creatures retain their intended pose.
 
+BattlePay profession delivery is repaired by
+`0029-fix-battlepay-professions.patch` and
+`0030-load-battlepay-scripts.patch`. The archived core added profession product
+objects to the generic script registry but never added them to the name-indexed
+registry used by shop validation and delivery. Its BattlePay loader was also
+orphaned by a mismatched function name and never called during startup.
+Purchases could therefore deduct coins while silently skipping all profession
+rewards. Product scripts now load during startup and register with both systems.
+
+Profession products explicitly teach the base profession spell, set the skill
+to the product's 800-point cap, learn its available trade spells, and retain the
+normal two-primary-profession limit. The repack's unrelated level-90 shop gate
+is removed so secondary professions and valid primary profession slots can be
+learned during ordinary lab play. Tool-bearing professions grant one
+Blacksmith Hammer (`5956`), Mining Pick (`2901`), Skinning Knife (`7005`), or
+Fishing Pole (`6256`), checking bags and bank first to prevent duplicates.
+
+Regression test: use a low-level character with at least one free bag slot and
+purchase First Aid. Confirm that coins are deducted once, First Aid appears at
+800, and its spells are available. Purchase Fishing and confirm that one
+Fishing Pole is added. On a character with free primary-profession slots,
+purchase Blacksmithing, Mining, or Skinning and confirm that its matching tool
+is granted. Repeat validation from the shop and confirm an already-maxed skill
+is rejected before another charge.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's

@@ -54,6 +54,9 @@ community targets are Steam Deck/SteamOS and Windows with Ubuntu/WSL2.
 - The persistent `worldserver` completes startup and listens on TCP 8085.
 - Realm 1 advertises client build 26365 and is registered by `bnetserver` at
   the configured `LEGION_REALM_ADDRESS` (`127.0.0.1` by default).
+- Profession shop products execute their validation and delivery scripts,
+  teach the base skill and recipes without a level-90 gate, and grant the
+  standard Blacksmithing, Mining, Skinning, and Fishing tools.
 
 ## Compatibility finding
 

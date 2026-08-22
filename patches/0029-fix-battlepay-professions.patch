@@ -1,0 +1,124 @@
+diff --git a/src/server/game/Scripting/ScriptMgr.cpp b/src/server/game/Scripting/ScriptMgr.cpp
+index 8bfdb73..e57ee2d 100644
+--- a/src/server/game/Scripting/ScriptMgr.cpp
++++ b/src/server/game/Scripting/ScriptMgr.cpp
+@@ -1544,6 +1544,7 @@ FormulaScript::FormulaScript(std::string name) : ScriptObject(name)
+ BattlePayProductScript::BattlePayProductScript(std::string name) : ScriptObject(name)
+ {
+     ScriptRegistry<BattlePayProductScript>::AddScript(this);
++    sScriptMgr->RegisterBattlePayProductScript(name, this);
+ }
+ 
+ void ScriptMgr::RegisterBattlePayProductScript(std::string scriptName, BattlePayProductScript* script)
+@@ -1775,4 +1776,4 @@ template class ScriptRegistry<QuestScript>;
+ #undef FOR_SCRIPTS
+ #undef SCR_REG_LST
+ #undef SCR_REG_ITR
+-#undef SCR_REG_MAP
+\ No newline at end of file
++#undef SCR_REG_MAP
+diff --git a/src/server/scripts/BattlePay/battlepay_professions.cpp b/src/server/scripts/BattlePay/battlepay_professions.cpp
+index 007059b..f82a8ea 100644
+--- a/src/server/scripts/BattlePay/battlepay_professions.cpp
++++ b/src/server/scripts/BattlePay/battlepay_professions.cpp
+@@ -1,6 +1,8 @@
+ #include "BattlePayMgr.h"
+ #include "ScriptMgr.h"
+ 
++#include <algorithm>
++
+ namespace BattlePay
+ {
+     namespace ProfessionBookSpells
+@@ -43,6 +45,33 @@ namespace BattlePay
+         { SKILL_ARCHAEOLOGY,    ProfessionBookSpells::Archaeology    },
+         { SKILL_FISHING,        ProfessionBookSpells::Fishing        }
+     };
++
++    static std::map<uint32, uint32> ProfessionLearningSpells =
++    {
++        { SKILL_ALCHEMY,        2259  },
++        { SKILL_BLACKSMITHING,  2018  },
++        { SKILL_ENCHANTING,     7411  },
++        { SKILL_ENGINEERING,    4036  },
++        { SKILL_INSCRIPTION,    45357 },
++        { SKILL_JEWELCRAFTING,  25229 },
++        { SKILL_LEATHERWORKING, 2108  },
++        { SKILL_TAILORING,      3908  },
++        { SKILL_FIRST_AID,      3273  },
++        { SKILL_COOKING,        2550  },
++        { SKILL_HERBALISM,      2366  },
++        { SKILL_MINING,         2575  },
++        { SKILL_SKINNING,       8613  },
++        { SKILL_ARCHAEOLOGY,    78670 },
++        { SKILL_FISHING,        7620  }
++    };
++
++    static std::map<uint32, uint32> ProfessionToolItems =
++    {
++        { SKILL_BLACKSMITHING, 5956 }, // Blacksmith Hammer
++        { SKILL_MINING,        2901 }, // Mining Pick
++        { SKILL_SKINNING,      7005 }, // Skinning Knife
++        { SKILL_FISHING,       6256 }  // Fishing Pole
++    };
+ }
+ 
+ template<uint32 t_SkillID, uint32 t_Value> class BattlePay_Profession : BattlePayProductScript
+@@ -56,25 +85,31 @@ public:
+         if (!player)
+             return;
+ 
+-        auto spellID = BattlePay::SkillLearningSpells[t_SkillID];
++        auto bookSpellItr = BattlePay::SkillLearningSpells.find(t_SkillID);
++        auto learnSpellItr = BattlePay::ProfessionLearningSpells.find(t_SkillID);
++        if (bookSpellItr == BattlePay::SkillLearningSpells.end() || learnSpellItr == BattlePay::ProfessionLearningSpells.end())
++            return;
++
++        uint32 bookSpellID = bookSpellItr->second;
++        uint32 learnSpellID = learnSpellItr->second;
++        if (!player->HasSpell(learnSpellID))
++            player->learnSpell(learnSpellID, false);
+ 
+-        player->CastSpell(player, spellID, true);
+-        player->SetSkill(t_SkillID, player->GetSkillStep(t_SkillID), t_Value, t_Value);
++        player->CastSpell(player, bookSpellID, true);
++        player->SetSkill(t_SkillID, std::max<uint16>(player->GetSkillStep(t_SkillID), 1), t_Value, t_Value);
++        player->learnSkillRewardedSpells(t_SkillID, t_Value);
+ 
+         for (auto itr : sSpellMgr->GetTradeSpellFromSkill(t_SkillID))
+             player->learnSpell(itr->Spell, false);
+ 
+-        switch (t_SkillID)
+-        {
+-        case SKILL_JEWELCRAFTING:
++        if (t_SkillID == SKILL_JEWELCRAFTING)
+             player->learnSpell(31252 /*Prospecting*/, false);
+-            break;
+-        case SKILL_HERBALISM:
+-        case SKILL_MINING:
+-            player->learnSpell(spellID, false);
+-            break;
+-        default:
+-            break;
++
++        auto toolItr = BattlePay::ProfessionToolItems.find(t_SkillID);
++        if (toolItr != BattlePay::ProfessionToolItems.end() && !player->HasItemCount(toolItr->second, 1, true))
++        {
++            if (!player->AddItem(toolItr->second, 1))
++                session->SendNotification("Your profession was learned, but your bags are full. Make room and contact a GM for the profession tool.");
+         }
+ 
+         player->SaveToDB();
+@@ -92,12 +127,6 @@ public:
+         if (BattlePay::SkillLearningSpells.find(t_SkillID) == BattlePay::SkillLearningSpells.end())
+             return false;
+ 
+-        if (player->getLevel() < 90)
+-        {
+-            reason = sObjectMgr->GetTrinityString(Battlepay::String::Level90Required, session->GetSessionDbLocaleIndex());
+-            return false;
+-        }
+-
+         if (IsPrimaryProfessionSkill(t_SkillID) && !player->HasSkill(t_SkillID) && player->GetFreePrimaryProfessionPoints() == 0)
+         {
+             reason = sObjectMgr->GetTrinityString(Battlepay::String::ReachPrimaryProfessionLimit, session->GetSessionDbLocaleIndex());

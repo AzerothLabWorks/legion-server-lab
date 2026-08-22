@@ -74,6 +74,14 @@ required_world_update="$source_root/sql/updates/world/2023_04_02_quest_autocompl
 
 install -m 0644 "$repo_root/database/70-nordrassil-coin-localization.sql" \
     "$runtime_root/database-init/70-nordrassil-coin-localization.sql"
+install -m 0644 "$repo_root/database/80-deduplicate-static-creature-spawns.sql" \
+    "$runtime_root/database-init/80-deduplicate-static-creature-spawns.sql"
+install -m 0644 "$repo_root/database/81-deduplicate-nearby-singleton-npcs.sql" \
+    "$runtime_root/database-init/81-deduplicate-nearby-singleton-npcs.sql"
+install -m 0644 "$repo_root/database/82-deduplicate-nearby-cross-generation-creatures.sql" \
+    "$runtime_root/database-init/82-deduplicate-nearby-cross-generation-creatures.sql"
+install -m 0644 "$repo_root/database/83-remove-broken-syndicate-thief-sleep.sql" \
+    "$runtime_root/database-init/83-remove-broken-syndicate-thief-sleep.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \

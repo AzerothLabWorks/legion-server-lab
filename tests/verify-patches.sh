@@ -63,6 +63,24 @@ grep -q 'legacy spell1-spell8 columns and creature_template_spell' "$verify_dir/
 grep -q 'std::find(spells.begin(), spells.end(), spellId)' "$verify_dir/source/src/server/game/AI/CoreAI/CombatAI.cpp"
 grep -q 'std::max<uint32>(AISpellInfo\[spellId\].cooldown, 5000)' "$verify_dir/source/src/server/game/AI/CoreAI/CombatAI.cpp"
 grep -q 'CreatureAI.CasterFallback.Enable = 1' "$verify_dir/source/src/server/worldserver/worldserver.conf.dist"
+grep -q 'RegisterBattlePayProductScript(name, this)' "$verify_dir/source/src/server/game/Scripting/ScriptMgr.cpp"
+grep -q 'AddSC_BattlePayScripts();' "$verify_dir/source/src/server/scripts/ScriptLoader.cpp"
+grep -q '^void AddSC_BattlePayScripts()' "$verify_dir/source/src/server/scripts/ScriptLoader.cpp"
+if grep -q '^void AddBattlePayScripts()' "$verify_dir/source/src/server/scripts/ScriptLoader.cpp"; then
+    echo "Orphaned BattlePay loader name is still present" >&2
+    exit 1
+fi
+grep -q 'SKILL_FIRST_AID,      3273' "$verify_dir/source/src/server/scripts/BattlePay/battlepay_professions.cpp"
+grep -q 'SKILL_FISHING,        7620' "$verify_dir/source/src/server/scripts/BattlePay/battlepay_professions.cpp"
+grep -q 'SKILL_BLACKSMITHING, 5956' "$verify_dir/source/src/server/scripts/BattlePay/battlepay_professions.cpp"
+grep -q 'SKILL_MINING,        2901' "$verify_dir/source/src/server/scripts/BattlePay/battlepay_professions.cpp"
+grep -q 'SKILL_SKINNING,      7005' "$verify_dir/source/src/server/scripts/BattlePay/battlepay_professions.cpp"
+grep -q 'SKILL_FISHING,       6256' "$verify_dir/source/src/server/scripts/BattlePay/battlepay_professions.cpp"
+grep -q 'HasItemCount(toolItr->second, 1, true)' "$verify_dir/source/src/server/scripts/BattlePay/battlepay_professions.cpp"
+if grep -q 'player->getLevel() < 90' "$verify_dir/source/src/server/scripts/BattlePay/battlepay_professions.cpp"; then
+    echo "Profession products still require level 90" >&2
+    exit 1
+fi
 grep -q 'Adds 10 coins to your in-game Shop balance' "$repo_root/database/70-nordrassil-coin-localization.sql"
 grep -q '7005056, 2442913102, 505056' "$repo_root/database/70-nordrassil-coin-localization.sql"
 grep -q 'azerothlab_removed_creature_spawns' "$repo_root/database/80-deduplicate-static-creature-spawns.sql"

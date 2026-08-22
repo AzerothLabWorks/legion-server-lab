@@ -1,0 +1,20 @@
+diff --git a/src/server/scripts/ScriptLoader.cpp b/src/server/scripts/ScriptLoader.cpp
+--- a/src/server/scripts/ScriptLoader.cpp
++++ b/src/server/scripts/ScriptLoader.cpp
+@@ -1346,6 +1346,7 @@ void AddScripts()
+ {
+     AddSpellScripts();
+     AddCommandScripts();
+     AddBattlegroundScripts();
++    AddSC_BattlePayScripts();
+ #ifdef SCRIPTS
+     AddWorldScripts();
+@@ -1908,7 +1909,7 @@ void AddBattlegroundScripts()
+ }
+ 
+ 
+-void AddBattlePayScripts()
++void AddSC_BattlePayScripts()
+ {
+ 	AddSC_BattlePay_Services();
+ 	AddSC_BattlePay_Professions();
