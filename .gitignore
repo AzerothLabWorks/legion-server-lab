@@ -39,6 +39,7 @@ database/*
 !database/80-deduplicate-static-creature-spawns.sql
 !database/81-deduplicate-nearby-singleton-npcs.sql
 !database/82-deduplicate-nearby-cross-generation-creatures.sql
+!database/83-remove-broken-syndicate-thief-sleep.sql
 
 # WoW clients, repacks, archives, and executables
 client/

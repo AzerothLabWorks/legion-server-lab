@@ -178,6 +178,21 @@ must be separated by visible normal attacks instead of repeating every combat
 update. Enrage- or Bloodlust-style buffs must not be reapplied continuously
 while active. Each creature must remain capable of using its special abilities.
 
+Permanently sleeping Syndicate Thieves are corrected by
+`database/83-remove-broken-syndicate-thief-sleep.sql`. Entry 24477 inherited
+the `Sleeping Sleep` aura (spell 42648) from `creature_template_addon`, but has
+no proximity or aggro script capable of removing it. The migration preserves
+the original addon and spell rows in repository-owned backup tables, removes
+the aura from this one hostile template, and removes the same decorative spell
+from its combat spell list. Other templates that intentionally sleep, such as
+Off-Duty Siegeworkers, are not changed.
+
+Regression test: approach several **Syndicate Thieves** in Stromgarde Keep.
+They must be standing and must aggro normally at the expected hostile range.
+Fight at least one to confirm that Backstab, Disarm, and Poison remain available
+without the creature applying a permanent sleep state. Confirm that unrelated
+ambient sleeping creatures retain their intended pose.
+
 ## Verified build
 
 The pinned revision successfully built on 2026-08-09 using the repository's
