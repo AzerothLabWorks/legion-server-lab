@@ -26,6 +26,25 @@ The server uses Linux binaries built from pinned source, with separately managed
 database and extracted game-data volumes. Prebuilt server executables and
 services are not trusted build inputs.
 
+## Included lab improvements
+
+This project carries reproducible source patches and database migrations for
+issues found during hands-on Legion 7.3.5 gameplay. Current improvements include:
+
+| Area | Improvements |
+| --- | --- |
+| Questing | Quest markers refresh as objectives change, completed quests point to their configured turn-in NPCs, objective POIs are kept within their verified client build, and multi-quest NPCs continue to offer the next available quest. |
+| Creature combat | Unscripted caster enemies use their ranged abilities, zero-cooldown imports cannot spam damage/control/buff spells, dead creatures stop updating combat AI, and Feral Lunge has improved landing behavior. |
+| World data | Exact, nearby singleton, and cross-generation duplicate creature spawns are cleaned through repeatable migrations. Realm time uses a configurable local timezone and defaults to Pacific Time. |
+| Player QoL | Optional level-1 starter riding, mounts, gold, bags, and companion; silent companion auto-loot within 40 yards; and restored native bag sorting. |
+| Localization | Nordrassil Coin descriptions, redemption feedback, shop balance messages, and managed server broadcasts use English text. |
+| Installation and maintenance | Pinned upstream source, idempotent patch application, clean patch verification, managed-source integrity checks, and separate Steam Deck and Windows/WSL2 workflows. |
+
+The detailed implementation notes and gameplay regression checks are maintained
+in [docs/SOURCE_BASELINE.md](docs/SOURCE_BASELINE.md). These improvements make
+the archived core more consistent for a local lab, but they do not make every
+Legion quest, encounter, dungeon, or raid complete.
+
 ## Repository boundary
 
 This repository contains scripts, container definitions, configuration
