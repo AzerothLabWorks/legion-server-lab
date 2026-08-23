@@ -59,6 +59,22 @@ substitute for these extracted server-data trees.
 
 ## Clone and Check
 
+### Preserved core source
+
+The installer pins LegionCore commit
+`6c41d0faa23474bf9e76a4811b144d43e9545bab`. AzerothLabWorks maintains a
+complete preservation mirror at
+<https://github.com/AzerothLabWorks/LegionCore-7.3.5V2-preservation>. While the
+mirror remains private for provenance review, authorized maintainers can use it
+by prefixing any installer command with:
+
+```bash
+LEGION_CORE_URL=https://github.com/AzerothLabWorks/LegionCore-7.3.5V2-preservation.git
+```
+
+Community installs continue to use the public upstream by default until the
+preservation mirror is made public.
+
 ```bash
 cd ~
 git clone https://github.com/AzerothLabWorks/legion-server-lab.git

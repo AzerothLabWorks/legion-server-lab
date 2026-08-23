@@ -6,6 +6,13 @@ The installer obtains source from:
 
 <https://github.com/Legion-Pandaria-Preservation-Project/LegionCore-7.3.5V2>
 
+A complete AzerothLabWorks preservation mirror is maintained at:
+
+<https://github.com/AzerothLabWorks/LegionCore-7.3.5V2-preservation>
+
+The mirror preserves upstream history and attribution; it does not change the
+license declared by the original repository.
+
 Pinned revision:
 `6c41d0faa23474bf9e76a4811b144d43e9545bab`
 

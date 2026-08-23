@@ -3,10 +3,22 @@
 ## Selected build candidate
 
 - Repository: `https://github.com/Legion-Pandaria-Preservation-Project/LegionCore-7.3.5V2`
+- Preservation mirror: `https://github.com/AzerothLabWorks/LegionCore-7.3.5V2-preservation`
 - Branch: `V2`
 - Commit: `6c41d0faa23474bf9e76a4811b144d43e9545bab`
 - Commit date: 2025-03-11
 - License declared by repository: GPL-2.0
+
+The AzerothLabWorks preservation mirror retains the upstream branches, tags,
+and pull-request snapshots. Tag `baseline-2025-03-11` resolves to the pinned
+commit above. The mirror is private during provenance review, so the community
+installer continues to use the public upstream by default. Authorized
+maintainers can select the mirror without changing the installer:
+
+```bash
+LEGION_CORE_URL=https://github.com/AzerothLabWorks/LegionCore-7.3.5V2-preservation.git \
+  bash install/install.sh
+```
 
 The source configuration lists client builds 26124, 26365, 26654, 26822,
 26899, and 26972 as available. Its named full world/hotfix database snapshots
