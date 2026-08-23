@@ -44,7 +44,8 @@ issues found during hands-on Legion 7.3.5 gameplay. Current improvements include
 | Starter QoL | The optional idempotent login package grants riding through Master Riding, Cold Weather Flying, Legion-compatible mounts, a 20,000-gold minimum, four Hexweave Bags, and the Magma Rageling companion. Existing characters receive only missing rewards. |
 | Loot and inventory | Silent companion auto-loot works during combat from melee range through 40 yards, revisits corpses for delayed eligible quest drops, and keeps normal inventory and group-loot safeguards. Native bag cleanup and the Bagnon 7.3.5 sort button work again. |
 | Professions and shop | BattlePay profession purchases execute their delivery scripts, teach the base profession and recipes without the unrelated level-90 gate, respect primary-profession limits, and grant one appropriate Blacksmith Hammer, Mining Pick, Skinning Knife, or Fishing Pole. |
-| Localization | Nordrassil Coin descriptions, redemption feedback, shop balance messages, and managed server broadcasts use English text. |
+| Nordrassil Coins and Shop | Inherited Nordrassil Coin items are granted through played-time rewards, redeem into an account-wide Shop balance, and purchase configured in-game Shop products. The lab provides English item descriptions, redemption feedback, and balance messages; it does not add a real-money payment system. |
+| Localization | Managed server broadcasts and other inherited custom messages use English text. |
 | Installation and maintenance | Pinned upstream source, idempotent patch application, clean patch verification, managed-source integrity checks, and separate Steam Deck and Windows/WSL2 workflows. |
 
 The detailed implementation notes and gameplay regression checks are maintained
@@ -52,8 +53,17 @@ in [docs/SOURCE_BASELINE.md](docs/SOURCE_BASELINE.md). These improvements make
 the archived core more consistent for a local lab, but they do not make every
 Legion quest, encounter, dungeon, or raid complete.
 
-Client-only addons and the Legion GM Command Center are maintained separately
-and are not counted as server improvements in this catalog.
+## Optional Legion GM addon
+
+[GM Command Center - Legion](https://github.com/AzerothLabWorks/addons/tree/main/GMCommandCenter_Legion)
+is a separate client addon for Legion 7.3.5 build 26365. It provides convenient
+access to LegionCore GM commands and browsable build-matched catalogs for
+mounts, heirlooms, armor, weapons, druid artifact forms, and reviewed cosmetic
+spells. The addon requires a GM-enabled account and includes its own installation
+instructions; it is not required to run or play on the server.
+
+Client-only addons are maintained separately and are not counted as server
+improvements in the catalog above.
 
 ## Repository boundary
 
