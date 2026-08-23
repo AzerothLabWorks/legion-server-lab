@@ -235,6 +235,60 @@ Fight at least one to confirm that Backstab, Disarm, and Poison remain available
 without the creature applying a permanent sleep state. Confirm that unrelated
 ambient sleeping creatures retain their intended pose.
 
+Dormant authored creature patrols are restored by
+`database/84-restore-dormant-creature-waypoints.sql`. The archived world marks
+thousands of spawns as waypoint movers while omitting the
+`creature_addon.path_id` link required by the core, even though their
+`waypoint_data` remains present under the conventional spawn-GUID path ID. The
+migration restores only paths with at least two nodes whose first node lies
+within 25 yards of the spawn, avoiding unrelated path-ID collisions. Existing
+addon state is preserved and every restored link is recorded in a dedicated
+audit table.
+
+Regression test: visit several outdoor camps and settlements that contain
+restored waypoint candidates. Patrol-capable creatures must follow their local
+authored routes, pause normally at configured nodes, enter combat when engaged,
+and return to their paths after evade. No creature should run toward a distant
+or unrelated area after spawning.
+
+Safe outdoor ambient movement is added by
+`database/85-add-safe-outdoor-ambient-wander.sql`. The source database leaves
+many ordinary combat creatures at `MovementType = 0`, producing stationary
+rows of enemies that never vary their facing or position. The migration gives
+only normal, ground-capable, loot-bearing creatures on outdoor continent maps
+a three-yard random wander. It excludes services, quest starters and enders,
+rares and elites, vehicles, phased or instanced actors, scripts, active
+movement/pose addons, authored paths, formations, events, pools, transports,
+linked respawns, and conversation actors. Harmless addon bytes such as weapon
+sheath state do not prevent movement. Original rows are retained for recovery.
+
+Regression test: observe ordinary unscripted outdoor enemies such as the
+Vilebranch mobs around Jintha'Alor. They should occasionally move and turn
+within a few yards of their spawn while retaining normal aggro, melee or caster
+behavior, evade, and respawn. Vendors, quest givers, posed NPCs, elites,
+dungeon actors, and scripted encounters must remain unchanged.
+
+Missing Vilebranch combat rotations are restored by
+`database/86-restore-vilebranch-combat-ai.sql`. Entries 2640 through 2647 are
+marked `SmartAI` and retain their spell lists, but the archived world contains
+no entry- or spawn-level `smart_scripts` for them. Generic fallback AI keeps
+the creatures attackable, but cannot reproduce their intended range,
+friendly-health, positional, and low-health conditions. The migration installs
+an old-core-compatible SmartAI translation only for entries that still have no
+script rows. It uses the valid Legion Shoot spell (74613) instead of the
+forbidden legacy Shoot spell (15547), and backs up any pre-existing rows before
+making a change.
+
+Regression test: fight a **Vilebranch Blood Drinker** (2646) in melee for at
+least 15 seconds and confirm it casts Blood Leech. Fight a **Vilebranch Soul
+Eater** (2647) for at least 12 seconds and confirm Soul Bite; Dark Offering is
+conditional on an injured friendly creature within 10 yards. Also test a
+**Witch Doctor** (2640) or **Shadowcaster** (2642) from range, a **Headhunter**
+(2641) or **Shadow Hunter** (2645) from both ranged and melee distance, and a
+**Berserker** (2643) below 30 percent health. Their special abilities must be
+interleaved at the documented cooldowns, ranged enemies must reposition when
+outside their attack range, and none may spam an ability every update.
+
 BattlePay profession delivery is repaired by
 `0029-fix-battlepay-professions.patch` and
 `0030-load-battlepay-scripts.patch`. The archived core added profession product

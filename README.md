@@ -3,6 +3,10 @@
 An isolated local lab for building and running a World of Warcraft: Legion
 server from pinned source. Two community installation layouts are supported:
 
+This is an experimental preservation and interoperability project. Development
+is AI-assisted with OpenAI Codex, with changes kept in version control and
+validated through repeatable repository checks and hands-on gameplay testing.
+
 | Platform | Server | Client | Complete guide |
 | --- | --- | --- | --- |
 | Steam Deck | Docker on SteamOS/Arch Linux | Windows x64 client through Proton on the same Deck | [Steam Deck](HOWTO-STEAM-DECK.md) |
@@ -33,10 +37,13 @@ issues found during hands-on Legion 7.3.5 gameplay. Current improvements include
 
 | Area | Improvements |
 | --- | --- |
-| Questing | Quest markers refresh as objectives change, completed quests point to their configured turn-in NPCs, objective POIs are kept within their verified client build, and multi-quest NPCs continue to offer the next available quest. |
-| Creature combat | Unscripted casters use their full ranged kits, melee-class enemies close into attack range and retain special abilities despite split or missing AI data, zero-cooldown imports cannot spam damage/control/buff spells, dead creatures stop updating combat AI, and Feral Lunge has improved landing behavior. |
-| World data | Exact, nearby singleton, and cross-generation duplicate creature spawns are cleaned through repeatable migrations. Realm time uses a configurable local timezone and defaults to Pacific Time. |
-| Player QoL | Optional level-1 starter riding, mounts, gold, bags, and companion; repaired profession-shop delivery with profession tools; silent companion auto-loot within 40 yards; and restored native bag sorting. |
+| Questing | Quest markers refresh as objectives change; completed quests point to their configured turn-in NPCs; incomplete objective POIs stay with their matching verified client build; and multi-quest NPCs continue offering the next available quest without requiring the player to reopen the dialog. |
+| Creature combat AI | Unscripted mage-class casters use ranged spell kits; ordinary melee enemies chase, swing, and retain configured special abilities despite missing SmartAI rows; imported zero-cooldown spells receive safe AI cooldowns; repeated positive buffs are suppressed while active; and all eight Vilebranch combat templates have restored melee, ranged, caster, support, low-health, and flee behavior. |
+| Creature lifecycle and movement | Dead creatures stop updating combat AI, permanently sleeping Syndicate Thieves wake and aggro normally, dormant authored patrol paths are restored only when their geometry matches the spawn, and safe unscripted outdoor enemies receive a conservative three-yard ambient wander. Feral Lunge retains its jump animation while landing reliably in melee range. |
+| World data and presentation | Exact, nearby singleton, and cross-generation duplicate creature spawns are cleaned through repeatable migrations. Realm time uses a configurable local timezone and defaults to Pacific Time. |
+| Starter QoL | The optional idempotent login package grants riding through Master Riding, Cold Weather Flying, Legion-compatible mounts, a 20,000-gold minimum, four Hexweave Bags, and the Magma Rageling companion. Existing characters receive only missing rewards. |
+| Loot and inventory | Silent companion auto-loot works during combat from melee range through 40 yards, revisits corpses for delayed eligible quest drops, and keeps normal inventory and group-loot safeguards. Native bag cleanup and the Bagnon 7.3.5 sort button work again. |
+| Professions and shop | BattlePay profession purchases execute their delivery scripts, teach the base profession and recipes without the unrelated level-90 gate, respect primary-profession limits, and grant one appropriate Blacksmith Hammer, Mining Pick, Skinning Knife, or Fishing Pole. |
 | Localization | Nordrassil Coin descriptions, redemption feedback, shop balance messages, and managed server broadcasts use English text. |
 | Installation and maintenance | Pinned upstream source, idempotent patch application, clean patch verification, managed-source integrity checks, and separate Steam Deck and Windows/WSL2 workflows. |
 
@@ -44,6 +51,9 @@ The detailed implementation notes and gameplay regression checks are maintained
 in [docs/SOURCE_BASELINE.md](docs/SOURCE_BASELINE.md). These improvements make
 the archived core more consistent for a local lab, but they do not make every
 Legion quest, encounter, dungeon, or raid complete.
+
+Client-only addons and the Legion GM Command Center are maintained separately
+and are not counted as server improvements in this catalog.
 
 ## Repository boundary
 

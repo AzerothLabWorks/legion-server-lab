@@ -94,3 +94,15 @@ docker compose exec -T mysql \
 docker compose exec -T mysql \
     mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
     < "$repo_root/database/83-remove-broken-syndicate-thief-sleep.sql"
+
+docker compose exec -T mysql \
+    mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    < "$repo_root/database/84-restore-dormant-creature-waypoints.sql"
+
+docker compose exec -T mysql \
+    mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    < "$repo_root/database/85-add-safe-outdoor-ambient-wander.sql"
+
+docker compose exec -T mysql \
+    mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    < "$repo_root/database/86-restore-vilebranch-combat-ai.sql"

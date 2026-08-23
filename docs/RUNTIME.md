@@ -69,6 +69,23 @@ defaults to `127.0.0.1`. REST port 8081 remains loopback-only unless
 `LEGION_REST_BIND_ADDRESS` is explicitly changed. Both supported local-host
 workflows keep it loopback-only.
 
+The required updates also repair two high-confidence ambient movement gaps.
+Spawns already marked for waypoint movement are reconnected only when an
+authored path using that spawn GUID has at least two nodes and starts within 25
+yards. Ordinary non-elite outdoor combat creatures without scripts, services,
+quest-giver roles, active movement or pose addons, paths, formations, events,
+or other spawn-specific references receive a three-yard random wander.
+Harmless addon bytes such as weapon sheath state are retained. Original
+creature rows and restored path metadata are kept in `azerothlab_*` audit
+tables so both changes remain recoverable.
+
+The required updates also restore missing entry-level SmartAI for the eight
+Vilebranch combat templates. The migration installs melee, ranged, caster,
+support, low-health, and flee behavior only when an entry has no existing
+SmartAI rows, so it does not replace a future source implementation. A server
+restart is required after first applying the migration so the world process
+loads the new scripts.
+
 All three containers receive `LEGION_TIMEZONE`, and the generated worldserver
 configuration advertises that IANA timezone to the client. The patched login
 clock packet uses the same local timezone, so realm time, logs, and

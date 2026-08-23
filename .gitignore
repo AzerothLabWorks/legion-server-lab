@@ -40,6 +40,9 @@ database/*
 !database/81-deduplicate-nearby-singleton-npcs.sql
 !database/82-deduplicate-nearby-cross-generation-creatures.sql
 !database/83-remove-broken-syndicate-thief-sleep.sql
+!database/84-restore-dormant-creature-waypoints.sql
+!database/85-add-safe-outdoor-ambient-wander.sql
+!database/86-restore-vilebranch-combat-ai.sql
 
 # WoW clients, repacks, archives, and executables
 client/

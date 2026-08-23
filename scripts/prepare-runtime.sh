@@ -82,6 +82,12 @@ install -m 0644 "$repo_root/database/82-deduplicate-nearby-cross-generation-crea
     "$runtime_root/database-init/82-deduplicate-nearby-cross-generation-creatures.sql"
 install -m 0644 "$repo_root/database/83-remove-broken-syndicate-thief-sleep.sql" \
     "$runtime_root/database-init/83-remove-broken-syndicate-thief-sleep.sql"
+install -m 0644 "$repo_root/database/84-restore-dormant-creature-waypoints.sql" \
+    "$runtime_root/database-init/84-restore-dormant-creature-waypoints.sql"
+install -m 0644 "$repo_root/database/85-add-safe-outdoor-ambient-wander.sql" \
+    "$runtime_root/database-init/85-add-safe-outdoor-ambient-wander.sql"
+install -m 0644 "$repo_root/database/86-restore-vilebranch-combat-ai.sql" \
+    "$runtime_root/database-init/86-restore-vilebranch-combat-ai.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \

@@ -57,6 +57,12 @@ community targets are Steam Deck/SteamOS and Windows with Ubuntu/WSL2.
 - Profession shop products execute their validation and delivery scripts,
   teach the base skill and recipes without a level-90 gate, and grant the
   standard Blacksmithing, Mining, Skinning, and Fishing tools.
+- Dormant creature waypoint paths with locally matching authored geometry are
+  reconnected, and high-confidence unscripted outdoor combat spawns receive a
+  small ambient wander without moving services, scripted actors, or encounters.
+- All eight Vilebranch combat templates use restored, entry-specific SmartAI
+  rotations instead of falling back to melee-only behavior when the archived
+  database omits their script rows.
 
 ## Compatibility finding
 
