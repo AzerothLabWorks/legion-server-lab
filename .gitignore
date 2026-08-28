@@ -43,6 +43,7 @@ database/*
 !database/84-restore-dormant-creature-waypoints.sql
 !database/85-add-safe-outdoor-ambient-wander.sql
 !database/86-restore-vilebranch-combat-ai.sql
+!database/87-restore-rocket-rescue-vehicle-smartai.sql
 
 # WoW clients, repacks, archives, and executables
 client/

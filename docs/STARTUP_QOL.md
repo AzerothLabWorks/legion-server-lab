@@ -6,6 +6,10 @@ The Legion Lab world server grants an idempotent starter package whenever a char
 
 - Apprentice, Journeyman, Expert, Artisan, and Master Riding
 - Cold Weather Flying
+- Flight Master's License for Eastern Kingdoms and Kalimdor
+- Wisdom of the Four Winds for Pandaria compatibility
+- Draenor Pathfinder flight
+- Broken Isles Pathfinder flight
 - Bloodfang Widow
 - Headless Horseman's Mount
 - A minimum balance of 20,000 gold
@@ -26,6 +30,7 @@ The installer enables the package. The generated `worldserver.conf` supports:
 StartupQoL.Enable = 1
 StartupQoL.Level = 1
 StartupQoL.Riding = 1
+StartupQoL.ZoneFlying = 1
 StartupQoL.Mounts = 1
 StartupQoL.Money = 1
 StartupQoL.Bags = 1
@@ -44,7 +49,16 @@ Set an individual feature to `0` and restart the world server to disable it. `St
 | Artisan Riding | Spell | 34091 |
 | Master Riding | Spell | 90265 |
 | Cold Weather Flying | Spell | 54197 |
+| Flight Master's License | Spell | 90267 |
+| Wisdom of the Four Winds | Spell | 115913 |
+| Draenor Pathfinder | Spell | 191645 |
+| Broken Isles Pathfinder | Spell | 233368 |
 | Bloodfang Widow | Spell | 213115 |
 | Headless Horseman's Mount | Spell | 48025 |
 | Hexweave Bag | Item | 114821 |
 | Magma Rageling | Creature/species lookup | 115138 |
+
+`StartupQoL.ZoneFlying` unlocks every normally flyable outdoor expansion zone.
+It intentionally does not override explicit no-fly area flags, dungeons,
+battlegrounds or arenas, active battlefield restrictions, scenario maps, or
+Argus. Ignoring those safeguards can break quests and encounters.

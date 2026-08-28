@@ -1,0 +1,22 @@
+diff --git a/src/server/scripts/ScriptLoader.cpp b/src/server/scripts/ScriptLoader.cpp
+--- a/src/server/scripts/ScriptLoader.cpp
++++ b/src/server/scripts/ScriptLoader.cpp
+@@ -51,8 +51,8 @@
+ void AddSC_event_tarecgosa();
+ void Addsc_dalaran_invasion();
+ void AddSC_solocraft();
+ void AddSC_companion_autoloot();
+ void AddSC_startup_qol();
+-
+-
++void AddSC_rocket_rescue();
++
+ // spells
+@@ -1918,6 +1919,7 @@ void AddCustomScripts()
+ {
+     AddSC_companion_autoloot();
+     AddSC_startup_qol();
++    AddSC_rocket_rescue();
+ #ifdef SCRIPTS
+     AddSC_event_april();
+     AddSC_Loskutik();

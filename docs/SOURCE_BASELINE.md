@@ -103,6 +103,35 @@ quest list appears without closing and re-engaging the NPC. Accept the final
 quest and confirm the dialog closes normally. Also accept a quest from an item
 and confirm no NPC menu is opened.
 
+Low-level quest discovery is enabled in the generated runtime configuration by
+setting `Quests.LowLevelHideDiff = -1`. The archived default is four levels, so
+a level-54 character receives the low-level status for ordinary level 47–49
+Tanaris quests. The client can then suppress their normal `!` unless its trivial
+quest tracking option is enabled, even though the quests remain valid and award
+XP. Disabling that presentation threshold preserves `CanSeeStartQuest`, accept
+conditions, prerequisites, phases, events, race/class restrictions, and minimum
+levels; it changes only the status icon for an otherwise-eligible starter.
+
+Regression test: with a character above the original four-level threshold,
+visit an NPC offering an otherwise-eligible lower-level quest. Confirm the `!`
+is visible over the giver and on the minimap without enabling the client's
+trivial-quest filter. Confirm that unmet prerequisites, wrong-faction quests,
+inactive events, and quests above the character's permitted level remain hidden
+or unavailable as before.
+
+The idempotent startup QoL script now teaches the complete set of character
+flight licenses checked by this build: Flight Master's License (90267), Wisdom
+of the Four Winds (115913), Draenor Pathfinder (191645), and Broken Isles
+Pathfinder (233368), in addition to the riding ranks and Cold Weather Flying it
+already supplied. `StartupQoL.ZoneFlying` controls the added group independently.
+The change does not modify `AREA_FLAG_NO_FLY_ZONE` or the hard exclusions used
+for dungeons, battlegrounds, active battlefields, scenario maps, and Argus.
+
+Regression test: log an existing character into Eastern Kingdoms or Kalimdor,
+Pandaria, Draenor, and the Broken Isles and confirm a normal flying mount can
+take off in an outdoor flyable area. Confirm the same mount is rejected in an
+explicit no-fly area and on Argus, and verify that ground mounts remain usable.
+
 Feral Lunge travel speed is corrected by
 `0021-speed-up-feral-lunge.patch`. The pinned core computes most parabolic jump
 speeds from distance and vertical speed, but already overrides charge-like
@@ -288,6 +317,40 @@ conditional on an injured friendly creature within 10 yards. Also test a
 **Berserker** (2643) below 30 percent health. Their special abilities must be
 interleaved at the documented cooldowns, ranged enemies must reposition when
 outside their attack range, and none may spam an ability every update.
+
+Rocket Rescue's vehicle interaction is restored by
+`database/87-restore-rocket-rescue-vehicle-smartai.sql`. The Steamwheedle
+Rescue Balloon (40604) has a valid spell-click action that summons the Balloon
+Throwing Station vehicle (40511), boards the player with spell 46598, and
+starts its authored path. Its template nevertheless has an empty `AIName`, so
+the core selects `NullCreatureAI` and never executes that existing action
+chain. The migration enables SmartAI only for entry 40604 and only after
+verifying every expected click, summon, boarding, and vehicle record. The
+original template is retained in an audit table.
+
+The summoned entry is a vehicle named **Balloon Throwing Station** whose
+archived display is invisible, while the visible rescue-balloon model remains
+on the stationary click proxy. The same migration backs up the WDB row and
+assigns that matching model to the moving vehicle. The original Life-Rocket
+and Pirate-Destroying Bomb use trajectory destinations that the archived core
+shortens along the vehicle's facing rather than the player's intended target.
+`0031-load-rocket-rescue-script.patch` and `overlays/rocket_rescue.cpp` add a
+quest-only correction: a selected valid survivor or blockader is preferred,
+with the nearest valid target in the original 10–70 yard range as a fallback.
+The original triggered impact spells remain responsible for credit and damage.
+
+Regression test: accept **Rocket Rescue** (25050) in Gadgetzan and click the
+**Steamwheedle Rescue Balloon**. The click must summon the Balloon Throwing
+Station, expose the quest vehicle actions, show the moving balloon, and begin
+the authored flight. Select a **Steamwheedle
+Survivor** and use **Deliver Life-Rocket**; then select a **Southsea Blockader**
+and use **Pirate-Destroying Bomb**. Each payload must resolve against the chosen
+valid target and advance the matching objective. Repeat once without a
+selection to verify the nearby-target fallback. The quest is semi-functional:
+the client may render the character below the balloon and may animate payloads
+straight ahead even though the intended target receives server-side credit.
+Confirm that ordinary spell-click NPCs, vehicles, and trajectory spells
+elsewhere retain their previous behavior.
 
 BattlePay profession delivery is repaired by
 `0029-fix-battlepay-professions.patch` and

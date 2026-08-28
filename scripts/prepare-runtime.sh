@@ -88,6 +88,8 @@ install -m 0644 "$repo_root/database/85-add-safe-outdoor-ambient-wander.sql" \
     "$runtime_root/database-init/85-add-safe-outdoor-ambient-wander.sql"
 install -m 0644 "$repo_root/database/86-restore-vilebranch-combat-ai.sql" \
     "$runtime_root/database-init/86-restore-vilebranch-combat-ai.sql"
+install -m 0644 "$repo_root/database/87-restore-rocket-rescue-vehicle-smartai.sql" \
+    "$runtime_root/database-init/87-restore-rocket-rescue-vehicle-smartai.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \
@@ -102,6 +104,7 @@ sed \
     -e 's#^DataDir.*#DataDir = "/opt/legion/data"#' \
     -e 's#^LogsDir.*#LogsDir = "/opt/legion/logs"#' \
     -e 's#^Game.Build.Version.*#Game.Build.Version = 26365#' \
+    -e 's#^Quests.LowLevelHideDiff.*#Quests.LowLevelHideDiff = -1#' \
     -e 's#^AuctionHouseBot.Seller.Enabled.*#AuctionHouseBot.Seller.Enabled = 0#' \
     -e 's#^AuctionHouseBot.Buyer.Enabled.*#AuctionHouseBot.Buyer.Enabled = 0#' \
     -e 's#^CompanionAutoLoot.Enable.*#CompanionAutoLoot.Enable = 1#' \

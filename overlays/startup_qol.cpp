@@ -18,6 +18,17 @@ constexpr std::array<uint32, 6> RidingSpells =
     54197  // Cold Weather Flying
 };
 
+// These character spells satisfy the build-26365 flight checks for outdoor
+// expansion maps. Explicit no-fly areas, instances, battlegrounds, and Argus
+// remain governed by the core's normal map and area validation.
+constexpr std::array<uint32, 4> ZoneFlyingSpells =
+{
+    90267,  // Flight Master's License (Eastern Kingdoms and Kalimdor)
+    115913, // Wisdom of the Four Winds (Pandaria compatibility)
+    191645, // Draenor Pathfinder
+    233368  // Broken Isles Pathfinder
+};
+
 constexpr std::array<uint32, 2> LegionMountSpells =
 {
     213115, // Bloodfang Widow
@@ -43,6 +54,14 @@ public:
 
         if (sConfigMgr->GetBoolDefault("StartupQoL.Riding", true))
             for (uint32 spellId : RidingSpells)
+                if (!player->HasSpell(spellId))
+                {
+                    player->learnSpell(spellId, false);
+                    changed = true;
+                }
+
+        if (sConfigMgr->GetBoolDefault("StartupQoL.ZoneFlying", true))
+            for (uint32 spellId : ZoneFlyingSpells)
                 if (!player->HasSpell(spellId))
                 {
                     player->learnSpell(spellId, false);

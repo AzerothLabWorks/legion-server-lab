@@ -52,6 +52,8 @@ install -m 0644 "$repo_root/overlays/companion_autoloot.cpp" \
     "$expected/src/server/scripts/Custom/companion_autoloot.cpp"
 install -m 0644 "$repo_root/overlays/startup_qol.cpp" \
     "$expected/src/server/scripts/Custom/startup_qol.cpp"
+install -m 0644 "$repo_root/overlays/rocket_rescue.cpp" \
+    "$expected/src/server/scripts/Custom/rocket_rescue.cpp"
 
 status_paths() {
     git -C "$1" status --porcelain --untracked-files=all \

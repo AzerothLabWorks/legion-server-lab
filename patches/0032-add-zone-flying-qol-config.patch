@@ -1,0 +1,11 @@
+diff --git a/src/server/worldserver/worldserver.conf.dist b/src/server/worldserver/worldserver.conf.dist
+--- a/src/server/worldserver/worldserver.conf.dist
++++ b/src/server/worldserver/worldserver.conf.dist
+@@ -4268,6 +4268,7 @@ StartupQoL.Enable = 0
+ StartupQoL.Level = 1
+ StartupQoL.Riding = 1
++StartupQoL.ZoneFlying = 1
+ StartupQoL.Mounts = 1
+ StartupQoL.Money = 1
+ StartupQoL.Bags = 1
+ StartupQoL.MagmaRageling = 1

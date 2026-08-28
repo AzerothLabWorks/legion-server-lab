@@ -54,6 +54,8 @@ install -m 0644 "$repo_root/overlays/companion_autoloot.cpp" \
     "$SOURCE_DIR/src/server/scripts/Custom/companion_autoloot.cpp"
 install -m 0644 "$repo_root/overlays/startup_qol.cpp" \
     "$SOURCE_DIR/src/server/scripts/Custom/startup_qol.cpp"
+install -m 0644 "$repo_root/overlays/rocket_rescue.cpp" \
+    "$SOURCE_DIR/src/server/scripts/Custom/rocket_rescue.cpp"
 
 LEGION_SOURCE_DIR="$SOURCE_DIR" bash "$repo_root/scripts/write-managed-source-manifest.sh"
 

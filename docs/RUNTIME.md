@@ -28,6 +28,13 @@ The preparation script extracts the source-matched database baseline into
 ignored runtime storage, prefixes each dump with its target database, and
 generates server configuration using the same database password.
 
+The generated world configuration sets `Quests.LowLevelHideDiff = -1`. The
+archived default hides the normal `!` marker when a quest is more than four
+levels below the player even though the quest can still be accepted and can
+still award XP. The lab default keeps those otherwise-eligible starter markers
+visible. It does not bypass quest prerequisites, faction or class restrictions,
+conditions, phases, events, profession requirements, or minimum levels.
+
 ## Start
 
 ```bash
@@ -79,12 +86,38 @@ Harmless addon bytes such as weapon sheath state are retained. Original
 creature rows and restored path metadata are kept in `azerothlab_*` audit
 tables so both changes remain recoverable.
 
+All four build-26365 allied races can be unlocked for one installed account
+without enabling the core's broad test-server mode:
+
+```bash
+bash scripts/unlock-allied-races.sh player@example.com 1
+```
+
+The account must already have one character. Fully reconnect the client after
+running the helper so its account-achievement cache is refreshed.
+
 The required updates also restore missing entry-level SmartAI for the eight
 Vilebranch combat templates. The migration installs melee, ranged, caster,
 support, low-health, and flee behavior only when an entry has no existing
 SmartAI rows, so it does not replace a future source implementation. A server
 restart is required after first applying the migration so the world process
 loads the new scripts.
+
+Rocket Rescue's Steamwheedle Rescue Balloon is also repaired conservatively.
+The archived world contains the correct spell-click, summon, boarding, and
+waypoint SmartAI chain, but leaves the clickable template's `AIName` empty.
+The required migration backs up that template and enables its existing SmartAI
+only when every expected part of the build-26365 chain is still present. It
+also backs up the moving vehicle's invisible display before assigning the
+matching visible balloon model. A narrowly scoped spell script preserves the
+original impact spells while redirecting each payload to a selected, or nearest,
+valid quest target within its original 10–70 yard range.
+
+Rocket Rescue is intentionally classified as semi-functional. The balloon
+travels its authored route and both quest objectives can be completed, but the
+7.3.5 client may display the passenger below the moving balloon and may animate
+the payload straight ahead instead of toward the server-resolved target. These
+remaining presentation defects do not prevent quest credit or completion.
 
 All three containers receive `LEGION_TIMEZONE`, and the generated worldserver
 configuration advertises that IANA timezone to the client. The patched login

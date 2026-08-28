@@ -57,12 +57,30 @@ community targets are Steam Deck/SteamOS and Windows with Ubuntu/WSL2.
 - Profession shop products execute their validation and delivery scripts,
   teach the base skill and recipes without a level-90 gate, and grant the
   standard Blacksmithing, Mining, Skinning, and Fishing tools.
+- The optional `scripts/unlock-allied-races.sh` helper grants only the four
+  Legion allied-race account achievements. It leaves expansion and race/class
+  validation enabled and does not require the broad test-server switch.
+- The starter QoL login package teaches the zone-flight licenses used by the
+  build-26365 core for the old continents, Northrend, Pandaria, Draenor, and the
+  Broken Isles while retaining explicit no-fly, instance, battlefield, and
+  Argus restrictions.
 - Dormant creature waypoint paths with locally matching authored geometry are
   reconnected, and high-confidence unscripted outdoor combat spawns receive a
   small ambient wander without moving services, scripted actors, or encounters.
 - All eight Vilebranch combat templates use restored, entry-specific SmartAI
   rotations instead of falling back to melee-only behavior when the archived
   database omits their script rows.
+- Eligible low-level quest starters retain their normal available-quest marker
+  instead of being hidden once the player exceeds the archived four-level
+  threshold. Normal prerequisites, conditions, phases, and level requirements
+  still decide whether each quest is available.
+- Rocket Rescue's existing click, summon, boarding, and flight SmartAI chain is
+  reactivated without changing the core vehicle subsystem. Its moving vehicle
+  uses the visible rescue-balloon model, while its two trajectory payloads apply
+  to a selected or nearby valid quest target within their original range. The
+  quest is classified as semi-functional: both objectives and completion work,
+  but the client may render the character below the balloon and may show the
+  projectile traveling forward instead of visually striking its resolved target.
 
 ## Compatibility finding
 

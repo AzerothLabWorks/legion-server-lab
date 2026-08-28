@@ -147,6 +147,22 @@ account set gmlevel 1#1 3 -1
 Replace `1#1` with the game-account name printed by the first command. Detach
 without stopping the server using `Ctrl+P`, then `Ctrl+Q`.
 
+### Optional: Unlock the Legion Allied Races
+
+After that game account has at least one character, grant its four Legion
+allied-race unlocks without completing the retail achievements:
+
+```bash
+cd ~/legion-server-lab
+bash scripts/unlock-allied-races.sh player@example.com 1
+```
+
+Replace the email with the Battle.net-style login created above. The final
+argument selects the linked game account and defaults to `1` (`WoW1`). Fully
+disconnect and reconnect the client afterward so the account achievement cache
+is reloaded. This unlocks Void Elf, Lightforged Draenei, Nightborne, and
+Highmountain Tauren while preserving normal expansion and race/class checks.
+
 ## Configure the Client
 
 Both supported layouts run client and server on the same physical device, so
