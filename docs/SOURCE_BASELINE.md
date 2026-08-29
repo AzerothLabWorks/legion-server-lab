@@ -49,6 +49,25 @@ Boost.Asio strand API. Ubuntu 20.04's Boost 1.71 fails at `boost::asio::strand`
 before the core itself can compile; Ubuntu 18.04 provides Boost 1.65, close to
 the upstream project's stated Boost 1.64 toolchain.
 
+Account-wide armor and weapon appearance unlocks are provided by
+`0033-add-account-transmog-unlock-command.patch`. A GM can first run
+`.account unlocktransmogs preview` to inspect the eligible and missing counts,
+then run `.account unlocktransmogs` outside combat. The command derives its
+catalog from the pinned build's DB2 and item templates, excludes invalid/test
+sources plus Legendary and Artifact appearances, inserts only missing account
+rows in bounded batches, and updates the active character's collection. The
+`92-add-account-transmog-unlock-audit.sql` migration preserves the collection
+that existed before the first bulk unlock and records a compact audit row for
+each completed run. Applying an unlocked look still uses the core's normal
+class and equipment compatibility checks.
+
+Regression test: run the preview twice and confirm its counts are stable. Run
+the unlock once outside combat, reopen Collections or relog, and verify that
+standard build-matched armor and weapon appearances are browsable. Run the
+command again and confirm it reports that no eligible appearances remain.
+Verify that the backup contains the account's original rows and that the audit
+table records only the completed unlock run.
+
 Repository-owned compatibility patches are kept under `patches/` and applied
 idempotently by the build script. The first patch corrects the upstream cotire
 module path for CMake versions older than 3.16.

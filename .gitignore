@@ -48,6 +48,7 @@ database/*
 !database/89-fix-lights-point-defender-evade.sql
 !database/90-fix-orbaz-acherus-gate-recovery.sql
 !database/91-fix-ebon-hold-battle-phase.sql
+!database/92-add-account-transmog-unlock-audit.sql
 
 # WoW clients, repacks, archives, and executables
 client/

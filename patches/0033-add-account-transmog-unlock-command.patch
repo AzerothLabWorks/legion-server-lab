@@ -1,0 +1,239 @@
+diff --git a/src/server/game/Entities/Player/CollectionMgr.cpp b/src/server/game/Entities/Player/CollectionMgr.cpp
+--- a/src/server/game/Entities/Player/CollectionMgr.cpp
++++ b/src/server/game/Entities/Player/CollectionMgr.cpp
+@@ -585,10 +585,11 @@ void CollectionMgr::AddItemAppearance(ItemModifiedAppearanceEntry const* itemMod
+     _owner->SendDirectMessage(display.Write());
+ }
+ 
+-void CollectionMgr::AddTransmog(uint32 transmogId, uint32 condition)
++void CollectionMgr::AddTransmog(uint32 transmogId, uint32 condition, bool persist, bool updateCriteria)
+ {
+     _transmogs.insert(std::make_pair(transmogId, TransmogData(condition, true)));
+-    _saveTransmogs[transmogId] = &_transmogs[transmogId];
++    if (persist)
++        _saveTransmogs[transmogId] = &_transmogs[transmogId];
+ 
+     if (condition)
+         _owner->AddDynamicValue(PLAYER_DYNAMIC_FIELD_CONDITIONAL_TRANSMOG, condition);
+@@ -604,6 +605,9 @@ void CollectionMgr::AddTransmog(uint32 transmogId, uint32 condition)
+         _owner->SetDynamicValue(PLAYER_DYNAMIC_FIELD_TRANSMOG, offset, transmogField);
+     }
+ 
++    if (!updateCriteria)
++        return;
++
+     auto itemModifiedAppearance = sItemModifiedAppearanceStore.LookupEntry(transmogId);
+     if (!itemModifiedAppearance)
+         return;
+diff --git a/src/server/game/Entities/Player/CollectionMgr.h b/src/server/game/Entities/Player/CollectionMgr.h
+--- a/src/server/game/Entities/Player/CollectionMgr.h
++++ b/src/server/game/Entities/Player/CollectionMgr.h
+@@ -125,7 +125,7 @@ public:
+     uint16 GetAccountHeirloomsCount() const { return _heirlooms.size(); }
+ 
+     void AddItemAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance);
+-    void AddTransmog(uint32 transmogId, uint32 condition);
++    void AddTransmog(uint32 transmogId, uint32 condition, bool persist = true, bool updateCriteria = true);
+     bool HasTransmog(uint32 transmogId);
+     AppearanceErrors CanAddAppearance(ItemModifiedAppearanceEntry const* itemModifiedAppearance) const;
+     void RemoveTransmogCondition(uint32 transmogId, bool add = true);
+diff --git a/src/server/scripts/Commands/cs_account.cpp b/src/server/scripts/Commands/cs_account.cpp
+--- a/src/server/scripts/Commands/cs_account.cpp
++++ b/src/server/scripts/Commands/cs_account.cpp
+@@ -17,13 +17,18 @@
+ 
+ #include "AccountMgr.h"
+ #include "Chat.h"
++#include "CollectionMgr.h"
+ #include "DatabaseEnv.h"
++#include "DB2Stores.h"
+ #include "Language.h"
+ #include "Log.h"
++#include "ObjectMgr.h"
+ #include "Player.h"
+ #include "ScriptMgr.h"
+ #include "World.h"
+ #include "WorldSession.h"
++#include <algorithm>
++#include <sstream>
+ 
+ class account_commandscript : public CommandScript
+ {
+@@ -43,6 +48,7 @@ public:
+             { "addon",          SEC_MODERATOR,      false, &HandleAccountAddonCommand,        ""},
+             { "create",         SEC_CONSOLE,        true,  &HandleAccountCreateCommand,       ""},
+             { "delete",         SEC_CONSOLE,        true,  &HandleAccountDeleteCommand,       ""},
++            { "unlocktransmogs",SEC_GAMEMASTER,     false, &HandleAccountUnlockTransmogsCommand, ""},
+             { "onlinelist",     SEC_CONSOLE,        true,  &HandleAccountOnlineListCommand,   ""},
+             { "lock",           SEC_PLAYER,         false, &HandleAccountLockCommand,         ""},
+             { "set",            SEC_ADMINISTRATOR,  true,  NULL,            "", accountSetCommandTable },
+@@ -56,6 +62,169 @@ public:
+         return commandTable;
+     }
+ 
++    static bool IsUnlockableTransmogAppearance(ItemModifiedAppearanceEntry const* appearance)
++    {
++        if (!appearance || appearance->TransmogSourceTypeEnum == 6 || appearance->TransmogSourceTypeEnum == 9)
++            return false;
++
++        ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(appearance->ItemID);
++        if (!itemTemplate)
++            return false;
++
++        if (itemTemplate->GetQuality() == ITEM_QUALITY_LEGENDARY || itemTemplate->GetQuality() == ITEM_QUALITY_ARTIFACT)
++            return false;
++
++        if (itemTemplate->GetFlags2() & ITEM_FLAG2_NO_SOURCE_FOR_ITEM_VISUAL)
++            return false;
++
++        switch (itemTemplate->GetClass())
++        {
++            case ITEM_CLASS_WEAPON:
++                switch (itemTemplate->GetSubClass())
++                {
++                    case ITEM_SUBCLASS_WEAPON_EXOTIC:
++                    case ITEM_SUBCLASS_WEAPON_EXOTIC2:
++                    case ITEM_SUBCLASS_WEAPON_MISCELLANEOUS:
++                    case ITEM_SUBCLASS_WEAPON_THROWN:
++                    case ITEM_SUBCLASS_WEAPON_SPEAR:
++                    case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
++                        return false;
++                    default:
++                        break;
++                }
++                break;
++            case ITEM_CLASS_ARMOR:
++                switch (itemTemplate->GetInventoryType())
++                {
++                    case INVTYPE_BODY:
++                    case INVTYPE_SHIELD:
++                    case INVTYPE_CLOAK:
++                    case INVTYPE_TABARD:
++                    case INVTYPE_HOLDABLE:
++                        break;
++                    case INVTYPE_HEAD:
++                    case INVTYPE_SHOULDERS:
++                    case INVTYPE_CHEST:
++                    case INVTYPE_WAIST:
++                    case INVTYPE_LEGS:
++                    case INVTYPE_FEET:
++                    case INVTYPE_WRISTS:
++                    case INVTYPE_HANDS:
++                    case INVTYPE_ROBE:
++                        if (itemTemplate->GetSubClass() == ITEM_SUBCLASS_ARMOR_MISCELLANEOUS)
++                            return false;
++                        break;
++                    default:
++                        return false;
++                }
++                break;
++            default:
++                return false;
++        }
++
++        if (itemTemplate->GetQuality() < ITEM_QUALITY_UNCOMMON &&
++            (!(itemTemplate->GetFlags2() & ITEM_FLAG2_IGNORE_QUALITY_FOR_ITEM_VISUAL_SOURCE) ||
++             !(itemTemplate->GetFlags3() & ITEM_FLAG3_ACTS_AS_TRANSMOG_HIDDEN_VISUAL_OPTION)))
++            return false;
++
++        return true;
++    }
++
++    static bool HandleAccountUnlockTransmogsCommand(ChatHandler* handler, char const* args)
++    {
++        Player* player = handler->GetSession() ? handler->GetSession()->GetPlayer() : nullptr;
++        if (!player)
++            return false;
++
++        bool preview = false;
++        if (*args)
++        {
++            std::string option(args);
++            if (option != "preview")
++            {
++                handler->SendSysMessage("Usage: .account unlocktransmogs [preview]");
++                handler->SetSentErrorMessage(true);
++                return false;
++            }
++
++            preview = true;
++        }
++
++        if (!preview && player->isInCombat())
++        {
++            handler->SendSysMessage("Leave combat before unlocking the account transmog collection.");
++            handler->SetSentErrorMessage(true);
++            return false;
++        }
++
++        CollectionMgr* collection = player->GetCollectionMgr();
++        std::vector<uint32> additions;
++        uint32 scanned = 0;
++        uint32 eligible = 0;
++
++        for (ItemModifiedAppearanceEntry const* appearance : sItemModifiedAppearanceStore)
++        {
++            ++scanned;
++            if (!IsUnlockableTransmogAppearance(appearance))
++                continue;
++
++            ++eligible;
++            if (!collection->HasTransmog(appearance->ID))
++                additions.push_back(appearance->ID);
++        }
++
++        if (preview)
++        {
++            handler->PSendSysMessage("Transmog preview: %u build-matched armor and weapon appearances are eligible; %u are not yet unlocked (scanned %u DB2 records).",
++                eligible, uint32(additions.size()), scanned);
++            return true;
++        }
++
++        if (additions.empty())
++        {
++            handler->PSendSysMessage("Your account already has all %u eligible build-matched armor and weapon appearances.", eligible);
++            return true;
++        }
++
++        uint32 accountId = handler->GetSession()->GetAccountId();
++        uint32 characterGuid = player->GetGUIDLow();
++
++        CharacterDatabase.DirectPExecute(
++            "INSERT IGNORE INTO `azerothlab_account_transmogs_before_unlock` "
++            "SELECT * FROM `account_transmogs` WHERE `account` = %u",
++            accountId);
++
++        constexpr std::size_t BatchSize = 500;
++        for (std::size_t offset = 0; offset < additions.size(); offset += BatchSize)
++        {
++            std::size_t end = std::min(offset + BatchSize, additions.size());
++            std::ostringstream statement;
++            statement << "INSERT IGNORE INTO `account_transmogs` (`account`, `guid`, `ModelID`, `Condition`) VALUES ";
++
++            for (std::size_t index = offset; index < end; ++index)
++            {
++                if (index != offset)
++                    statement << ',';
++                statement << '(' << accountId << ',' << characterGuid << ',' << additions[index] << ",0)";
++            }
++
++            CharacterDatabase.DirectExecute(statement.str().c_str());
++        }
++
++        for (uint32 appearanceId : additions)
++            collection->AddTransmog(appearanceId, 0, false, false);
++
++        CharacterDatabase.DirectPExecute(
++            "INSERT INTO `azerothlab_account_transmog_unlock_log` "
++            "(`account`, `guid`, `scanned`, `eligible`, `added`) VALUES (%u, %u, %u, %u, %u)",
++            accountId, characterGuid, scanned, eligible, uint32(additions.size()));
++
++        handler->PSendSysMessage("Unlocked %u new build-matched armor and weapon appearances account-wide (%u eligible; %u DB2 records scanned).",
++            uint32(additions.size()), eligible, scanned);
++        handler->SendSysMessage("The operation is saved. Reopen Collections or relog if the appearance journal does not refresh immediately.");
++        return true;
++    }
++
+     static bool HandleAccountAddonCommand(ChatHandler* handler, char const* args)
+     {
+         if (!*args)

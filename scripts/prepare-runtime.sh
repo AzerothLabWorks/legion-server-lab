@@ -98,6 +98,8 @@ install -m 0644 "$repo_root/database/90-fix-orbaz-acherus-gate-recovery.sql" \
     "$runtime_root/database-init/90-fix-orbaz-acherus-gate-recovery.sql"
 install -m 0644 "$repo_root/database/91-fix-ebon-hold-battle-phase.sql" \
     "$runtime_root/database-init/91-fix-ebon-hold-battle-phase.sql"
+install -m 0644 "$repo_root/database/92-add-account-transmog-unlock-audit.sql" \
+    "$runtime_root/database-init/92-add-account-transmog-unlock-audit.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \
