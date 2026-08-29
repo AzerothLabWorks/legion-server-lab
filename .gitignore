@@ -49,6 +49,7 @@ database/*
 !database/90-fix-orbaz-acherus-gate-recovery.sql
 !database/91-fix-ebon-hold-battle-phase.sql
 !database/92-add-account-transmog-unlock-audit.sql
+!database/93-restore-legacy-quest-reward-items.sql
 
 # WoW clients, repacks, archives, and executables
 client/

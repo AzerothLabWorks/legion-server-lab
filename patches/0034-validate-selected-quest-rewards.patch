@@ -1,0 +1,62 @@
+diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
+--- a/src/server/game/Entities/Player/Player.cpp
++++ b/src/server/game/Entities/Player/Player.cpp
+@@ -19068,21 +19068,19 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg, uint32
+         return false;
+ 
+     ItemPosCountVec dest;
+     if (quest->m_rewChoiceItemsCount)
+     {
+-        for (uint32 i = 0; i < quest->m_rewChoiceItemsCount; ++i)
++        if (reward >= quest->m_rewChoiceItemsCount || !quest->RewardChoiceItemId[reward])
++            return false;
++
++        uint32 itemId = quest->RewardChoiceItemId[reward];
++        InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, quest->RewardChoiceItemCount[reward]);
++        if (res != EQUIP_ERR_OK)
+         {
+-            if (quest->RewardChoiceItemId[i] && quest->RewardChoiceItemId[i] == reward)
+-            {
+-                InventoryResult res = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, quest->RewardChoiceItemId[i], quest->RewardChoiceItemCount[i]);
+-                if (res != EQUIP_ERR_OK)
+-                {
+-                    SendEquipError(res, NULL, NULL, quest->RewardChoiceItemId[i]);
+-                    return false;
+-                }
+-            }
++            SendEquipError(res, NULL, NULL, itemId);
++            return false;
+         }
+     }
+ 
+     if (quest->m_rewItemsCount)
+     {
+diff --git a/src/server/game/Handlers/QuestHandler.cpp b/src/server/game/Handlers/QuestHandler.cpp
+--- a/src/server/game/Handlers/QuestHandler.cpp
++++ b/src/server/game/Handlers/QuestHandler.cpp
+@@ -411,13 +411,19 @@ void WorldSession::HandleQuestGiverChooseReward(WorldPackets::Quest::QuestGiver
+ 
+     if (!quest->HasFlag(QUEST_FLAGS_AUTOCOMPLETE))
+     {
+-        //TODO: Doing something less dirty
+-        for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; i++)
+-            if (quest->RewardChoiceItemId[i] == packet.ItemChoiceID)
+-                reward = i;
++        if (quest->m_rewChoiceItemsCount)
++        {
++            reward = QUEST_REWARD_CHOICES_COUNT;
++            for (uint32 i = 0; i < quest->m_rewChoiceItemsCount; ++i)
++                if (quest->RewardChoiceItemId[i] == packet.ItemChoiceID)
++                {
++                    reward = i;
++                    break;
++                }
+ 
+-        if (reward >= QUEST_REWARD_CHOICES_COUNT)
+-            return;
++            if (reward >= quest->m_rewChoiceItemsCount)
++                return;
++        }
+ 
+         object = ObjectAccessor::GetObjectByTypeMask(*_player, packet.QuestGiverGUID, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
+         if (!object || !object->hasInvolvedQuest(packet.QuestID))
