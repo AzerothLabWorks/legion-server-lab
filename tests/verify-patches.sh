@@ -149,7 +149,7 @@ grep -q 'database/89-fix-lights-point-defender-evade.sql' "$repo_root/scripts/ap
 grep -q 'database/89-fix-lights-point-defender-evade.sql' "$repo_root/scripts/prepare-runtime.sh"
 grep -q 'azerothlab_orbaz_smartai_backup' "$repo_root/database/90-fix-orbaz-acherus-gate-recovery.sql"
 grep -q 'entryorguid.*= 28914' "$repo_root/database/90-fix-orbaz-acherus-gate-recovery.sql"
-grep -q 'action_type.*62' "$repo_root/database/90-fix-orbaz-acherus-gate-recovery.sql"
+grep -q '62, 609' "$repo_root/database/90-fix-orbaz-acherus-gate-recovery.sql"
 grep -q 'database/90-fix-orbaz-acherus-gate-recovery.sql' "$repo_root/scripts/apply-required-updates.sh"
 grep -q 'database/90-fix-orbaz-acherus-gate-recovery.sql' "$repo_root/scripts/prepare-runtime.sh"
 grep -q 'azerothlab_ebon_hold_spell_area_backup' "$repo_root/database/91-fix-ebon-hold-battle-phase.sql"
