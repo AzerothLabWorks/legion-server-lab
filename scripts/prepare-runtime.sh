@@ -90,6 +90,14 @@ install -m 0644 "$repo_root/database/86-restore-vilebranch-combat-ai.sql" \
     "$runtime_root/database-init/86-restore-vilebranch-combat-ai.sql"
 install -m 0644 "$repo_root/database/87-restore-rocket-rescue-vehicle-smartai.sql" \
     "$runtime_root/database-init/87-restore-rocket-rescue-vehicle-smartai.sql"
+install -m 0644 "$repo_root/database/88-fix-olrun-deaths-challenge-phase.sql" \
+    "$runtime_root/database-init/88-fix-olrun-deaths-challenge-phase.sql"
+install -m 0644 "$repo_root/database/89-fix-lights-point-defender-evade.sql" \
+    "$runtime_root/database-init/89-fix-lights-point-defender-evade.sql"
+install -m 0644 "$repo_root/database/90-fix-orbaz-acherus-gate-recovery.sql" \
+    "$runtime_root/database-init/90-fix-orbaz-acherus-gate-recovery.sql"
+install -m 0644 "$repo_root/database/91-fix-ebon-hold-battle-phase.sql" \
+    "$runtime_root/database-init/91-fix-ebon-hold-battle-phase.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \

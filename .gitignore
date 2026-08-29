@@ -44,6 +44,10 @@ database/*
 !database/85-add-safe-outdoor-ambient-wander.sql
 !database/86-restore-vilebranch-combat-ai.sql
 !database/87-restore-rocket-rescue-vehicle-smartai.sql
+!database/88-fix-olrun-deaths-challenge-phase.sql
+!database/89-fix-lights-point-defender-evade.sql
+!database/90-fix-orbaz-acherus-gate-recovery.sql
+!database/91-fix-ebon-hold-battle-phase.sql
 
 # WoW clients, repacks, archives, and executables
 client/
