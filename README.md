@@ -46,6 +46,7 @@ issues found during hands-on Legion 7.3.5 gameplay. Current improvements include
 | Account collections | A GM-only `.account unlocktransmogs` command can preview and unlock the build-matched standard armor and weapon appearance catalog account-wide. It excludes invalid/test sources, Legendary and Artifact appearances, preserves the account's pre-unlock collection in a backup table, records an audit summary, and remains subject to the client's normal class and equipment rules when applying a look. |
 | Loot and inventory | Silent companion auto-loot works during combat from melee range through 40 yards, revisits corpses for delayed eligible quest drops, and keeps normal inventory and group-loot safeguards. Native bag cleanup and the Bagnon 7.3.5 sort button work again. |
 | Professions and shop | BattlePay profession purchases execute their delivery scripts, teach the base profession and recipes without the unrelated level-90 gate, respect primary-profession limits, and grant one appropriate Blacksmith Hammer, Mining Pick, Skinning Knife, or Fishing Pole. |
+| Progression rates | Named `blizzlike`, `balanced`, and `accelerated` presets configure reputation, profession skill gains, and modest XP multipliers without hand-editing server configuration. Custom validated values are also supported, and the helper avoids restarting while characters are online. |
 | Nordrassil Coins and Shop | Inherited Nordrassil Coin items are granted through played-time rewards, redeem into an account-wide Shop balance, and purchase configured in-game Shop products. The lab provides English item descriptions, redemption feedback, and balance messages; it does not add a real-money payment system. |
 | Localization | Managed server broadcasts and other inherited custom messages use English text. |
 | Installation and maintenance | Pinned upstream source, idempotent patch application, clean patch verification, managed-source integrity checks, and separate Steam Deck and Windows/WSL2 workflows. |
@@ -54,6 +55,11 @@ The detailed implementation notes and gameplay regression checks are maintained
 in [docs/SOURCE_BASELINE.md](docs/SOURCE_BASELINE.md). These improvements make
 the archived core more consistent for a local lab, but they do not make every
 Legion quest, encounter, dungeon, or raid complete.
+
+Progression pacing and the operator commands for changing it are documented in
+[docs/PROGRESSION_RATES.md](docs/PROGRESSION_RATES.md). New installations use
+the conservative `balanced` preset: 2x reputation, two profession skill points
+per successful gain, and 1.25x XP.
 
 ## Optional Legion GM addon
 

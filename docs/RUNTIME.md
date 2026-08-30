@@ -35,6 +35,12 @@ still award XP. The lab default keeps those otherwise-eligible starter markers
 visible. It does not bypass quest prerequisites, faction or class restrictions,
 conditions, phases, events, profession requirements, or minimum levels.
 
+The generated configuration also applies the selected progression preset.
+`balanced` is the default and uses 2x reputation, two profession skill points
+per successful gain, and 1.25x XP. Operators can switch presets or set validated
+custom values without editing this generated file; see
+[PROGRESSION_RATES.md](PROGRESSION_RATES.md).
+
 ## Start
 
 ```bash

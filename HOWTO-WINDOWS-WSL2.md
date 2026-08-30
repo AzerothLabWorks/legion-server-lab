@@ -304,6 +304,17 @@ guidance in [docs/CLIENT_SETUP.md](docs/CLIENT_SETUP.md).
 
 ## 11. Routine Operation
 
+To select the recommended progression rates (2x reputation, two profession
+skill points per successful gain, and 1.25x XP):
+
+```bash
+cd ~/legion-server-lab
+bash scripts/configure-rates.sh balanced
+```
+
+See [Progression Rates](docs/PROGRESSION_RATES.md) for the Blizzlike,
+accelerated, and custom options.
+
 ```bash
 cd ~/legion-server-lab
 

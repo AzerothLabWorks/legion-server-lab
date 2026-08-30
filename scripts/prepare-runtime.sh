@@ -10,6 +10,10 @@ db_password="${LEGION_DB_PASSWORD:?set LEGION_DB_PASSWORD before preparing runti
 server_timezone="${LEGION_TIMEZONE:-America/Los_Angeles}"
 db_archive="$source_root/sql/base/Legion_Proyect-DB.7z"
 
+# shellcheck source=scripts/lib/rate-settings.sh
+source "$repo_root/scripts/lib/rate-settings.sh"
+legion_resolve_rate_settings
+
 if [[ ! "$server_timezone" =~ ^[A-Za-z0-9._+-]+(/[A-Za-z0-9._+-]+)*$ ]]; then
     echo "Invalid LEGION_TIMEZONE: $server_timezone" >&2
     echo "Use an IANA timezone name such as America/Los_Angeles or UTC." >&2
@@ -124,6 +128,13 @@ sed \
     -e 's#^CompanionAutoLoot.OutOfCombatOnly.*#CompanionAutoLoot.OutOfCombatOnly = 0#' \
     -e 's#^StartupQoL.Enable.*#StartupQoL.Enable = 1#' \
     -e 's#^CreatureAI.CasterFallback.Enable.*#CreatureAI.CasterFallback.Enable = 1#' \
+    -e "s#^Rate\.XP\.Kill[[:space:]]*=.*#Rate.XP.Kill = $LEGION_RATE_XP#" \
+    -e "s#^Rate\.XP\.Quest[[:space:]]*=.*#Rate.XP.Quest = $LEGION_RATE_XP#" \
+    -e "s#^Rate\.XP\.Explore[[:space:]]*=.*#Rate.XP.Explore = $LEGION_RATE_XP#" \
+    -e "s#^Rate\.XP\.Gathering[[:space:]]*=.*#Rate.XP.Gathering = $LEGION_RATE_XP#" \
+    -e "s#^Rate\.Reputation\.Gain[[:space:]]*=.*#Rate.Reputation.Gain = $LEGION_RATE_REPUTATION#" \
+    -e "s#^SkillGain\.Crafting[[:space:]]*=.*#SkillGain.Crafting = $LEGION_RATE_PROFESSION#" \
+    -e "s#^SkillGain\.Gathering[[:space:]]*=.*#SkillGain.Gathering = $LEGION_RATE_PROFESSION#" \
     "$install_root/etc/worldserver.conf.dist" > "$runtime_root/config/worldserver.conf.tmp"
 
 # The archived upstream template repeats these two update-system keys. Its
@@ -141,6 +152,9 @@ cat >> "$runtime_root/config/worldserver.conf" <<EOF
 # AzerothLabWorks local realm clock configuration.
 ServerTimeTZ = "$server_timezone"
 GameTimeTZ = "$server_timezone"
+
+# AzerothLabWorks progression preset: $LEGION_RATE_PRESET
+# Low-level reputation modifiers remain at 1x to avoid compounding this rate.
 EOF
 
 echo "Prepared configuration and database bootstrap files under $runtime_root"

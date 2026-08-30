@@ -15,6 +15,8 @@ bash -n "$repo_root/scripts/support-report.sh"
 bash -n "$repo_root/scripts/verify-managed-source.sh"
 bash -n "$repo_root/scripts/write-managed-source-manifest.sh"
 bash -n "$repo_root/scripts/configure-realm-address.sh"
+bash -n "$repo_root/scripts/configure-rates.sh"
+bash -n "$repo_root/scripts/lib/rate-settings.sh"
 
 help_output="$(bash "$installer" --help)"
 grep -q 'Usage: bash install/install.sh' <<< "$help_output"
@@ -22,8 +24,11 @@ grep -q -- '--data-source PATH' <<< "$help_output"
 grep -q -- '--client-dir PATH' <<< "$help_output"
 grep -q -- '--client-build N' <<< "$help_output"
 grep -q -- '--check' <<< "$help_output"
+grep -q -- '--rate-preset NAME' <<< "$help_output"
 grep -q 'Set the IPv4 address or DNS hostname' \
     < <(bash "$repo_root/scripts/configure-realm-address.sh" --help)
+grep -q 'Configure Legion progression rates' \
+    < <(bash "$repo_root/scripts/configure-rates.sh" --help)
 grep -q 'does not download or distribute' "$installer"
 grep -q 'exec bash.*install/install.sh' "$bootstrap"
 grep -q '7.3.5 build 26365' "$repo_root/docs/COMMUNITY_INSTALL.md"
@@ -131,6 +136,45 @@ grep -q 'LEGION_REST_BIND_ADDRESS="127.0.0.1"' "$tmp_root/realm-test/.env"
 if bash "$tmp_root/realm-test/scripts/configure-realm-address.sh" \
     "bad'address" --no-apply >/dev/null 2>&1; then
     echo "Unsafe realm address was accepted" >&2
+    exit 1
+fi
+
+mkdir -p "$tmp_root/rate-test/scripts/lib" "$tmp_root/rate-runtime/config"
+cp "$repo_root/scripts/configure-rates.sh" "$tmp_root/rate-test/scripts/configure-rates.sh"
+cp "$repo_root/scripts/lib/rate-settings.sh" "$tmp_root/rate-test/scripts/lib/rate-settings.sh"
+cat > "$tmp_root/rate-test/.env" <<EOF
+LEGION_RUNTIME_ROOT="$tmp_root/rate-runtime"
+LEGION_DB_ROOT_PASSWORD="fixture-only"
+EOF
+cat > "$tmp_root/rate-runtime/config/worldserver.conf" <<'EOF'
+Rate.XP.Kill = 1
+Rate.XP.Quest = 1
+Rate.XP.Explore = 1
+Rate.XP.Gathering = 1
+Rate.Reputation.Gain = 1
+Rate.Reputation.LowLevel.Kill = 1
+Rate.Reputation.LowLevel.Quest = 1
+SkillGain.Crafting = 1
+SkillGain.Gathering = 1
+EOF
+bash "$tmp_root/rate-test/scripts/configure-rates.sh" balanced --no-restart >/dev/null
+grep -q 'LEGION_RATE_PRESET="balanced"' "$tmp_root/rate-test/.env"
+grep -q 'LEGION_RATE_REPUTATION="2"' "$tmp_root/rate-test/.env"
+grep -q 'LEGION_RATE_PROFESSION="2"' "$tmp_root/rate-test/.env"
+grep -q 'LEGION_RATE_XP="1.25"' "$tmp_root/rate-test/.env"
+grep -q '^Rate.XP.Quest = 1.25$' "$tmp_root/rate-runtime/config/worldserver.conf"
+grep -q '^Rate.Reputation.Gain = 2$' "$tmp_root/rate-runtime/config/worldserver.conf"
+grep -q '^Rate.Reputation.LowLevel.Kill = 1$' "$tmp_root/rate-runtime/config/worldserver.conf"
+grep -q '^SkillGain.Crafting = 2$' "$tmp_root/rate-runtime/config/worldserver.conf"
+bash "$tmp_root/rate-test/scripts/configure-rates.sh" custom \
+    --reputation 4 --profession 3 --xp 1.1 --no-restart >/dev/null
+grep -q 'LEGION_RATE_PRESET="custom"' "$tmp_root/rate-test/.env"
+grep -q '^Rate.Reputation.Gain = 4$' "$tmp_root/rate-runtime/config/worldserver.conf"
+grep -q '^SkillGain.Gathering = 3$' "$tmp_root/rate-runtime/config/worldserver.conf"
+grep -q '^Rate.XP.Kill = 1.1$' "$tmp_root/rate-runtime/config/worldserver.conf"
+if bash "$tmp_root/rate-test/scripts/configure-rates.sh" custom \
+    --reputation 4 --profession 2 --xp 9 --no-restart >/dev/null 2>&1; then
+    echo "Unsafe XP rate was accepted" >&2
     exit 1
 fi
 

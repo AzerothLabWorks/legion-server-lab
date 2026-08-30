@@ -179,6 +179,16 @@ SET portal "127.0.0.1"
 
 ## Routine Commands
 
+Choose a progression preset without editing server configuration:
+
+```bash
+cd ~/legion-server-lab
+bash scripts/configure-rates.sh balanced
+```
+
+The available presets and custom-value syntax are documented in
+[PROGRESSION_RATES.md](PROGRESSION_RATES.md).
+
 Run these from the Linux repository checkout on either host:
 
 ```bash

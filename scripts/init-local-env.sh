@@ -17,6 +17,10 @@ realm_address="${LEGION_REALM_ADDRESS:-127.0.0.1}"
 rest_bind_address="${LEGION_REST_BIND_ADDRESS:-127.0.0.1}"
 timezone="${LEGION_TIMEZONE:-America/Los_Angeles}"
 
+# shellcheck source=scripts/lib/rate-settings.sh
+source "$repo_root/scripts/lib/rate-settings.sh"
+legion_resolve_rate_settings
+
 umask 077
 cat > "$env_file" <<EOF
 LEGION_RUNTIME_ROOT="$runtime_root"
@@ -27,6 +31,10 @@ LEGION_DB_ROOT_PASSWORD="$db_root_password"
 LEGION_REALM_ADDRESS="$realm_address"
 LEGION_REST_BIND_ADDRESS="$rest_bind_address"
 LEGION_TIMEZONE="$timezone"
+LEGION_RATE_PRESET="$LEGION_RATE_PRESET"
+LEGION_RATE_REPUTATION="$LEGION_RATE_REPUTATION"
+LEGION_RATE_PROFESSION="$LEGION_RATE_PROFESSION"
+LEGION_RATE_XP="$LEGION_RATE_XP"
 EOF
 
 echo "Created local-only environment file: $env_file"

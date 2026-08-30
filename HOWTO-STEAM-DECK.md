@@ -416,6 +416,16 @@ Suspending the Deck suspends the local server too and will disconnect the game.
 
 ## Quick Reference
 
+Select the recommended progression rates without editing configuration:
+
+```bash
+cd ~/legion-server-lab
+bash scripts/configure-rates.sh balanced
+```
+
+See [Progression Rates](docs/PROGRESSION_RATES.md) for the Blizzlike,
+accelerated, and custom options.
+
 | Task or file | Command or default path |
 | --- | --- |
 | Start and wait | `~/legion-server-launcher.sh` |

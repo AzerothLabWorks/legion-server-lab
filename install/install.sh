@@ -12,6 +12,7 @@ CLIENT_BUILD="${LEGION_CLIENT_BUILD:-}"
 SKIP_BUILD=0
 START_SERVER=1
 CHECK_ONLY=0
+RATE_PRESET=""
 
 usage() {
     cat <<'USAGE'
@@ -23,6 +24,7 @@ Options:
   --client-dir PATH   Validate an operator-supplied playable client (read-only)
   --client-build N    Report the login-screen build; must be 26365
   --data-source PATH  Copy user-supplied build-26365 dbc/maps/vmaps/mmaps data
+  --rate-preset NAME  Progression preset: blizzlike, balanced, or accelerated
   --skip-build        Reuse an existing compiled server under the runtime root
   --no-start          Prepare everything but do not start Docker services
   --check             Check the host, tools, disk, and supplied client/data
@@ -31,7 +33,7 @@ Options:
 Environment overrides:
   LEGION_SOURCE_ROOT, LEGION_SOURCE_DIR, LEGION_RUNTIME_ROOT,
   LEGION_DATA_SOURCE, LEGION_CLIENT_DIR, LEGION_CLIENT_BUILD,
-  LEGION_BUILD_JOBS, LEGION_CORE_URL
+  LEGION_BUILD_JOBS, LEGION_CORE_URL, LEGION_RATE_PRESET
 
 Steam Deck example:
   bash install/install.sh \
@@ -90,6 +92,14 @@ parse_args() {
             --data-source)
                 [[ "$#" -ge 2 ]] || die "--data-source requires a path"
                 DATA_SOURCE="$2"
+                shift 2
+                ;;
+            --rate-preset)
+                [[ "$#" -ge 2 ]] || die "--rate-preset requires a name"
+                case "$2" in
+                    blizzlike|balanced|accelerated) RATE_PRESET="$2" ;;
+                    *) die "Unknown rate preset '$2'; choose blizzlike, balanced, or accelerated." ;;
+                esac
                 shift 2
                 ;;
             --skip-build)
@@ -177,6 +187,7 @@ prepare_environment() {
     if [[ ! -f "$REPO_ROOT/.env" ]]; then
         LEGION_RUNTIME_ROOT="$LEGION_RUNTIME_ROOT" \
         LEGION_DATA_ROOT="$LEGION_DATA_ROOT" \
+        LEGION_RATE_PRESET="${RATE_PRESET:-balanced}" \
             bash "$REPO_ROOT/scripts/init-local-env.sh"
     fi
 
@@ -186,6 +197,13 @@ prepare_environment() {
     set +a
 
     [[ "$LEGION_RUNTIME_ROOT" == "$RUNTIME_ROOT" ]] || die ".env runtime root differs from requested root: $LEGION_RUNTIME_ROOT"
+    if [[ -n "$RATE_PRESET" ]]; then
+        bash "$REPO_ROOT/scripts/configure-rates.sh" "$RATE_PRESET" --no-restart
+        set -a
+        # shellcheck disable=SC1091
+        source "$REPO_ROOT/.env"
+        set +a
+    fi
     mkdir -p "$LEGION_RUNTIME_ROOT/data" "$LEGION_RUNTIME_ROOT/logs"
 }
 
@@ -309,6 +327,10 @@ Runtime: $LEGION_RUNTIME_ROOT
 Server data: $LEGION_DATA_ROOT
 Playable client: $client_location
 Reported client build: $client_build
+Progression preset: ${LEGION_RATE_PRESET:-balanced}
+Reputation rate: ${LEGION_RATE_REPUTATION:-2}x
+Profession skill gain: ${LEGION_RATE_PROFESSION:-2} point(s) per successful gain
+XP rate: ${LEGION_RATE_XP:-1.25}x
 
 Start and wait until ready:
   $HOME/legion-server-launcher.sh
