@@ -106,6 +106,14 @@ install -m 0644 "$repo_root/database/92-add-account-transmog-unlock-audit.sql" \
     "$runtime_root/database-init/92-add-account-transmog-unlock-audit.sql"
 install -m 0644 "$repo_root/database/93-restore-legacy-quest-reward-items.sql" \
     "$runtime_root/database-init/93-restore-legacy-quest-reward-items.sql"
+install -m 0644 "$repo_root/database/94-fix-warsong-hold-saurfang-display.sql" \
+    "$runtime_root/database-init/94-fix-warsong-hold-saurfang-display.sql"
+install -m 0644 "$repo_root/database/95-restore-foolish-endeavors-getry-assist.sql" \
+    "$runtime_root/database-init/95-restore-foolish-endeavors-getry-assist.sql"
+install -m 0644 "$repo_root/database/96-restore-bloodspore-carpel-nodes.sql" \
+    "$runtime_root/database-init/96-restore-bloodspore-carpel-nodes.sql"
+install -m 0644 "$repo_root/database/97-restore-coward-delivery-escort.sql" \
+    "$runtime_root/database-init/97-restore-coward-delivery-escort.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \

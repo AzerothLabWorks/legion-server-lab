@@ -50,6 +50,10 @@ database/*
 !database/91-fix-ebon-hold-battle-phase.sql
 !database/92-add-account-transmog-unlock-audit.sql
 !database/93-restore-legacy-quest-reward-items.sql
+!database/94-fix-warsong-hold-saurfang-display.sql
+!database/95-restore-foolish-endeavors-getry-assist.sql
+!database/96-restore-bloodspore-carpel-nodes.sql
+!database/97-restore-coward-delivery-escort.sql
 
 # WoW clients, repacks, archives, and executables
 client/

@@ -72,6 +72,32 @@ Repository-owned compatibility patches are kept under `patches/` and applied
 idempotently by the build script. The first patch corrects the upstream cotire
 module path for CMake versions older than 3.16.
 
+**Through the Dream** is restored by
+`0035-restore-through-the-dream-escort.patch`. The archived database retains
+quest 25325 and Arch Druid Fandral Staghelm's spawn (entry 40140), but Fandral
+has no AI, script, waypoint path, or quest-start action and therefore remains
+stationary. The player script starts or recovers his follow movement whenever
+an eligible player returns to him with the quest active. Delivery credit is
+granted only when the player and the living Fandral escort are both at the
+Barrow Dens exit, preserving the actual escort requirement rather than granting
+credit merely for visiting the destination.
+
+The configured quest ender, Alysra (entry 40178), also has no persistent world
+spawn in the archived database. Once delivery is complete, the same script
+keeps a temporary Alysra at the Barrow Dens entrance while the eligible player
+remains nearby, including after a relog or an expired summon.
+
+Regression test: with **Through the Dream** incomplete, approach Fandral beside
+Captain Saynna Stormrunner and confirm that he follows the player. Lead him
+through the Barrow Dens to the surface and confirm that **Arch Druid Fandral
+Staghelm delivered** advances to 1/1 only when he is also present at the exit.
+Confirm that returning to Fandral recovers a lost escort without abandoning the
+quest, that visiting the entrance alone gives no credit, and that unrelated
+players cannot complete the delivery without their own escort. After credit is
+awarded, confirm that Alysra appears at the entrance and accepts the turn-in.
+Confirm that unrelated creatures retain their normal movement and combat
+behavior.
+
 The lab also carries a creature lifecycle guard for the pinned core. Periodic
 damage can kill a creature inside `Unit::Update`; the upstream Legion branch
 then runs that dead creature's AI once before checking its death state. That
@@ -370,6 +396,89 @@ the client may render the character below the balloon and may animate payloads
 straight ahead even though the intended target receives server-side credit.
 Confirm that ordinary spell-click NPCs, vehicles, and trajectory spells
 elsewhere retain their previous behavior.
+
+High Overlord Saurfang's Warsong Hold quest progression is repaired by
+`database/94-fix-warsong-hold-saurfang-display.sql`. The quest chain,
+quest-starter relation, spawn, coordinates, and base phase are already present
+in the preservation database. The affected spawn instead inherits display
+14732 from the archived template, which may not render for the build-26365
+client at this location even though its quest marker remains visible. The
+migration preserves the template and overrides only spawn GUID 68460 with the
+canonical Wrath display 23033. Because that correction does not render the unit
+reliably for every character, the migration also adds the generic quest variant
+11596 to the visible Garrosh Hellscream in the same room. Saurfang remains the
+canonical starter for all three variants; Garrosh is only a progression
+fallback. The migration supplies the Wrath display's standard model dimensions
+when absent and retains the original spawn, model, and quest-starter rows in
+audit tables.
+
+Regression test: on a Horde character level 68 or higher that has arrived at
+Warsong Hold, enter the lower floor and check for High Overlord Saurfang beside
+Garrosh Hellscream. If Saurfang is absent, confirm Garrosh offers the generic
+**The Defense of Warsong Hold** variant and that it advances to Overlord
+Razgor. Confirm Garrosh's existing quests remain available and that no duplicate
+Saurfang is present.
+
+**Foolish Endeavors** is repaired by
+`database/95-restore-foolish-endeavors-getry-assist.sql`. The archived Legion
+database wakes Varidus and preserves his death credit, but omits every movement
+and assistance row for Shadowstalker Getry. The migration restores Getry's
+canonical 16-point descent from the tower to Warsong Farms. At the final point,
+the path stops and its endpoint becomes Getry's temporary home so an evade
+cannot send him back up the tower. Getry becomes aggressive and summons the
+encounter's intended High Overlord Saurfang helper. Saurfang applies his
+authored rage effect, engages Varidus, and takes the boss's attention while the
+player and Getry contribute. The archive assigns generic factions 14 and 35 to
+Varidus and Saurfang; the migration restores their authored encounter factions
+1982 and 1979 so the core permits NPC-to-NPC combat. The changes are limited to
+quest 11705 and entries 25729, 25618, and 25749; existing visibility and
+kill-credit rows remain intact.
+
+Regression test: abandon **Foolish Endeavors** if it was accepted before the
+migration, then accept it again from Shadowstalker Getry. Confirm Getry descends
+the authored ramp instead of remaining on the tower and remains at the farm.
+Confirm Saurfang appears, uses his rage effect, holds Varidus in sustained
+combat, and that Varidus's death completes the quest for the player. Confirm
+Getry returns to his spawn after the event resets.
+
+**The Wondrous Bloodspore** is repaired by
+`database/96-restore-bloodspore-carpel-nodes.sql`. The archive contains all 25
+authored Bloodspore Carpel plants in the two objective areas, but imports their
+template as a Legion gathering node instead of the original consumable quest
+object. It also stores item 34974 under loot key 187902 even though the object
+template loads loot key 23169. The migration restores only gameobject 187902 to
+its original chest-style interaction and supplies the guaranteed quest-item
+row under loot key 23169. Existing template and loot rows are retained in audit
+tables.
+
+Regression test: accept **The Wondrous Bloodspore** (11716) from Bloodmage
+Laurith and enter either marked area in the Bloodspore Plains. Confirm several
+Bloodspore Carpel plants are visible and clickable without a gathering
+profession, each successful loot grants one Carpel, and the plants disappear
+temporarily after use. Collect ten and confirm the objective reaches 10/10.
+Confirm unrelated herb and mining gathering nodes retain their existing
+behavior.
+
+**Coward Delivery... Under 30 Minutes or it's Free** is repaired by
+`database/97-restore-coward-delivery-escort.sql`. The archive retains quest
+11711, the Warsong Flare Gun, the deserter and officer templates, and Warden
+Nork's replacement gossip option, but omits the scripts and spell links that
+join them together. The migration restores the acceptance spell that summons
+Alliance Deserter 25761, Nork's lost-escort recovery action, the flare's link to
+the Alliance signal, its authored crossroads destination, and Valiance Keep
+Officer 25759's approach and delivery-credit sequence. All affected quest,
+creature, spell, condition, text, and SmartAI rows are retained in audit
+tables.
+
+Regression test: accept **Coward Delivery... Under 30 Minutes or it's Free**
+(11711) from Warden Nork and confirm an Alliance Deserter follows the player.
+If the quest was already active before the repair, or the escort is lost,
+return to Nork and select the deserter-replacement gossip option. Escort the
+deserter to the marked crossroads east of Warsong Hold and use the Warsong
+Flare Gun. Confirm a Valiance Keep Officer arrives, approaches the handoff,
+dismisses the deserter, and advances **Alliance Deserter Delivered** to 1/1.
+Confirm firing the flare without an escort still fails and that Scout Tungok
+accepts the completed quest.
 
 BattlePay profession delivery is repaired by
 `0029-fix-battlepay-professions.patch` and

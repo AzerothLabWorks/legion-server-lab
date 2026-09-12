@@ -1,0 +1,86 @@
+diff --git a/src/server/scripts/World/player_special.cpp b/src/server/scripts/World/player_special.cpp
+index 6b6d919..e2ad742 100644
+--- a/src/server/scripts/World/player_special.cpp
++++ b/src/server/scripts/World/player_special.cpp
+@@ -775,6 +775,73 @@ public:
+     }
+ };
+ 
++class player_through_the_dream : public PlayerScript
++{
++public:
++    player_through_the_dream() : PlayerScript("player_through_the_dream") { }
++
++    enum ThroughTheDream
++    {
++        QUEST_THROUGH_THE_DREAM = 25325,
++        NPC_FANDRAL_STAGHELM = 40140,
++        NPC_ALYSRA = 40178,
++        MAP_KALIMDOR = 1
++    };
++
++    void OnUpdate(Player* player, uint32 diff) override
++    {
++        if (_checkTimer > diff)
++        {
++            _checkTimer -= diff;
++            return;
++        }
++
++        _checkTimer = 1000;
++
++        if (player->GetMapId() != MAP_KALIMDOR)
++            return;
++
++        QuestStatus status = player->GetQuestStatus(QUEST_THROUGH_THE_DREAM);
++
++        // Alysra (40178) is the configured quest ender, but the archived
++        // database has no spawn for her. Keep a temporary hand-in copy at the
++        // destination while the escort is complete, including after a
++        // relog or if the first summon expires.
++        if (status == QUEST_STATUS_COMPLETE &&
++            player->GetDistance2d(5708.0f, -3160.0f) < 45.0f &&
++            !player->FindNearestCreature(NPC_ALYSRA, 60.0f, true))
++            player->SummonCreature(NPC_ALYSRA, 5704.0f, -3154.0f, 1593.0f, 3.5f,
++                TEMPSUMMON_TIMED_DESPAWN, 300000);
++
++        if (status != QUEST_STATUS_INCOMPLETE)
++            return;
++
++        // The archived database keeps Fandral's spawn but lost the escort
++        // script. Reaching him with the quest active starts (or recovers) the
++        // escort without requiring the player to abandon the quest.
++        if (player->GetDistance2d(5664.39f, -3340.71f) < 35.0f)
++            if (Creature* fandral = player->FindNearestCreature(NPC_FANDRAL_STAGHELM, 45.0f, true))
++            {
++                fandral->SetReactState(REACT_PASSIVE);
++                fandral->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
++                fandral->GetMotionMaster()->MoveFollow(player, 2.0f, M_PI);
++            }
++
++        // The original objective is an event/area-trigger delivery. Require
++        // both the player and the recovered escort at the Barrow Dens exit so
++        // merely visiting the entrance cannot grant credit.
++        if (player->GetDistance2d(5708.0f, -3160.0f) < 35.0f)
++            if (Creature* fandral = player->FindNearestCreature(NPC_FANDRAL_STAGHELM, 45.0f, true))
++            {
++                player->AreaExploredOrEventHappens(QUEST_THROUGH_THE_DREAM);
++                fandral->GetMotionMaster()->MoveTargetedHome();
++            }
++    }
++
++private:
++    uint32 _checkTimer = 1000;
++};
++
+ class playerScriptWoDMisc : public PlayerScript
+ {
+ public:
+@@ -1084,6 +1151,7 @@ void AddSC_player_special_scripts()
+     new player_teleport_windikar();
+     new player_level_rewards();
+     new player_hyjal_protectors_random();
++    new player_through_the_dream();
+     new playerScriptWoDMisc();
+     new playerScriptDarkmoonMisc();
+     new playerScriptWeeklyQuests();
