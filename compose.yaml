@@ -20,7 +20,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
-    restart: unless-stopped
+    restart: "no"
 
   bnetserver:
     build:
@@ -39,7 +39,7 @@ services:
     volumes:
       - ${LEGION_RUNTIME_ROOT:?set LEGION_RUNTIME_ROOT in .env}/server:/opt/legion/server:ro
       - ${LEGION_RUNTIME_ROOT:?set LEGION_RUNTIME_ROOT in .env}/config:/opt/legion/config:ro
-    restart: unless-stopped
+    restart: "no"
 
   worldserver:
     build:
@@ -64,4 +64,4 @@ services:
       - ${LEGION_RUNTIME_ROOT:?set LEGION_RUNTIME_ROOT in .env}/config:/opt/legion/config:ro
       - ${LEGION_DATA_ROOT:?set LEGION_DATA_ROOT in .env}:/opt/legion/data:ro
       - ${LEGION_RUNTIME_ROOT:?set LEGION_RUNTIME_ROOT in .env}/logs:/opt/legion/logs
-    restart: unless-stopped
+    restart: "no"
