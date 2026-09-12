@@ -98,6 +98,21 @@ awarded, confirm that Alysra appears at the entrance and accepts the turn-in.
 Confirm that unrelated creatures retain their normal movement and combat
 behavior.
 
+The Stonebloom objective for **From the Mouth of Madness** is repaired by
+`database/99-restore-stonebloom-quest-objects.sql`. The archive retains all
+four authored Stonebloom spawns, their quest association, and guaranteed item
+52726 loot, but converts gameobject 202702 to a Legion gathering node while the
+other two ingredients remain ordinary quest chests. The migration backs up the
+template and restores only its interaction type to chest (`3`).
+
+Regression test: with quest 25297 incomplete, visit the rock formations near
+27.5, 34.1 outside Gar'gol's Hovel. Confirm that Stonebloom objects are visible
+and lootable without a gathering profession, each grants item 52726, and the
+objective advances to 1/1. Confirm Bitterblossom and Darkflame Ember retain
+their existing behavior.
+Stonebloom visibility, interaction, loot, and objective credit were validated
+in gameplay on 2026-09-12.
+
 **Flames from Above** is restored by
 `0036-restore-flames-from-above-horn.patch` and
 `database/98-restore-flames-from-above-camp.sql`. Quest 25574, Tholo's Horn

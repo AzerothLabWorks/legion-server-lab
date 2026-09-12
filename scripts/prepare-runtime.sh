@@ -116,6 +116,8 @@ install -m 0644 "$repo_root/database/97-restore-coward-delivery-escort.sql" \
     "$runtime_root/database-init/97-restore-coward-delivery-escort.sql"
 install -m 0644 "$repo_root/database/98-restore-flames-from-above-camp.sql" \
     "$runtime_root/database-init/98-restore-flames-from-above-camp.sql"
+install -m 0644 "$repo_root/database/99-restore-stonebloom-quest-objects.sql" \
+    "$runtime_root/database-init/99-restore-stonebloom-quest-objects.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \

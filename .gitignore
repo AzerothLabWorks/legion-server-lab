@@ -55,6 +55,7 @@ database/*
 !database/96-restore-bloodspore-carpel-nodes.sql
 !database/97-restore-coward-delivery-escort.sql
 !database/98-restore-flames-from-above-camp.sql
+!database/99-restore-stonebloom-quest-objects.sql
 
 # WoW clients, repacks, archives, and executables
 client/
