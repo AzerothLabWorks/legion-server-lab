@@ -150,3 +150,7 @@ docker compose exec -T mysql \
 docker compose exec -T mysql \
     mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
     < "$repo_root/database/97-restore-coward-delivery-escort.sql"
+
+docker compose exec -T mysql \
+    mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    < "$repo_root/database/98-restore-flames-from-above-camp.sql"

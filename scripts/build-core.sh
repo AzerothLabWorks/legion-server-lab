@@ -44,6 +44,10 @@ for patch_file in "$repo_root"/patches/*.patch; do
         && grep -q 'CONFIG_CREATURE_CASTER_AI_FALLBACK' "$SOURCE_DIR/src/server/game/AI/CreatureAISelector.cpp" \
         && grep -q 'creature->getClass() != UNIT_CLASS_MAGE' "$SOURCE_DIR/src/server/game/AI/CreatureAISelector.cpp"; then
         : # Applied, then intentionally narrowed by the melee-class guard patch.
+    elif [[ "$(basename "$patch_file")" == "0035-restore-through-the-dream-escort.patch" ]] \
+        && grep -q 'class player_through_the_dream : public PlayerScript' "$SOURCE_DIR/src/server/scripts/World/player_special.cpp" \
+        && grep -q 'NPC_ALYSRA = 40178' "$SOURCE_DIR/src/server/scripts/World/player_special.cpp"; then
+        : # Applied, then intentionally extended by the Flames from Above patch.
     else
         echo "Patch cannot be applied cleanly: $patch_file" >&2
         exit 1

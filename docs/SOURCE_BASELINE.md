@@ -98,6 +98,24 @@ awarded, confirm that Alysra appears at the entrance and accepts the turn-in.
 Confirm that unrelated creatures retain their normal movement and combat
 behavior.
 
+**Flames from Above** is restored by
+`0036-restore-flames-from-above-horn.patch` and
+`database/98-restore-flames-from-above-camp.sql`. Quest 25574, Tholo's Horn
+(item 55122), Emerald Flameweaver 40856, its three-point flight path, and its
+completion SmartAI survive in the archive, but the horn has no summon binding
+and the camp has no Twilight Infiltrator spawns. The item script permits the
+summon only for a player with the incomplete quest at the objective camp. The
+migration binds the horn and restores three conservative camp defenders using
+the existing Twilight Infiltrator template and combat AI.
+
+Regression test: accept **Flames from Above**, travel to the encampment near
+55.8, 15.2, and confirm that three Twilight Infiltrators populate the camp.
+Use Tholo's Horn in the camp and confirm an Emerald Flameweaver follows the
+authored flyover and advances **Infiltrators' encampment burnt** to 1/1. Confirm
+the horn does not summon the drake away from the camp or without the quest.
+The populated camp, horn activation, flyover, and completion credit were
+validated in gameplay on 2026-09-12.
+
 The lab also carries a creature lifecycle guard for the pinned core. Periodic
 damage can kill a creature inside `Unit::Update`; the upstream Legion branch
 then runs that dead creature's AI once before checking its death state. That

@@ -1,0 +1,43 @@
+diff --git a/src/server/scripts/World/player_special.cpp b/src/server/scripts/World/player_special.cpp
+index 4b57bbf..fd3f896 100644
+--- a/src/server/scripts/World/player_special.cpp
++++ b/src/server/scripts/World/player_special.cpp
+@@ -842,6 +842,30 @@ private:
+     uint32 _checkTimer = 1000;
+ };
+ 
++class item_tholos_horn : public ItemScript
++{
++public:
++    item_tholos_horn() : ItemScript("item_tholos_horn") { }
++
++    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override
++    {
++        if (item->GetEntry() != 55122 ||
++            player->GetQuestStatus(25574) != QUEST_STATUS_INCOMPLETE ||
++            player->GetMapId() != 1 ||
++            player->GetDistance2d(5737.0f, -3320.0f) > 55.0f)
++            return false;
++
++        // The archive retains Emerald Flameweaver's SmartAI and authored
++        // flight path, but no horn spell-to-summon link. Summoning it at the
++        // first waypoint lets the preserved path award its own quest credit.
++        if (!player->FindNearestCreature(40856, 100.0f, true))
++            player->SummonCreature(40856, 5730.93f, -3353.08f, 1612.75f, 0.0f,
++                TEMPSUMMON_TIMED_DESPAWN, 60000);
++
++        return true;
++    }
++};
++
+ class playerScriptWoDMisc : public PlayerScript
+ {
+ public:
+@@ -1152,6 +1176,7 @@ void AddSC_player_special_scripts()
+     new player_level_rewards();
+     new player_hyjal_protectors_random();
+     new player_through_the_dream();
++    new item_tholos_horn();
+     new playerScriptWoDMisc();
+     new playerScriptDarkmoonMisc();
+     new playerScriptWeeklyQuests();

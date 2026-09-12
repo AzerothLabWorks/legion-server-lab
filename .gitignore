@@ -54,6 +54,7 @@ database/*
 !database/95-restore-foolish-endeavors-getry-assist.sql
 !database/96-restore-bloodspore-carpel-nodes.sql
 !database/97-restore-coward-delivery-escort.sql
+!database/98-restore-flames-from-above-camp.sql
 
 # WoW clients, repacks, archives, and executables
 client/
