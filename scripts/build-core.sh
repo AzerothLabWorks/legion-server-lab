@@ -48,6 +48,10 @@ for patch_file in "$repo_root"/patches/*.patch; do
         && grep -q 'class player_through_the_dream : public PlayerScript' "$SOURCE_DIR/src/server/scripts/World/player_special.cpp" \
         && grep -q 'NPC_ALYSRA = 40178' "$SOURCE_DIR/src/server/scripts/World/player_special.cpp"; then
         : # Applied, then intentionally extended by the Flames from Above patch.
+    elif [[ "$(basename "$patch_file")" == "0036-restore-flames-from-above-horn.patch" ]] \
+        && grep -q 'class item_tholos_horn : public ItemScript' "$SOURCE_DIR/src/server/scripts/World/player_special.cpp" \
+        && grep -q 'class spell_fury_of_the_wolf : public SpellScript' "$SOURCE_DIR/src/server/scripts/World/player_special.cpp"; then
+        : # Applied, then intentionally extended by the Perfecting Your Howl patch.
     else
         echo "Patch cannot be applied cleanly: $patch_file" >&2
         exit 1

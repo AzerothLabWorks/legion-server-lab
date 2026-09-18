@@ -1,0 +1,47 @@
+diff --git a/src/server/scripts/World/player_special.cpp b/src/server/scripts/World/player_special.cpp
+index fd3f896..a7b28ac 100644
+--- a/src/server/scripts/World/player_special.cpp
++++ b/src/server/scripts/World/player_special.cpp
+@@ -866,6 +866,34 @@ public:
+     }
+ };
+ 
++class spell_fury_of_the_wolf : public SpellScript
++{
++    PrepareSpellScript(spell_fury_of_the_wolf);
++
++    void HandleDummy(SpellEffIndex /*effIndex*/)
++    {
++        Player* player = GetCaster() ? GetCaster()->ToPlayer() : nullptr;
++        Creature* corpse = GetHitCreature();
++        if (!player || !corpse || corpse->isAlive() ||
++            player->GetQuestStatus(29164) != QUEST_STATUS_INCOMPLETE)
++            return;
++
++        // Spell 97605 already filters its implicit target to the five valid
++        // Firelands invaders. Credit from the spell because dead creatures
++        // do not dispatch their retained SmartAI SpellHit rows in this core.
++        player->KilledMonsterCredit(52819);
++
++        // Consume the used corpse after the howl finishes so repeated casts
++        // cannot complete all ten objectives from one defeated invader.
++        corpse->DespawnOrUnsummon(3500);
++    }
++
++    void Register() override
++    {
++        OnEffectHitTarget += SpellEffectFn(spell_fury_of_the_wolf::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
++    }
++};
++
+ class playerScriptWoDMisc : public PlayerScript
+ {
+ public:
+@@ -1177,6 +1205,7 @@ void AddSC_player_special_scripts()
+     new player_hyjal_protectors_random();
+     new player_through_the_dream();
+     new item_tholos_horn();
++    RegisterSpellScript(spell_fury_of_the_wolf);
+     new playerScriptWoDMisc();
+     new playerScriptDarkmoonMisc();
+     new playerScriptWeeklyQuests();

@@ -128,6 +128,8 @@ install -m 0644 "$repo_root/database/103-restore-between-the-trees-spirits.sql" 
     "$runtime_root/database-init/103-restore-between-the-trees-spirits.sql"
 install -m 0644 "$repo_root/database/104-restore-hamuul-legacy-turnins.sql" \
     "$runtime_root/database-init/104-restore-hamuul-legacy-turnins.sql"
+install -m 0644 "$repo_root/database/105-restore-perfecting-your-howl-credit.sql" \
+    "$runtime_root/database-init/105-restore-perfecting-your-howl-credit.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \

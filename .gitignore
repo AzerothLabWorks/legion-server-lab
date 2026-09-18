@@ -61,6 +61,7 @@ database/*
 !database/102-restore-prepping-the-soil-flameward.sql
 !database/103-restore-between-the-trees-spirits.sql
 !database/104-restore-hamuul-legacy-turnins.sql
+!database/105-restore-perfecting-your-howl-credit.sql
 
 # WoW clients, repacks, archives, and executables
 client/

@@ -139,6 +139,17 @@ opens its incomplete Mark of the World Tree exchange directly and can hide
 valid turn-ins. The migration mirrors the older copy's quest-ending relations
 onto the later Hamuul so the normal quest-choice menu remains available.
 
+**Perfecting Your Howl** corpse credit is repaired by
+`0037-restore-perfecting-your-howl-spell.patch` and
+`database/105-restore-perfecting-your-howl-credit.sql`. Fang of the Wolf spell
+97605 retains the correct corpse filters, but dead creatures do not dispatch
+the imported SpellHit SmartAI credit action. Its five corpse filters were also
+placed in one impossible AND group instead of alternative groups, and omitted
+Charbringers inside the displayed objective area. The core handler grants
+objective 52819 from the spell's dummy effect and consumes the used corpse
+after the howl to prevent repeated credit. The migration repairs the condition
+groups, registers that handler, and removes the inert creature-side path.
+
 **Flames from Above** is restored by
 `0036-restore-flames-from-above-horn.patch` and
 `database/98-restore-flames-from-above-camp.sql`. Quest 25574, Tholo's Horn
