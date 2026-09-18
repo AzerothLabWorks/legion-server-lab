@@ -131,6 +131,14 @@ gameplay on 2026-09-12. A Blaithe already alive across the configuration reload
 did not drop the item; a fresh whistle summon did, confirming that newly
 generated loot uses the repaired row.
 
+Archdruid Hamuul Runetotem's Sanctuary turn-ins are repaired by
+`database/104-restore-hamuul-legacy-turnins.sql`. The sanctuary retains both
+the leveling Hamuul (39858) and the later Molten Front Hamuul (52838), but only
+the older copy accepts completed Mount Hyjal quests. The later copy therefore
+opens its incomplete Mark of the World Tree exchange directly and can hide
+valid turn-ins. The migration mirrors the older copy's quest-ending relations
+onto the later Hamuul so the normal quest-choice menu remains available.
+
 **Flames from Above** is restored by
 `0036-restore-flames-from-above-horn.patch` and
 `database/98-restore-flames-from-above-camp.sql`. Quest 25574, Tholo's Horn

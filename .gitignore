@@ -60,6 +60,7 @@ database/*
 !database/101-restore-blaithe-ancient-feather.sql
 !database/102-restore-prepping-the-soil-flameward.sql
 !database/103-restore-between-the-trees-spirits.sql
+!database/104-restore-hamuul-legacy-turnins.sql
 
 # WoW clients, repacks, archives, and executables
 client/

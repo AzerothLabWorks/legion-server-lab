@@ -174,3 +174,7 @@ docker compose exec -T mysql \
 docker compose exec -T mysql \
     mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
     < "$repo_root/database/103-restore-between-the-trees-spirits.sql"
+
+docker compose exec -T mysql \
+    mysql -uroot -p"$LEGION_DB_ROOT_PASSWORD" \
+    < "$repo_root/database/104-restore-hamuul-legacy-turnins.sql"
