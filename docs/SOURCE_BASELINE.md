@@ -113,6 +113,24 @@ their existing behavior.
 Stonebloom visibility, interaction, loot, and objective credit were validated
 in gameplay on 2026-09-12.
 
+Blaithe's Ancient Feather drop for **A Prayer and a Wing** is repaired by
+`database/101-restore-blaithe-ancient-feather.sql`. Blaithe 41084, the Enormous
+Bird Call, the Ancient Feather 55210 loot row, and its quest condition are all
+present. The feather row alone was imported with loot mode `0` and legacy
+negative quest-chance encoding, excluding it from this summoned-creature loot
+path. The migration backs up that row, restores loot mode `1`, and uses a
+normal guaranteed chance; the existing quest-active condition keeps the item
+quest-only.
+
+Regression test: with quest 25664 incomplete, use the Enormous Bird Call at a
+Blaithe's Roost, kill Blaithe, and confirm his corpse contains one Ancient
+Feather. Confirm the item does not drop without the quest and that the whistle
+can recover another summon if needed.
+The corrected whistle-created spawn and Ancient Feather drop were validated in
+gameplay on 2026-09-12. A Blaithe already alive across the configuration reload
+did not drop the item; a fresh whistle summon did, confirming that newly
+generated loot uses the repaired row.
+
 **Flames from Above** is restored by
 `0036-restore-flames-from-above-horn.patch` and
 `database/98-restore-flames-from-above-camp.sql`. Quest 25574, Tholo's Horn
@@ -253,6 +271,20 @@ point at the quest giver. The loader now groups coordinates by quest, point
 index, and verified build; rejects cross-build point attachment; and retains
 all shapes from only the newest usable build of each logical POI blob. A
 build-zero coordinate remains available as the narrow legacy fallback.
+
+The Lightning Channel objective marker for both faction versions of
+**Lightning in a Bottle** is repaired by
+`database/100-restore-lightning-channel-quest-pois.sql`. The archive contains
+the correct build-26124 coordinates for Charged Condenser Jar item 52834, but
+stores the newer objective metadata with its display flag cleared. Because the
+build-aware loader correctly prefers that newer row, the devices remain
+lootable while their objective area is absent from the map. The migration
+backs up and restores flag `1` only for quests 25353 and 25355.
+
+Regression test: with either faction version incomplete and no Charged
+Condenser Jar in the inventory, open the Mount Hyjal map and confirm the
+Lightning Channel objective area appears around the devices near 22.9, 31.4.
+Loot a jar and confirm the objective advances normally.
 
 Regression test: while **Wanted! Marez Cowl** (quest 26024), **Wand over Fist**
 (quest 26036), and **Wanted! Otto and Falconcrest** (quest 26079) are incomplete,

@@ -118,6 +118,14 @@ install -m 0644 "$repo_root/database/98-restore-flames-from-above-camp.sql" \
     "$runtime_root/database-init/98-restore-flames-from-above-camp.sql"
 install -m 0644 "$repo_root/database/99-restore-stonebloom-quest-objects.sql" \
     "$runtime_root/database-init/99-restore-stonebloom-quest-objects.sql"
+install -m 0644 "$repo_root/database/100-restore-lightning-channel-quest-pois.sql" \
+    "$runtime_root/database-init/100-restore-lightning-channel-quest-pois.sql"
+install -m 0644 "$repo_root/database/101-restore-blaithe-ancient-feather.sql" \
+    "$runtime_root/database-init/101-restore-blaithe-ancient-feather.sql"
+install -m 0644 "$repo_root/database/102-restore-prepping-the-soil-flameward.sql" \
+    "$runtime_root/database-init/102-restore-prepping-the-soil-flameward.sql"
+install -m 0644 "$repo_root/database/103-restore-between-the-trees-spirits.sql" \
+    "$runtime_root/database-init/103-restore-between-the-trees-spirits.sql"
 
 sed \
     -e "s#^LoginDatabaseInfo.*#LoginDatabaseInfo = \"mysql;3306;legion;$db_password;legion_auth\"#" \
